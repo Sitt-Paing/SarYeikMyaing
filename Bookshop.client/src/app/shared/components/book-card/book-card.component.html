@@ -1,0 +1,64 @@
+<div class="group relative flex flex-col bg-white rounded-2xl border border-slate-200/80 hover:border-brand-300 shadow-sm hover:shadow-xl hover:shadow-brand-500/10 transition-all duration-300 overflow-hidden h-full">
+  <!-- Image Container -->
+  <div class="relative aspect-[3/4] w-full overflow-hidden bg-slate-100 cursor-pointer" [routerLink]="['/books', book().id]">
+    @if (book().imageUrl) {
+      <img
+        [src]="book().imageUrl"
+        [alt]="book().title"
+        class="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+        loading="lazy"
+      />
+    } @else {
+      <div class="h-full w-full flex items-center justify-center bg-slate-100 text-slate-400">
+        <i class="pi pi-book text-4xl"></i>
+      </div>
+    }
+
+    <!-- Quick View button on hover -->
+    <div class="absolute inset-x-3 bottom-3 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 hidden sm:block">
+      <span class="w-full py-2 bg-white/95 backdrop-blur text-slate-800 font-semibold text-xs rounded-lg shadow-md flex items-center justify-center gap-1.5 hover:bg-brand-500 hover:text-white transition-colors">
+        <i class="pi pi-eye text-xs"></i> View Details
+      </span>
+    </div>
+  </div>
+
+  <!-- Book Info Body -->
+  <div class="flex flex-1 flex-col p-4 justify-between">
+    <div>
+      <!-- Title -->
+      <h3 class="text-sm sm:text-base font-bold text-slate-900 line-clamp-2 hover:text-brand-600 transition-colors leading-snug cursor-pointer mb-1" [routerLink]="['/books', book().id]">
+        {{ book().title }}
+      </h3>
+
+      <!-- Publisher / ISBN -->
+      <p class="text-xs text-slate-500 line-clamp-1 mb-2 font-medium">
+        {{ book().publisher || ('ISBN: ' + (book().isbn || 'N/A')) }}
+      </p>
+    </div>
+
+    <!-- Price & Add To Cart Button -->
+    <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 mt-auto">
+      <div class="flex flex-col">
+        <span class="text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+          {{ book().price | mmkCurrency }}
+        </span>
+        @if (book().originalPrice && book().originalPrice! > book().price) {
+          <span class="text-xs text-slate-400 line-through">
+            {{ book().originalPrice | mmkCurrency }}
+          </span>
+        }
+      </div>
+
+      <button
+        (click)="onAddToCart($event)"
+        [disabled]="book().stockQuantity <= 0"
+        [class]="book().stockQuantity <= 0 ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white active:scale-95 shadow-sm'"
+        class="px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-1.5 shrink-0"
+        title="Add to Cart"
+      >
+        <i class="pi pi-shopping-cart text-sm"></i>
+        <span class="hidden xs:inline">Add</span>
+      </button>
+    </div>
+  </div>
+</div>

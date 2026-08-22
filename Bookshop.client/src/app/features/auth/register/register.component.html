@@ -1,0 +1,109 @@
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 sm:p-10 space-y-6">
+    <!-- Logo & Header -->
+    <div class="text-center space-y-2">
+      <div class="flex justify-center mb-2">
+        <app-logo [size]="'lg'"></app-logo>
+      </div>
+      <h2 class="text-2xl font-extrabold text-slate-900">အကောင့် အသစ်ဖွင့်ပါ</h2>
+      <p class="text-xs text-slate-500">Create an account to order books</p>
+    </div>
+
+    <!-- Register Form -->
+    <form (submit)="onRegister($event)" class="space-y-4">
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">အမည် (Username) *</label>
+        <div class="relative">
+          <input
+            type="text"
+            [(ngModel)]="registerData.userName"
+            name="userName"
+            required
+            placeholder="Username"
+            class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-user absolute left-3 top-3 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">အီးမေးလ် (Email Address) *</label>
+        <div class="relative">
+          <input
+            type="email"
+            [(ngModel)]="registerData.email"
+            name="email"
+            required
+            placeholder="youremail@gmail.com"
+            class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-envelope absolute left-3 top-3 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">ဖုန်းနံပါတ် (Phone Number)</label>
+        <div class="relative">
+          <input
+            type="tel"
+            [(ngModel)]="registerData.phoneNumber"
+            name="phoneNumber"
+            placeholder="09XXXXXXXXX"
+            class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-phone absolute left-3 top-3 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">စကားဝှက် (Password) *</label>
+        <div class="relative">
+          <input
+            type="password"
+            [(ngModel)]="registerData.password"
+            name="password"
+            required
+            placeholder="••••••••"
+            class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-lock absolute left-3 top-3 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">စကားဝှက် အတည်ပြုပါ (Confirm Password) *</label>
+        <div class="relative">
+          <input
+            type="password"
+            [(ngModel)]="registerData.confirmPassword"
+            name="confirmPassword"
+            required
+            placeholder="••••••••"
+            class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-check-circle absolute left-3 top-3 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="isLoading"
+        class="w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:bg-slate-300"
+      >
+        @if (isLoading) {
+          <i class="pi pi-spin pi-spinner text-sm"></i> Creating Account...
+        } @else {
+          <i class="pi pi-user-plus text-sm"></i> အကောင့်ဖွင့်မည် (Register)
+        }
+      </button>
+    </form>
+
+    <!-- Switch to Login -->
+    <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+      အကောင့် ရှိပြီးသားဖြစ်ပါသလား?
+      <a routerLink="/auth/login" class="text-brand-600 font-bold hover:underline ml-1">
+        အကောင့် ဝင်ရောက်မည် (Sign In)
+      </a>
+    </div>
+  </div>
+</div>

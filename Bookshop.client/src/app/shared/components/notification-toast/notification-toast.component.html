@@ -1,0 +1,30 @@
+<div class="fixed bottom-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm w-full pointer-events-none">
+  @for (toast of notification.toasts(); track toast.id) {
+    <div
+      class="pointer-events-auto flex items-start gap-3 p-4 rounded-xl shadow-xl border backdrop-blur-md transition-all duration-300 transform translate-y-0"
+      [class]="getSeverityClasses(toast.severity)"
+    >
+      <!-- Icon -->
+      <div class="shrink-0 mt-0.5">
+        <i [class]="getIconClass(toast.severity)" class="text-lg"></i>
+      </div>
+
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <h5 class="text-sm font-bold leading-tight">{{ toast.summary }}</h5>
+        @if (toast.detail) {
+          <p class="text-xs mt-1 leading-relaxed opacity-90">{{ toast.detail }}</p>
+        }
+      </div>
+
+      <!-- Dismiss -->
+      <button
+        (click)="notification.remove(toast.id)"
+        class="shrink-0 text-slate-400 hover:text-slate-700 transition-colors p-1"
+        aria-label="Close"
+      >
+        <i class="pi pi-times text-xs"></i>
+      </button>
+    </div>
+  }
+</div>

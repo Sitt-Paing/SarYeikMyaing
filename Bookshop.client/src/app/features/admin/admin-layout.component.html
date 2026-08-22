@@ -1,0 +1,76 @@
+<div class="min-h-screen bg-slate-100 flex flex-col md:flex-row">
+  <!-- Admin Sidebar -->
+  <aside class="w-full md:w-64 bg-obsidian-900 text-slate-300 p-6 flex flex-col justify-between shrink-0 shadow-xl border-r border-obsidian-800">
+    <div class="space-y-8">
+      <!-- Logo -->
+      <div class="pb-6 border-b border-obsidian-800">
+        <app-logo [size]="'sm'"></app-logo>
+        <span class="inline-block mt-2 px-2.5 py-0.5 rounded bg-brand-500/20 text-brand-400 text-[10px] font-bold uppercase tracking-wider">
+          Management Portal
+        </span>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="space-y-1.5">
+        <a
+          routerLink="/admin/dashboard"
+          routerLinkActive="bg-brand-500 text-white font-bold shadow-brand-glow"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold hover:bg-obsidian-800 transition-colors"
+        >
+          <i class="pi pi-chart-bar text-sm"></i> Dashboard Overview
+        </a>
+
+        <a
+          routerLink="/admin/books"
+          routerLinkActive="bg-brand-500 text-white font-bold shadow-brand-glow"
+          class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold hover:bg-obsidian-800 transition-colors"
+        >
+          <i class="pi pi-book text-sm"></i> Books Management
+        </a>
+
+        <a
+          routerLink="/admin/categories"
+          routerLinkActive="bg-brand-500 text-white font-bold shadow-brand-glow"
+          class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold hover:bg-obsidian-800 transition-colors"
+        >
+          <i class="pi pi-tags text-sm"></i> Categories Management
+        </a>
+
+        <a
+          routerLink="/orders"
+          class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold hover:bg-obsidian-800 transition-colors text-slate-400"
+        >
+          <i class="pi pi-shopping-bag text-sm"></i> View Orders
+        </a>
+      </nav>
+    </div>
+
+    <!-- Admin User Footer -->
+    <div class="pt-6 border-t border-obsidian-800 space-y-3">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-xs">
+          {{ authService.currentUser()?.userName?.charAt(0) || 'A' }}
+        </div>
+        <div class="flex-1 min-w-0">
+          <span class="text-xs font-bold text-white block truncate">{{ authService.currentUser()?.userName || 'Administrator' }}</span>
+          <span class="text-[10px] text-brand-400 block font-medium">Administrator Role</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a routerLink="/" class="flex-1 text-center py-2 rounded-lg bg-obsidian-800 hover:bg-slate-800 text-[11px] text-slate-300 font-semibold transition-colors">
+          <i class="pi pi-external-link mr-1"></i> Storefront
+        </a>
+        <button (click)="authService.logout()" class="p-2 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs transition-colors" title="Log Out">
+          <i class="pi pi-sign-out"></i>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Admin Main Body -->
+  <main class="flex-1 p-6 sm:p-10 overflow-y-auto max-w-7xl">
+    <router-outlet></router-outlet>
+  </main>
+</div>

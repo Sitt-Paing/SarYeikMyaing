@@ -1,0 +1,24 @@
+## Ignore Visual Studio / Rider / .NET build outputs
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Visual Studio / Rider cache
+.vs/
+.idea/
+.dotnet/
+*.patch
+*.diff
+
+# Operating System files
+.DS_Store
+Thumbs.db

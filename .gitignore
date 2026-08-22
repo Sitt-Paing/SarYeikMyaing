@@ -1,0 +1,25 @@
+## Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+## .NET Build Outputs
+**/bin/
+**/obj/
+**/App_Data/
+
+## Node & Frontend
+**/node_modules/
+**/dist/
+**/.angular/cache/
+**/.angular/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+## OS generated files
+.DS_Store
+Thumbs.db

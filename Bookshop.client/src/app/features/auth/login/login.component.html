@@ -1,0 +1,72 @@
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 sm:p-10 space-y-6">
+    <!-- Logo & Header -->
+    <div class="text-center space-y-2">
+      <div class="flex justify-center mb-2">
+        <app-logo [size]="'lg'"></app-logo>
+      </div>
+      <h2 class="text-2xl font-extrabold text-slate-900">အကောင့်သို့ ဝင်ရောက်ပါ</h2>
+      <p class="text-xs text-slate-500">Sign in with your registered account</p>
+    </div>
+
+    <!-- Login Form -->
+    <form (submit)="onLogin($event)" class="space-y-4">
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">Username or Email *</label>
+        <div class="relative">
+          <input
+            type="text"
+            [(ngModel)]="loginData.userNameOrEmail"
+            name="userNameOrEmail"
+            required
+            placeholder="Username"
+            class="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-user absolute left-3 top-3 text-slate-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">Password *</label>
+        <div class="relative">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="loginData.password"
+            name="password"
+            required
+            placeholder="••••••••"
+            class="w-full pl-9 pr-10 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-lock absolute left-3 top-3 text-slate-400 text-xs"></i>
+          <button
+            type="button"
+            (click)="showPassword = !showPassword"
+            class="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+          >
+            <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" class="text-xs"></i>
+          </button>
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        [disabled]="isLoading"
+        class="w-full py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:bg-slate-300"
+      >
+        @if (isLoading) {
+          <i class="pi pi-spin pi-spinner text-sm"></i> Signing in...
+        } @else {
+          <i class="pi pi-sign-in text-sm"></i> Sign In
+        }
+      </button>
+    </form>
+
+    <!-- Switch to Register -->
+    <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+      အကောင့် မရှိသေးပါသလား?
+      <a routerLink="/auth/register" class="text-brand-600 font-bold hover:underline ml-1">
+        အကောင့် အသစ်ပြုလုပ်မည် (Register)
+      </a>
+    </div>
+  </div>
+</div>

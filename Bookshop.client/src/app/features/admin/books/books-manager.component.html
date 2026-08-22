@@ -1,0 +1,310 @@
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+        Books Management (စာအုပ်များ စီမံခန့်ခွဲမှု)
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        Upload covers, write descriptions, manage stock, and set pricing directly in the database
+      </p>
+    </div>
+
+    <button
+      (click)="openNewBookDialog()"
+      class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center gap-2"
+    >
+      <i class="pi pi-plus"></i> စာအုပ်အသစ် ထည့်သွင်းမည် (Add Book)
+    </button>
+  </div>
+
+  <!-- PrimeNG Data Table -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden p-4 sm:p-6">
+    <!-- Top Filter Bar -->
+    <div class="mb-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="relative w-full sm:w-80">
+        <input
+          type="text"
+          [(ngModel)]="searchKeyword"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Search by title, ISBN..."
+          class="w-full pl-9 pr-4 py-2 text-xs rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-brand-500 outline-none"
+        />
+        <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+      </div>
+      <span class="text-xs text-slate-500 font-semibold">Total: {{ bookService.totalRecords() }} Books in DB</span>
+    </div>
+
+    <p-table
+      [value]="bookService.books()"
+      [loading]="bookService.isLoading()"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      responsiveLayout="stack"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr class="text-xs text-slate-500 uppercase">
+          <th style="width: 70px">Cover</th>
+          <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
+          <th>Category</th>
+          <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
+          <th pSortableColumn="stockQuantity">Stock <p-sortIcon field="stockQuantity"></p-sortIcon></th>
+          <th>ISBN</th>
+          <th style="width: 110px">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-book>
+        <tr class="hover:bg-slate-50/70 text-xs transition-colors">
+          <td>
+            @if (book.imageUrl) {
+              <img
+                [src]="book.imageUrl"
+                [alt]="book.title"
+                class="w-10 h-14 object-cover rounded-lg shadow-sm border border-slate-100"
+              />
+            } @else {
+              <div class="w-10 h-14 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold border border-slate-200">
+                No Img
+              </div>
+            }
+          </td>
+          <td>
+            <span class="font-bold text-slate-900 block truncate max-w-xs">{{ book.title }}</span>
+            <span class="text-[11px] text-slate-400">Publisher: {{ book.publisher || 'N/A' }}</span>
+          </td>
+          <td>
+            <span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 font-medium text-[11px]">
+              {{ getCategoryName(book.categoryId) }}
+            </span>
+          </td>
+          <td>
+            <span class="font-extrabold text-slate-900">{{ book.price | mmkCurrency }}</span>
+            @if (book.originalPrice && book.originalPrice > book.price) {
+              <span class="text-[10px] text-slate-400 line-through block">{{ book.originalPrice | mmkCurrency }}</span>
+            }
+          </td>
+          <td>
+            <span
+              class="font-bold text-xs"
+              [class]="book.stockQuantity <= 5 ? 'text-rose-600' : 'text-slate-700'"
+            >
+              {{ book.stockQuantity }} units
+            </span>
+          </td>
+          <td>
+            <span class="text-slate-600 font-mono text-xs">{{ book.isbn || '-' }}</span>
+          </td>
+          <td>
+            <div class="flex items-center gap-1">
+              <button
+                (click)="editBook(book)"
+                class="p-1.5 rounded-lg text-brand-600 hover:bg-brand-50 transition-colors"
+                title="Edit Book"
+              >
+                <i class="pi pi-pencil text-xs"></i>
+              </button>
+              <button
+                (click)="deleteBook(book)"
+                class="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors"
+                title="Delete Book"
+              >
+                <i class="pi pi-trash text-xs"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-8 text-slate-400 text-xs">
+            No books found in the database. Click "Add Book" above to create your first book.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Add / Edit Modal Dialog with Image Upload -->
+  <p-dialog
+    [(visible)]="isDialogVisible"
+    [header]="isEditMode ? 'Edit Book Details' : 'Add New Book to Catalog'"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '700px' }"
+    styleClass="p-fluid"
+  >
+    <div class="space-y-4 py-2 text-xs">
+      <!-- Title -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Book Title (စာအုပ်အမည်) *</label>
+        <input
+          type="text"
+          [(ngModel)]="currentBook.title"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+          placeholder="e.g. Clean Architecture & Design"
+        />
+      </div>
+
+      <!-- Category & Author Dropdowns -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Category (ကဏ္ဍ) *</label>
+          <select
+            [(ngModel)]="currentBook.categoryId"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+          >
+            @for (cat of categoryService.categories(); track cat.id) {
+              <option [value]="cat.id">{{ cat.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Author (စာရေးဆရာ) *</label>
+          <select
+            [(ngModel)]="currentBook.authorId"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+          >
+            @for (author of authorService.authors(); track author.id) {
+              <option [value]="author.id">{{ author.name }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <!-- Pricing & Stock -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Sale Price (MMK) *</label>
+          <input
+            type="number"
+            [(ngModel)]="currentBook.price"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+            placeholder="15000"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Original Price (MMK)</label>
+          <input
+            type="number"
+            [(ngModel)]="currentBook.originalPrice"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+            placeholder="18000"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Stock Quantity *</label>
+          <input
+            type="number"
+            [(ngModel)]="currentBook.stockQuantity"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+            placeholder="25"
+          />
+        </div>
+      </div>
+
+      <!-- Image Upload Section -->
+      <div class="space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+        <label class="font-bold text-slate-700 block">Book Cover Image (စာအုပ်မျက်နှာဖုံးပုံ)</label>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <!-- Preview Box -->
+          <div class="w-20 h-28 rounded-xl border border-slate-300 bg-white overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
+            @if (currentBook.imageUrl) {
+              <img [src]="currentBook.imageUrl" alt="Preview" class="w-full h-full object-cover" />
+            } @else {
+              <i class="pi pi-image text-2xl text-slate-300"></i>
+            }
+          </div>
+
+          <div class="flex-1 w-full space-y-2">
+            <!-- File Input -->
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onImageFileSelected($event)"
+              class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100 cursor-pointer"
+            />
+            <!-- URL Direct Paste -->
+            <input
+              type="text"
+              [(ngModel)]="currentBook.imageUrl"
+              placeholder="Or paste image URL (https://...)"
+              class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs outline-none focus:border-brand-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Metadata: ISBN, Publisher, Language, Pages -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">ISBN *</label>
+          <input
+            type="text"
+            [(ngModel)]="currentBook.isbn"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+            placeholder="978-0132350884"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Publisher (ထုတ်ဝေသူ)</label>
+          <input
+            type="text"
+            [(ngModel)]="currentBook.publisher"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+            placeholder="e.g. Pearson"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Language</label>
+          <input
+            type="text"
+            [(ngModel)]="currentBook.language"
+            class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+            placeholder="Burmese / English"
+          />
+        </div>
+      </div>
+
+      <!-- Book Description -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Book Description (စာအုပ် အကျဉ်းချုပ်နှင့် အညွှန်း)</label>
+        <textarea
+          [(ngModel)]="currentBook.description"
+          rows="4"
+          class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs outline-none focus:border-brand-500"
+          placeholder="စာအုပ်အကြောင်း အသေးစိတ် ဖော်ပြချက် ရေးသားပါ..."
+        ></textarea>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="flex justify-end gap-2 pt-2">
+        <button
+          (click)="isDialogVisible = false"
+          class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50"
+        >
+          Cancel
+        </button>
+        <button
+          (click)="saveBook()"
+          [disabled]="isSaving"
+          class="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-brand-glow disabled:bg-slate-300"
+        >
+          @if (isSaving) {
+            <i class="pi pi-spin pi-spinner mr-1"></i> Saving...
+          } @else {
+            Save Book
+          }
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+</div>

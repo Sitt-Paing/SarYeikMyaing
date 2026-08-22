@@ -1,0 +1,5 @@
+<Solution>
+  <Folder Name="/Bookshop.server/">
+    <Project Path="Bookshop.server/Bookshop.csproj" />
+  </Folder>
+</Solution>
