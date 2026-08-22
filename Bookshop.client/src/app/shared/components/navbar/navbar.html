@@ -1,0 +1,258 @@
+<!-- Top Announcement Bar -->
+<div class="bg-obsidian-900 text-slate-300 text-xs py-2 px-4 border-b border-obsidian-800">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold text-[11px]">
+        <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
+        မြန်မာပြည်အနှံ့ မြို့ပေါင်း ၅၀၀ ကျော် အိမ်အရောက်ပို့ဆောင်မှု
+      </span>
+      <span class="hidden sm:inline text-slate-400 text-[11px]">
+        | စာအုပ်အစစ်အမှန် ၁၀၀% အာမခံချက်
+      </span>
+    </div>
+    <div class="flex items-center gap-4 text-[11px] text-slate-400">
+      <span class="hidden md:inline"><i class="pi pi-phone text-brand-400 mr-1"></i> Hotline: 09-798123456</span>
+      <a routerLink="/admin" class="hover:text-brand-400 transition-colors font-medium">Admin Portal</a>
+    </div>
+  </div>
+</div>
+
+<!-- Main Navigation Header -->
+<header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm transition-all duration-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-20 gap-4">
+      <!-- Logo -->
+      <app-logo [size]="'md'"></app-logo>
+
+      <!-- Search Bar with Instant Suggestions (Desktop) -->
+      <div class="hidden lg:flex flex-1 max-w-md mx-4">
+        <form (submit)="onSearch($event)" class="relative w-full">
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            name="search"
+            placeholder="စာအုပ်အမည်၊ စာရေးဆရာ၊ ISBN ဖြင့် ရှာဖွေပါ..."
+            class="w-full pl-10 pr-24 py-2.5 rounded-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-xs sm:text-sm transition-all outline-none"
+          />
+          <i class="pi pi-search absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
+          <button
+            type="submit"
+            class="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-full bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1"
+          >
+            ရှာမည်
+          </button>
+        </form>
+      </div>
+
+      <!-- Desktop Navigation Links & Dropdowns -->
+      <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+        <a
+          routerLink="/"
+          routerLinkActive="text-brand-600 bg-brand-50 font-bold"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors"
+        >
+          ပင်မ (Home)
+        </a>
+
+        <!-- Categories Dropdown Menu -->
+        <div class="relative group">
+          <button
+            class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors flex items-center gap-1"
+          >
+            <span>စာအုပ်အမျိုးအစားများ</span>
+            <i class="pi pi-chevron-down text-[10px] text-slate-400 group-hover:rotate-180 transition-transform"></i>
+          </button>
+
+          <!-- Dropdown Mega Menu -->
+          <div class="absolute left-0 mt-1 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 hidden group-hover:block transition-all z-50">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">
+              Categories
+            </div>
+            @for (cat of categories; track cat.id) {
+              <a
+                [routerLink]="['/books']"
+                [queryParams]="{ categoryId: cat.id }"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-brand-50 hover:text-brand-600 transition-colors"
+              >
+                <i [class]="'pi ' + (cat.icon || 'pi-bookmark') + ' text-brand-500 text-xs'"></i>
+                <span class="truncate">{{ cat.name }}</span>
+              </a>
+            }
+            @if (categories.length === 0) {
+              <span class="block px-3 py-2 text-xs text-slate-400">No categories loaded</span>
+            }
+            <div class="pt-2 mt-1 border-t border-slate-100">
+              <a routerLink="/books" class="block text-center py-1.5 text-xs font-bold text-brand-600 hover:underline">
+                စာအုပ်အားလုံး ကြည့်ရှုမည် (View All)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <a
+          routerLink="/books"
+          routerLinkActive="text-brand-600 bg-brand-50 font-bold"
+          class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors"
+        >
+          စာအုပ်များ (Shop)
+        </a>
+
+        <a
+          routerLink="/orders"
+          routerLinkActive="text-brand-600 bg-brand-50 font-bold"
+          class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors"
+        >
+          မှာယူမှု မှတ်တမ်း
+        </a>
+
+        @if (authService.isAdmin()) {
+          <a
+            routerLink="/admin"
+            routerLinkActive="text-brand-600 bg-brand-50 font-bold"
+            class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-amber-600 hover:bg-amber-50 transition-colors flex items-center gap-1"
+          >
+            <i class="pi pi-cog text-xs"></i> Admin
+          </a>
+        }
+      </nav>
+
+      <!-- Right Action Buttons (Cart & User) -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <!-- Cart Button -->
+        <a
+          routerLink="/cart"
+          class="relative p-2.5 rounded-xl text-slate-700 hover:text-brand-600 hover:bg-brand-50 transition-all flex items-center gap-2 group"
+          aria-label="Shopping Cart"
+        >
+          <div class="relative">
+            <i class="pi pi-shopping-bag text-xl"></i>
+            @if (cartService.itemCount() > 0) {
+              <span class="absolute -top-2 -right-2 bg-brand-500 text-white text-[11px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center shadow-md animate-bounce">
+                {{ cartService.itemCount() }}
+              </span>
+            }
+          </div>
+          <div class="hidden xl:flex flex-col text-left">
+            <span class="text-[10px] uppercase font-semibold text-slate-400 leading-none">ခြင်းတောင်း</span>
+            <span class="text-xs font-bold text-slate-800 leading-tight">{{ cartService.subtotal() | mmkCurrency }}</span>
+          </div>
+        </a>
+
+        <!-- Auth Status / Profile Button -->
+        @if (authService.isAuthenticated()) {
+          <div class="relative group">
+            <button class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
+              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                {{ authService.userNameSignal().charAt(0) || 'U' }}
+              </div>
+              <i class="pi pi-chevron-down text-xs text-slate-400"></i>
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 hidden group-hover:block transition-all z-50">
+              <div class="px-3.5 py-2 border-b border-slate-100">
+                <p class="text-xs font-bold text-slate-900 truncate">{{ authService.userNameSignal() }}</p>
+                <p class="text-[11px] text-slate-500 truncate">{{ authService.userNameSignal() }}</p>
+              </div>
+              @if (authService.isAdmin()) {
+                <a routerLink="/admin" class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-600">
+                  <i class="pi pi-th-large text-brand-500"></i> Admin Panel
+                </a>
+              }
+              <a routerLink="/orders" class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-600">
+                <i class="pi pi-box text-slate-400"></i> My Orders
+              </a>
+              <button (click)="authService.logout()" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 text-left">
+                <i class="pi pi-sign-out"></i> Log Out
+              </button>
+            </div>
+          </div>
+        } @else {
+          <div class="flex items-center gap-1.5">
+            <a
+              routerLink="/auth/login"
+              class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100 transition-colors"
+            >
+              အကောင့်ဝင်ရန်
+            </a>
+            <a
+              routerLink="/auth/register"
+              class="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow transition-all"
+            >
+              အကောင့်ဖွင့်ရန်
+            </a>
+          </div>
+        }
+
+        <!-- Mobile Hamburger Toggle -->
+        <button
+          (click)="isMobileMenuOpen.set(!isMobileMenuOpen())"
+          class="md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 transition-colors"
+          aria-label="Open Mobile Menu"
+        >
+          <i [class]="isMobileMenuOpen() ? 'pi pi-times' : 'pi pi-bars'" class="text-xl"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu Drawer -->
+  @if (isMobileMenuOpen()) {
+    <div class="md:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-6 space-y-2 shadow-2xl">
+      <form (submit)="onSearch($event)" class="relative mb-3">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          name="searchMobile"
+          placeholder="စာအုပ် ရှာဖွေရန်..."
+          class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs outline-none"
+        />
+        <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+      </form>
+
+      <a
+        routerLink="/"
+        (click)="isMobileMenuOpen.set(false)"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
+      >
+        <i class="pi pi-home text-brand-500"></i> ပင်မစာမျက်နှာ (Home)
+      </a>
+      <a
+        routerLink="/books"
+        (click)="isMobileMenuOpen.set(false)"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
+      >
+        <i class="pi pi-book text-brand-500"></i> စာအုပ်များ အားလုံး
+      </a>
+      <a
+        routerLink="/cart"
+        (click)="isMobileMenuOpen.set(false)"
+        class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
+      >
+        <div class="flex items-center gap-3">
+          <i class="pi pi-shopping-cart text-brand-500"></i> ဈေးဝယ်ခြင်း (Cart)
+        </div>
+        @if (cartService.itemCount() > 0) {
+          <span class="bg-brand-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+            {{ cartService.itemCount() }}
+          </span>
+        }
+      </a>
+      <a
+        routerLink="/orders"
+        (click)="isMobileMenuOpen.set(false)"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
+      >
+        <i class="pi pi-box text-brand-500"></i> မှာယူမှု စစ်ဆေးရန်
+      </a>
+      <a
+        routerLink="/admin"
+        (click)="isMobileMenuOpen.set(false)"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-amber-600 hover:bg-amber-50"
+      >
+        <i class="pi pi-cog text-amber-500"></i> Admin Panel
+      </a>
+    </div>
+  }
+</header>

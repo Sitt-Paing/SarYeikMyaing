@@ -1,7 +1,6 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
-import { Book } from '../models/book.model';
-import { CartStateItem } from '../models/cart.model';
-import { NotificationService } from './notification.service';
+import { Injectable, computed, signal } from '@angular/core';
+import { BookModel } from '../models/book.model';
+import { CartItemModel } from '../models/cart.model';
 
 const CART_STORAGE_KEY = 'sar_oat_sin_cart';
 
@@ -9,9 +8,7 @@ const CART_STORAGE_KEY = 'sar_oat_sin_cart';
   providedIn: 'root',
 })
 export class CartService {
-  private readonly notification = inject(NotificationService);
-
-  readonly items = signal<CartStateItem[]>(this.loadCartFromStorage());
+  readonly items = signal<CartItemModel[]>(this.loadCart());
 
   readonly itemCount = computed(() =>
     this.items().reduce((total, item) => total + item.quantity, 0)
@@ -23,32 +20,35 @@ export class CartService {
 
   readonly shippingFee = computed(() => {
     const sub = this.subtotal();
-    if (sub === 0) return 0;
-    if (sub >= 50000) return 0; // Free delivery over 50,000 MMK
-    return 2500; // Standard Yangon / Mandalay flat shipping fee
+    return sub === 0 ? 0 : sub >= 50000 ? 0 : 2500;
   });
 
   readonly grandTotal = computed(() => this.subtotal() + this.shippingFee());
 
-  addToCart(book: Book, quantity: number = 1): void {
-    if (book.stockQuantity <= 0) {
-      this.notification.warn('Out of Stock', `"${book.title}" is currently sold out.`);
-      return;
+  addToCart(book: BookModel, quantity = 1): void {
+    const current = this.items();
+    const existingIndex = current.findIndex((i) => i.book.id === book.id);
+
+    if (existingIndex > -1) {
+      const updated = [...current];
+      const newQty = updated[existingIndex].quantity + quantity;
+      updated[existingIndex] = {
+        ...updated[existingIndex],
+        quantity: Math.min(newQty, book.stockQuantity || 99),
+        totalPrice: updated[existingIndex].unitPrice * Math.min(newQty, book.stockQuantity || 99),
+      };
+      this.items.set(updated);
+    } else {
+      const newItem: CartItemModel = {
+        bookId: book.id,
+        book,
+        quantity: Math.min(quantity, book.stockQuantity || 99),
+        unitPrice: book.price,
+        totalPrice: book.price * Math.min(quantity, book.stockQuantity || 99),
+      };
+      this.items.set([...current, newItem]);
     }
-
-    this.items.update((current) => {
-      const existing = current.find((item) => item.book.id === book.id);
-      if (existing) {
-        const newQty = Math.min(existing.quantity + quantity, book.stockQuantity);
-        return current.map((item) =>
-          item.book.id === book.id ? { ...item, quantity: newQty } : item
-        );
-      }
-      return [...current, { book, quantity: Math.min(quantity, book.stockQuantity) }];
-    });
-
-    this.saveCartToStorage();
-    this.notification.success('Added to Cart', `"${book.title}" was added to your shopping cart.`);
+    this.saveCart();
   }
 
   updateQuantity(bookId: number, quantity: number): void {
@@ -56,45 +56,45 @@ export class CartService {
       this.removeItem(bookId);
       return;
     }
-
-    this.items.update((current) =>
-      current.map((item) => {
-        if (item.book.id === bookId) {
-          const maxStock = item.book.stockQuantity || 999;
-          return { ...item, quantity: Math.min(quantity, maxStock) };
-        }
-        return item;
-      })
-    );
-    this.saveCartToStorage();
+    const current = this.items();
+    const updated = current.map((item) => {
+      if (item.book.id === bookId) {
+        const validQty = Math.min(quantity, item.book.stockQuantity || 99);
+        return {
+          ...item,
+          quantity: validQty,
+          totalPrice: item.unitPrice * validQty,
+        };
+      }
+      return item;
+    });
+    this.items.set(updated);
+    this.saveCart();
   }
 
   removeItem(bookId: number): void {
-    const bookToRemove = this.items().find((item) => item.book.id === bookId);
-    this.items.update((current) => current.filter((item) => item.book.id !== bookId));
-    this.saveCartToStorage();
-    if (bookToRemove) {
-      this.notification.info('Item Removed', `"${bookToRemove.book.title}" was removed from cart.`);
-    }
+    const filtered = this.items().filter((i) => i.book.id !== bookId);
+    this.items.set(filtered);
+    this.saveCart();
   }
 
   clearCart(): void {
     this.items.set([]);
-    this.saveCartToStorage();
+    this.saveCart();
   }
 
-  private saveCartToStorage(): void {
+  private saveCart(): void {
     try {
       localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(this.items()));
-    } catch {
-      // Ignore storage errors
+    } catch (e) {
+      console.error('Failed to save cart to localStorage:', e);
     }
   }
 
-  private loadCartFromStorage(): CartStateItem[] {
+  private loadCart(): CartItemModel[] {
     try {
-      const data = localStorage.getItem(CART_STORAGE_KEY);
-      return data ? JSON.parse(data) : [];
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
     }

@@ -1,10 +1,12 @@
-export interface Category {
+export interface CategoryModel {
   id: number;
   name: string;
-  description?: string | null;
+  slug?: string;
+  description?: string;
   icon?: string;
-  bookCount?: number;
   createdOn?: string;
-  updatedOn?: string | null;
-  deletedOn?: string | null;
+  createdBy?: string;
+  updatedOn?: string;
+  updatedBy?: string;
+  deletedOn?: string;
 }

@@ -1,0 +1,334 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="space-y-6">
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+        Books Management (စာအုပ်များ စီမံခန့်ခွဲမှု)
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        Manage book inventory, upload book covers, set pricing and descriptions
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <p-splitButton
+        label="Actions"
+        icon="pi pi-cog"
+        [model]="items"
+        styleClass="p-button-outlined p-button-sm"
+      ></p-splitButton>
+
+      <button
+        pButton
+        label="Add Book (စာအုပ်အသစ်)"
+        icon="pi pi-plus"
+        (click)="create()"
+        class="p-button-primary p-button-sm font-bold"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Filter & Table Card -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-4 sm:p-6 space-y-4">
+    <!-- Filter Row -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3 w-full sm:w-auto">
+        <p-iconField iconPosition="left" class="w-full sm:w-80">
+          <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+          <input
+            pInputText
+            type="text"
+            (input)="tblBooks.filterGlobal($any($event.target).value, 'contains')"
+            placeholder="Search title, ISBN, publisher..."
+            class="w-full text-xs"
+          />
+        </p-iconField>
+
+        <p-select
+          [options]="categories"
+          [(ngModel)]="selectedCategoryId"
+          (onChange)="onCategoryFilterChange()"
+          optionLabel="name"
+          optionValue="id"
+          placeholder="All Categories"
+          [showClear]="true"
+          styleClass="w-52 text-xs"
+        ></p-select>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          pButton
+          icon="pi pi-refresh"
+          (click)="loadData()"
+          class="p-button-text p-button-rounded p-button-sm"
+          title="Reload"
+        ></button>
+        <button
+          pButton
+          icon="pi pi-file-excel"
+          (click)="excel()"
+          class="p-button-success p-button-outlined p-button-sm"
+          label="Export Excel"
+        ></button>
+      </div>
+    </div>
+
+    <!-- PrimeNG DataTable -->
+    <p-table
+      #tblBooks
+      [value]="filteredBooks"
+      [loading]="isLoading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [(selection)]="selectedBook"
+      selectionMode="single"
+      dataKey="id"
+      [globalFilterFields]="['title', 'isbn', 'publisher', 'language']"
+      responsiveLayout="stack"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr class="text-xs text-slate-500 uppercase">
+          <th style="width: 4rem">Cover</th>
+          <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
+          <th>Category</th>
+          <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
+          <th pSortableColumn="stockQuantity">Stock <p-sortIcon field="stockQuantity"></p-sortIcon></th>
+          <th>ISBN</th>
+          <th>Publisher</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-book>
+        <tr [pSelectableRow]="book" class="hover:bg-slate-50/70 text-xs transition-colors cursor-pointer">
+          <td>
+            @if (book.imageUrl) {
+              <img
+                [src]="book.imageUrl"
+                [alt]="book.title"
+                class="w-10 h-14 object-cover rounded-lg shadow-sm border border-slate-100"
+              />
+            } @else {
+              <div class="w-10 h-14 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold border border-slate-200">
+                Book
+              </div>
+            }
+          </td>
+          <td>
+            <span class="font-bold text-slate-900 block truncate max-w-xs">{{ book.title }}</span>
+            <span class="text-[11px] text-slate-400">Language: {{ book.language || 'Burmese' }}</span>
+          </td>
+          <td>
+            <p-tag [value]="getCategoryName(book.categoryId)" severity="info"></p-tag>
+          </td>
+          <td>
+            <span class="font-extrabold text-slate-900">{{ book.price | mmkCurrency }}</span>
+            @if (book.originalPrice && book.originalPrice > book.price) {
+              <span class="text-[10px] text-slate-400 line-through block">{{ book.originalPrice | mmkCurrency }}</span>
+            }
+          </td>
+          <td>
+            <p-tag
+              [value]="book.stockQuantity + ' in stock'"
+              [severity]="book.stockQuantity <= 5 ? 'danger' : 'success'"
+            ></p-tag>
+          </td>
+          <td>
+            <span class="text-slate-600 font-mono text-xs">{{ book.isbn || '-' }}</span>
+          </td>
+          <td>
+            <span class="text-slate-600 text-xs">{{ book.publisher || '-' }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7" class="text-center p-8 text-slate-400 text-xs">
+            No books found. Click "Add Book" to create a new book.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Create / Edit Dialog with Form -->
+  <p-dialog
+    [(visible)]="modalVisible"
+    [header]="isEdit ? 'Edit Book Details' : 'Add New Book to Catalog'"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '700px' }"
+    styleClass="p-fluid"
+  >
+    <form [formGroup]="bookForm" (ngSubmit)="save()" class="space-y-4 py-2 text-xs">
+      <!-- Title -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Book Title (စာအုပ်အမည်) *</label>
+        <input
+          pInputText
+          type="text"
+          formControlName="title"
+          placeholder="e.g. Clean Architecture"
+          class="w-full text-xs"
+        />
+        @if (bookForm.get('title')?.touched && bookForm.get('title')?.invalid) {
+          <small class="text-rose-500 font-semibold">Title is required.</small>
+        }
+      </div>
+
+      <!-- Category & Author Selects -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Category (ကဏ္ဍ) *</label>
+          <p-select
+            [options]="categories"
+            formControlName="categoryId"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Category"
+            styleClass="w-full text-xs"
+          ></p-select>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Author (စာရေးဆရာ) *</label>
+          <p-select
+            [options]="authors"
+            formControlName="authorId"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select Author"
+            styleClass="w-full text-xs"
+          ></p-select>
+        </div>
+      </div>
+
+      <!-- Pricing & Stock -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Sale Price (MMK) *</label>
+          <input
+            pInputText
+            type="number"
+            formControlName="price"
+            placeholder="15000"
+            class="w-full text-xs"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Original Price (MMK)</label>
+          <input
+            pInputText
+            type="number"
+            formControlName="originalPrice"
+            placeholder="18000"
+            class="w-full text-xs"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Stock Quantity *</label>
+          <input
+            pInputText
+            type="number"
+            formControlName="stockQuantity"
+            placeholder="25"
+            class="w-full text-xs"
+          />
+        </div>
+      </div>
+
+      <!-- Image Upload -->
+      <div class="space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+        <label class="font-bold text-slate-700 block">Book Cover Image (စာအုပ်မျက်နှာဖုံးပုံ)</label>
+        <div class="flex flex-col sm:flex-row items-center gap-4">
+          <div class="w-20 h-28 rounded-xl border border-slate-300 bg-white overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
+            @if (imagePreview) {
+              <img [src]="imagePreview" alt="Preview" class="w-full h-full object-cover" />
+            } @else {
+              <i class="pi pi-image text-2xl text-slate-300"></i>
+            }
+          </div>
+
+          <div class="flex-1 w-full space-y-2">
+            <input
+              type="file"
+              accept="image/*"
+              (change)="onImageSelected($event)"
+              class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100 cursor-pointer"
+            />
+            <input
+              pInputText
+              type="text"
+              formControlName="imageUrl"
+              placeholder="Or paste direct image URL (https://...)"
+              class="w-full text-xs"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- ISBN & Publisher -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">ISBN *</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="isbn"
+            placeholder="978-0132350884"
+            class="w-full text-xs"
+          />
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-slate-700">Publisher</label>
+          <input
+            pInputText
+            type="text"
+            formControlName="publisher"
+            placeholder="e.g. Pearson"
+            class="w-full text-xs"
+          />
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Description (စာအုပ် အညွှန်း)</label>
+        <textarea
+          pInputText
+          rows="4"
+          formControlName="description"
+          placeholder="စာအုပ်အကြောင်း အကျဉ်းချုပ် ရေးသားပါ..."
+          class="w-full text-xs"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+        <button
+          pButton
+          type="button"
+          label="Cancel"
+          icon="pi pi-times"
+          (click)="modalVisible = false"
+          class="p-button-text p-button-sm"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          [label]="isEdit ? 'Update Book' : 'Save Book'"
+          icon="pi pi-check"
+          [loading]="isSubmitting"
+          class="p-button-primary p-button-sm font-bold"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

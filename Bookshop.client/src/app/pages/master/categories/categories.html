@@ -1,0 +1,188 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+        Categories Management (ကဏ္ဍများ စီမံခန့်ခွဲမှု)
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        Organize book classifications, genres, and category codes
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button
+        pButton
+        label="Seed Standard (ကဏ္ဍများ ထည့်သွင်း)"
+        icon="pi pi-download"
+        (click)="seedStandardCategories()"
+        class="p-button-outlined p-button-secondary p-button-sm"
+      ></button>
+
+      <p-splitButton
+        label="Actions"
+        icon="pi pi-cog"
+        [model]="items"
+        styleClass="p-button-outlined p-button-sm"
+      ></p-splitButton>
+
+      <button
+        pButton
+        label="Add Category (ကဏ္ဍအသစ်)"
+        icon="pi pi-plus"
+        (click)="create()"
+        class="p-button-primary p-button-sm font-bold"
+      ></button>
+    </div>
+  </div>
+
+  <!-- Filter & Table Card -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-4 sm:p-6 space-y-4">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p-iconField iconPosition="left" class="w-full sm:w-80">
+        <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+        <input
+          pInputText
+          type="text"
+          (input)="tblCategory.filterGlobal($any($event.target).value, 'contains')"
+          placeholder="Search category name..."
+          class="w-full text-xs"
+        />
+      </p-iconField>
+
+      <div class="flex items-center gap-2">
+        <button
+          pButton
+          icon="pi pi-refresh"
+          (click)="loadData()"
+          class="p-button-text p-button-rounded p-button-sm"
+          title="Reload"
+        ></button>
+        <button
+          pButton
+          icon="pi pi-file-excel"
+          (click)="excel()"
+          class="p-button-success p-button-outlined p-button-sm"
+          label="Export Excel"
+        ></button>
+      </div>
+    </div>
+
+    <!-- PrimeNG DataTable -->
+    <p-table
+      #tblCategory
+      [value]="categories"
+      [loading]="isLoading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [(selection)]="selectedCategory"
+      selectionMode="single"
+      dataKey="id"
+      [globalFilterFields]="['name', 'description']"
+      responsiveLayout="stack"
+      styleClass="p-datatable-sm"
+    >
+      <ng-template pTemplate="header">
+        <tr class="text-xs text-slate-500 uppercase">
+          <th style="width: 4rem">Icon</th>
+          <th pSortableColumn="name">Category Name <p-sortIcon field="name"></p-sortIcon></th>
+          <th>Description</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-cat>
+        <tr [pSelectableRow]="cat" class="hover:bg-slate-50/70 text-xs transition-colors cursor-pointer">
+          <td>
+            <div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center text-sm shadow-sm">
+              <i [class]="'pi ' + (cat.icon || 'pi-tag')"></i>
+            </div>
+          </td>
+          <td>
+            <span class="font-bold text-slate-900">{{ cat.name }}</span>
+          </td>
+          <td>
+            <span class="text-slate-600 text-xs">{{ cat.description || '-' }}</span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="3" class="text-center p-8 text-slate-400 text-xs">
+            No categories found. Click "Add Category" or "Seed Standard" above.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Create / Edit Dialog with Form -->
+  <p-dialog
+    [(visible)]="modalVisible"
+    [header]="isEdit ? 'Edit Category' : 'Add New Category'"
+    [modal]="true"
+    [style]="{ width: '90vw', maxWidth: '500px' }"
+    styleClass="p-fluid"
+  >
+    <form [formGroup]="categoryForm" (ngSubmit)="save()" class="space-y-4 py-2 text-xs">
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Category Name (ကဏ္ဍအမည်) *</label>
+        <input
+          pInputText
+          type="text"
+          formControlName="name"
+          placeholder="e.g. Myanmar Literature"
+          class="w-full text-xs"
+        />
+        @if (categoryForm.get('name')?.touched && categoryForm.get('name')?.invalid) {
+          <small class="text-rose-500 font-semibold">Category name is required.</small>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Icon Name (PrimeIcon)</label>
+        <input
+          pInputText
+          type="text"
+          formControlName="icon"
+          placeholder="pi-bookmark"
+          class="w-full text-xs"
+        />
+      </div>
+
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">Description</label>
+        <textarea
+          pInputText
+          rows="3"
+          formControlName="description"
+          placeholder="Category overview..."
+          class="w-full text-xs"
+        ></textarea>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+        <button
+          pButton
+          type="button"
+          label="Cancel"
+          icon="pi pi-times"
+          (click)="modalVisible = false"
+          class="p-button-text p-button-sm"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          [label]="isEdit ? 'Update Category' : 'Save Category'"
+          icon="pi pi-check"
+          [loading]="isSubmitting"
+          class="p-button-primary p-button-sm font-bold"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+</div>

@@ -1,18 +1,22 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { AuthService } from '../services/auth.service';
-import { NotificationService } from '../services/notification.service';
 
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const notification = inject(NotificationService);
+  const messageService = inject(MessageService);
 
   if (authService.isAuthenticated()) {
     return true;
   }
 
-  notification.warn('Login Required', 'Please log in to access this page.');
+  messageService.add({
+    severity: 'warn',
+    summary: 'Login Required',
+    detail: 'Please log in to access this page.',
+  });
   router.navigate(['/auth/login']);
   return false;
 };
@@ -20,13 +24,17 @@ export const authGuard: CanActivateFn = () => {
 export const adminGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  const notification = inject(NotificationService);
+  const messageService = inject(MessageService);
 
   if (authService.isAuthenticated() && authService.isAdmin()) {
     return true;
   }
 
-  notification.error('Access Denied', 'Administrator privileges required.');
+  messageService.add({
+    severity: 'error',
+    summary: 'Access Denied',
+    detail: 'Administrator privileges required.',
+  });
   router.navigate(['/']);
   return false;
 };

@@ -1,8 +1,12 @@
-export interface Author {
+export interface AuthorModel {
   id: number;
   name: string;
-  bio?: string | null;
-  imageUrl?: string | null;
-  bornDate?: string | null;
+  biography?: string;
+  imageUrl?: string;
+  isActive?: boolean;
   createdOn?: string;
+  createdBy?: string;
+  updatedOn?: string;
+  updatedBy?: string;
+  deletedOn?: string;
 }

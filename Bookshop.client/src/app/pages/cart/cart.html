@@ -1,0 +1,137 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+        ဈေးဝယ်ခြင်း (Shopping Cart)
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        သင်ရွေးချယ်ထားသော စာအုပ် အရေအတွက်: <strong class="text-brand-600">{{ cartService.itemCount() }}</strong> အုပ်
+      </p>
+    </div>
+
+    @if (cartService.items().length > 0) {
+      <button
+        (click)="cartService.clearCart()"
+        class="text-xs font-semibold text-rose-600 hover:text-rose-700 p-2 hover:bg-rose-50 rounded-xl transition-colors flex items-center gap-1"
+      >
+        <i class="pi pi-trash"></i> ရှင်းလင်းမည် (Clear Cart)
+      </button>
+    }
+  </div>
+
+  @if (cartService.items().length > 0) {
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-8 space-y-4">
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm divide-y divide-slate-100 overflow-hidden">
+          @for (item of cartService.items(); track item.book.id) {
+            <div class="p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 hover:bg-slate-50/50 transition-colors">
+              @if (item.book.imageUrl) {
+                <img
+                  [src]="item.book.imageUrl"
+                  [alt]="item.book.title"
+                  class="w-20 h-28 object-cover rounded-xl shadow-sm border border-slate-100 shrink-0"
+                />
+              } @else {
+                <div class="w-20 h-28 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-xs border border-slate-200 shrink-0">
+                  Book
+                </div>
+              }
+
+              <div class="flex-1 min-w-0 text-center sm:text-left">
+                <h3 class="text-sm sm:text-base font-bold text-slate-900 leading-snug truncate">
+                  {{ item.book.title }}
+                </h3>
+                <span class="text-xs font-bold text-slate-700 block mt-1">
+                  {{ item.book.price | mmkCurrency }} / unit
+                </span>
+              </div>
+
+              <div class="flex items-center border border-slate-300 rounded-xl overflow-hidden bg-white shadow-sm shrink-0">
+                <button
+                  (click)="cartService.updateQuantity(item.book.id, item.quantity - 1)"
+                  class="px-3 py-1.5 hover:bg-slate-100 text-slate-700 font-bold text-xs"
+                >
+                  -
+                </button>
+                <span class="px-3 py-1.5 text-xs font-bold text-slate-900 min-w-[2rem] text-center">
+                  {{ item.quantity }}
+                </span>
+                <button
+                  (click)="cartService.updateQuantity(item.book.id, item.quantity + 1)"
+                  class="px-3 py-1.5 hover:bg-slate-100 text-slate-700 font-bold text-xs"
+                >
+                  +
+                </button>
+              </div>
+
+              <div class="text-center sm:text-right shrink-0 min-w-[5.5rem]">
+                <span class="text-sm sm:text-base font-extrabold text-slate-900 block">
+                  {{ item.book.price * item.quantity | mmkCurrency }}
+                </span>
+              </div>
+
+              <button
+                (click)="cartService.removeItem(item.book.id)"
+                class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors shrink-0"
+                title="Remove item"
+              >
+                <i class="pi pi-trash text-sm"></i>
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="pt-2">
+          <a
+            routerLink="/books"
+            class="inline-flex items-center gap-2 text-xs font-bold text-brand-600 hover:text-brand-700"
+          >
+            <i class="pi pi-arrow-left text-xs"></i> စာအုပ်များ ဆက်လက်ရွေးချယ်မည် (Continue Shopping)
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-4 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6 sticky top-28">
+        <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">
+          Order Summary (ကျသင့်ငွေ)
+        </h2>
+
+        <div class="space-y-3 text-xs sm:text-sm border-t border-slate-100 pt-4">
+          <div class="flex items-center justify-between text-slate-600">
+            <span>Subtotal</span>
+            <span class="font-bold text-slate-900">{{ cartService.subtotal() | mmkCurrency }}</span>
+          </div>
+
+          <div class="flex items-center justify-between text-base sm:text-lg font-extrabold text-slate-900 border-t border-slate-200 pt-3">
+            <span>Total Amount</span>
+            <span class="text-brand-600">{{ cartService.grandTotal() | mmkCurrency }}</span>
+          </div>
+        </div>
+
+        <a
+          routerLink="/checkout"
+          class="w-full py-4 rounded-xl font-bold text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 block text-center"
+        >
+          <span>ငွေပေးချေမှုသို့ သွားမည် (Proceed to Checkout)</span>
+          <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+      </div>
+    </div>
+  } @else {
+    <div class="p-16 bg-white rounded-3xl border border-slate-200 text-center space-y-5 max-w-md mx-auto my-12 shadow-sm">
+      <div class="w-20 h-20 rounded-full bg-brand-50 text-brand-500 flex items-center justify-center text-3xl mx-auto shadow-inner">
+        <i class="pi pi-shopping-bag"></i>
+      </div>
+      <h2 class="text-xl font-extrabold text-slate-900">သင့်ခြင်းထဲတွင် စာအုပ် မရှိသေးပါ</h2>
+      <p class="text-xs text-slate-500 leading-relaxed">
+        သင်နှစ်သက်သော စာအုပ်ကောင်းများကို စာအုပ်စင်တွင် စတင်ရွေးချယ်လိုက်ပါ။
+      </p>
+      <a
+        routerLink="/books"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all"
+      >
+        <i class="pi pi-book"></i> စာအုပ်များ ကြည့်ရှုမည်
+      </a>
+    </div>
+  }
+</div>

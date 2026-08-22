@@ -1,61 +1,38 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
-import { ApiResponse } from '../models/api-response.model';
-import { Author } from '../models/author.model';
-import { ApiService } from './api.service';
-import { NotificationService } from './notification.service';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { AuthorModel } from '../models/author.model';
+import { RootModel } from '../models/root.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthorService {
-  private readonly api = inject(ApiService);
-  private readonly notification = inject(NotificationService);
+  private readonly http = inject(HttpClient);
 
-  readonly authors = signal<Author[]>([]);
-  readonly isLoading = signal<boolean>(false);
-
-  loadAuthors(): Observable<Author[]> {
-    this.isLoading.set(true);
-    return this.api.get<Author[]>('Author').pipe(
-      map((res) => {
-        this.isLoading.set(false);
-        if (res?.success && res.data) {
-          this.authors.set(res.data);
-          return res.data;
-        }
-        this.authors.set([]);
-        return [];
-      }),
-      tap({
-        error: (err) => {
-          this.isLoading.set(false);
-          this.authors.set([]);
-          console.error('Failed to load authors:', err);
-        }
-      })
-    );
+  get(): Observable<RootModel> {
+    const url = `${environment.main_url}/Author`;
+    return this.http.get<RootModel>(url);
   }
 
-  getAuthorById(id: number): Author | undefined {
-    return this.authors().find((a) => a.id === id);
+  getById(id: number | string): Observable<RootModel> {
+    const url = `${environment.main_url}/Author/${id}`;
+    return this.http.get<RootModel>(url);
   }
 
-  createAuthor(author: Partial<Author>): Observable<ApiResponse<Author>> {
-    return this.api.post<Author>('Author', author).pipe(
-      tap({
-        next: (res) => {
-          if (res.success) {
-            this.notification.success('Success', 'Author created successfully');
-            this.loadAuthors().subscribe();
-          } else {
-            this.notification.error('Error', res.message || 'Failed to create author');
-          }
-        },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to create author');
-        }
-      })
-    );
+  create(model: Partial<AuthorModel>): Observable<RootModel> {
+    const url = `${environment.main_url}/Author`;
+    return this.http.post<RootModel>(url, model);
+  }
+
+  update(id: number | string, model: Partial<AuthorModel>): Observable<RootModel> {
+    const url = `${environment.main_url}/Author/${id}`;
+    return this.http.put<RootModel>(url, model);
+  }
+
+  delete(id: number | string): Observable<RootModel> {
+    const url = `${environment.main_url}/Author/${id}`;
+    return this.http.delete<RootModel>(url);
   }
 }

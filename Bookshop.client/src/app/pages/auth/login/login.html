@@ -1,0 +1,70 @@
+<p-toast></p-toast>
+
+<div class="min-h-[80vh] flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md bg-white rounded-3xl border border-slate-200/80 shadow-xl p-8 sm:p-10 space-y-6">
+    <div class="text-center space-y-2">
+      <div class="flex justify-center mb-2">
+        <app-logo [size]="'lg'"></app-logo>
+      </div>
+      <h2 class="text-2xl font-extrabold text-slate-900">အကောင့်သို့ ဝင်ရောက်ပါ</h2>
+      <p class="text-xs text-slate-500">Sign in with your registered account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-4">
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">Username or Email *</label>
+        <div class="relative">
+          <input
+            pInputText
+            type="text"
+            formControlName="userNameOrEmail"
+            placeholder="Username"
+            class="w-full text-xs"
+          />
+        </div>
+        @if (loginForm.get('userNameOrEmail')?.touched && loginForm.get('userNameOrEmail')?.invalid) {
+          <small class="text-rose-500 font-semibold">Username or Email is required.</small>
+        }
+      </div>
+
+      <div class="space-y-1">
+        <label class="text-xs font-semibold text-slate-700">Password *</label>
+        <div class="relative">
+          <input
+            pInputText
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="••••••••"
+            class="w-full text-xs pr-10"
+          />
+          <button
+            type="button"
+            (click)="showPassword = !showPassword"
+            class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+          >
+            <i [class]="showPassword ? 'pi pi-eye-slash' : 'pi pi-eye'" class="text-xs"></i>
+          </button>
+        </div>
+        @if (loginForm.get('password')?.touched && loginForm.get('password')?.invalid) {
+          <small class="text-rose-500 font-semibold">Password is required.</small>
+        }
+      </div>
+
+      <button
+        pButton
+        type="submit"
+        label="Sign In (ဝင်ရောက်မည်)"
+        icon="pi pi-sign-in"
+        [loading]="isLoading"
+        class="w-full p-button-primary p-button-sm font-bold"
+      ></button>
+    </form>
+
+    <div class="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
+      အကောင့် မရှိသေးပါသလား?
+      <a routerLink="/auth/register" class="text-brand-600 font-bold hover:underline ml-1">
+        အကောင့် အသစ်ပြုလုပ်မည် (Register)
+      </a>
+    </div>
+  </div>
+</div>

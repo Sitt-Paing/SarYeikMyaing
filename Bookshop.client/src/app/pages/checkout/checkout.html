@@ -1,0 +1,212 @@
+<p-toast></p-toast>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+  @if (completedOrder) {
+    <!-- Order Success State -->
+    <div class="max-w-2xl mx-auto bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-xl text-center space-y-6">
+      <div class="w-20 h-20 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-4xl mx-auto shadow-inner">
+        <i class="pi pi-check"></i>
+      </div>
+
+      <div>
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
+          Order Confirmed (မှာယူမှု အောင်မြင်ပါသည်)
+        </span>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">
+          ကျေးဇူးတင်ရှိပါသည်၊ {{ completedOrder.customerName }}!
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-2">
+          သင်၏ စာအုပ်မှာယူမှု အမှတ်မှာ <strong class="text-brand-600 font-mono">{{ completedOrder.orderNumber || ('#' + completedOrder.id) }}</strong> ဖြစ်ပါသည်။
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs sm:text-sm text-left space-y-2">
+        <div class="flex justify-between text-slate-600">
+          <span>လိပ်စာ:</span>
+          <span class="font-bold text-slate-800 text-right">{{ completedOrder.shippingAddress }}, {{ completedOrder.city }}</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>ငွေပေးချေမှု:</span>
+          <span class="font-bold text-brand-600">{{ completedOrder.paymentMethod }}</span>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>စုစုပေါင်း ကျသင့်ငွေ:</span>
+          <span class="font-extrabold text-slate-900">{{ completedOrder.grandTotal | mmkCurrency }}</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+        <a
+          routerLink="/orders"
+          class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center justify-center gap-2"
+        >
+          <i class="pi pi-box"></i> မှာယူမှု စာရင်း ကြည့်ရှုမည် (View Orders)
+        </a>
+      </div>
+    </div>
+  } @else if (cartService.items().length === 0) {
+    <div class="max-w-md mx-auto p-12 bg-white rounded-3xl border border-slate-200 text-center space-y-4">
+      <i class="pi pi-info-circle text-4xl text-brand-500"></i>
+      <h2 class="text-lg font-bold text-slate-900">သင့်ခြင်းထဲတွင် စာအုပ် မရှိပါ</h2>
+      <p class="text-xs text-slate-500">ငွေပေးချေရန်အတွက် စာအုပ်များကို အရင် ရွေးချယ်ပေးပါ။</p>
+      <a routerLink="/books" class="inline-block px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs">
+        စာအုပ်များ ကြည့်ရှုမည်
+      </a>
+    </div>
+  } @else {
+    <!-- Checkout Form -->
+    <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+          ငွေပေးချေခြင်း (Checkout)
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">
+          ပို့ဆောင်မည့် လိပ်စာနှင့် ငွေပေးချေမှု နည်းလမ်းကို ဖြည့်စွက်ပါ
+        </p>
+      </div>
+    </div>
+
+    <form (submit)="onSubmitOrder($event)" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Shipping Form -->
+      <div class="lg:col-span-7 space-y-6">
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-center gap-2 text-slate-900 font-bold text-sm uppercase tracking-wider pb-2 border-b border-slate-100">
+            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">1</span>
+            <span>ပို့ဆောင်မည့် လိပ်စာ (Shipping Details)</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-700">အမည် (Name) *</label>
+              <input
+                type="text"
+                [(ngModel)]="formData.customerName"
+                name="customerName"
+                required
+                placeholder="e.g. Sitt Paing"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+              />
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-700">ဖုန်းနံပါတ် (Phone Number) *</label>
+              <input
+                type="tel"
+                [(ngModel)]="formData.customerPhone"
+                name="customerPhone"
+                required
+                placeholder="09XXXXXXXXX"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-slate-700">အပြည့်အစုံ လိပ်စာ (Address) *</label>
+            <textarea
+              [(ngModel)]="formData.shippingAddress"
+              name="shippingAddress"
+              required
+              rows="2"
+              placeholder="အိမ်အမှတ်၊ လမ်း၊ မြို့နယ်..."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+            ></textarea>
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-slate-700">မြို့ (City) *</label>
+            <input
+              type="text"
+              [(ngModel)]="formData.city"
+              name="city"
+              required
+              placeholder="Yangon"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Payment Selection -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+          <div class="flex items-center gap-2 text-slate-900 font-bold text-sm uppercase tracking-wider pb-2 border-b border-slate-100">
+            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">2</span>
+            <span>ငွေပေးချေမှု နည်းလမ်း (Payment Method)</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label
+              [class]="formData.paymentMethod === 'KBZPay' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20' : 'border-slate-200'"
+              class="p-4 rounded-xl border flex items-center gap-3 cursor-pointer"
+            >
+              <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="KBZPay" class="accent-brand-500" />
+              <div>
+                <span class="font-bold text-xs text-slate-900 block">KBZPay</span>
+                <span class="text-[11px] text-slate-500">QR / Transfer</span>
+              </div>
+            </label>
+
+            <label
+              [class]="formData.paymentMethod === 'WavePay' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20' : 'border-slate-200'"
+              class="p-4 rounded-xl border flex items-center gap-3 cursor-pointer"
+            >
+              <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="WavePay" class="accent-brand-500" />
+              <div>
+                <span class="font-bold text-xs text-slate-900 block">WavePay</span>
+                <span class="text-[11px] text-slate-500">WaveMoney</span>
+              </div>
+            </label>
+
+            <label
+              [class]="formData.paymentMethod === 'CashOnDelivery' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20' : 'border-slate-200'"
+              class="p-4 rounded-xl border flex items-center gap-3 cursor-pointer"
+            >
+              <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="CashOnDelivery" class="accent-brand-500" />
+              <div>
+                <span class="font-bold text-xs text-slate-900 block">Cash On Delivery</span>
+                <span class="text-[11px] text-slate-500">Pay when delivered</span>
+              </div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Summary -->
+      <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6 sticky top-28">
+        <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">
+          Order Summary
+        </h2>
+
+        <div class="max-h-60 overflow-y-auto space-y-3 pr-1 divide-y divide-slate-100">
+          @for (item of cartService.items(); track item.book.id) {
+            <div class="flex items-center gap-3 pt-2">
+              <div class="flex-1 min-w-0">
+                <h4 class="text-xs font-bold text-slate-800 truncate">{{ item.book.title }}</h4>
+                <span class="text-[11px] text-slate-500">{{ item.quantity }} × {{ item.book.price | mmkCurrency }}</span>
+              </div>
+              <span class="text-xs font-bold text-slate-900">{{ item.book.price * item.quantity | mmkCurrency }}</span>
+            </div>
+          }
+        </div>
+
+        <div class="space-y-2.5 text-xs sm:text-sm border-t border-slate-100 pt-4">
+          <div class="flex items-center justify-between text-base font-extrabold text-slate-900 border-t border-slate-200 pt-3">
+            <span>Total Amount</span>
+            <span class="text-brand-600">{{ cartService.grandTotal() | mmkCurrency }}</span>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          [disabled]="isSubmitting"
+          class="w-full py-4 rounded-xl font-bold text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:bg-slate-300"
+        >
+          @if (isSubmitting) {
+            <i class="pi pi-spin pi-spinner"></i> Processing...
+          } @else {
+            <i class="pi pi-check-circle"></i> မှာယူမှု အတည်ပြုမည် (Place Order)
+          }
+        </button>
+      </div>
+    </form>
+  }
+</div>

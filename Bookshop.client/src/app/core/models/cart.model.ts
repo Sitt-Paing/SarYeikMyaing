@@ -1,24 +1,20 @@
-import { Book } from './book.model';
+import { BookModel } from './book.model';
 
-export interface Cart {
-  id: number;
-  userId?: number | null;
-  createdOn: string;
-  updatedOn?: string | null;
-}
-
-export interface CartItem {
-  id: number;
-  cartId: number;
+export interface CartItemModel {
+  id?: number;
+  cartId?: number;
   bookId: number;
+  book: BookModel;
   quantity: number;
-  price: number;
-  book?: Book;
-  createdOn?: string;
-  deletedOn?: string | null;
+  unitPrice: number;
+  totalPrice?: number;
 }
 
-export interface CartStateItem {
-  book: Book;
-  quantity: number;
+export interface CartModel {
+  id?: number;
+  userId?: string;
+  items: CartItemModel[];
+  subtotal: number;
+  shippingFee: number;
+  grandTotal: number;
 }

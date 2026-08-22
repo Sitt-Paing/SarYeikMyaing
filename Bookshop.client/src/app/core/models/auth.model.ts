@@ -1,30 +1,29 @@
-export interface User {
-  id: string | number;
+export interface UserModel {
+  id: string;
   userName: string;
   email: string;
   phoneNumber?: string;
   roles?: string[];
-  token?: string;
 }
 
-export interface LoginDto {
+export interface LoginModel {
   userNameOrEmail: string;
   password: string;
   rememberMe?: boolean;
 }
 
-export interface RegisterDto {
+export interface RegisterModel {
   userName: string;
   email: string;
   phoneNumber?: string;
   password: string;
   confirmPassword?: string;
-  role?: string; // 'User' | 'Admin' | 'DevAdmin'
+  role?: string;
 }
 
-export interface AuthResponseData {
+export interface TokenModel {
   accessToken: string;
   refreshToken?: string;
-  refreshTokenExpiry?: string;
-  user?: User;
+  expiresIn?: number;
+  user?: UserModel;
 }

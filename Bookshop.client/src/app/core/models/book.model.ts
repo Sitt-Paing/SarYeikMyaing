@@ -1,42 +1,33 @@
-import { Author } from './author.model';
-import { Category } from './category.model';
-
-export interface Book {
+export interface BookModel {
   id: number;
   title: string;
-  authorId?: number | null;
-  author?: Author | null;
-  slug?: string | null;
-  description?: string | null;
-  originalPrice?: number | null;
+  authorId: number;
+  authorName?: string;
+  slug?: string;
+  isbn: string;
+  description?: string;
+  originalPrice: number;
   price: number;
-  categoryId?: number | null;
-  category?: Category | null;
   stockQuantity: number;
-  imageUrl?: string | null;
-  isbn?: string | null;
-  publishedDate?: string | null;
-  pageCount?: number | null;
-  publisher?: string | null;
-  language?: string | null;
+  imageUrl?: string;
+  categoryId: number;
+  categoryName?: string;
+  publishedDate?: string;
+  pageCount?: number;
+  publisher?: string;
+  language?: string;
   createdOn?: string;
-  updatedOn?: string | null;
-  deletedOn?: string | null;
-  // UI helpers
-  rating?: number;
-  ratingCount?: number;
-  badge?: string;
-  isFeatured?: boolean;
+  createdBy?: string;
+  updatedOn?: string;
+  updatedBy?: string;
+  deletedOn?: string;
 }
 
 export interface BookFilterParams {
   skipRows?: number;
   pageSize?: number;
   q?: string;
-  sortField?: string;
-  order?: number; // 1 for asc, -1 for desc
   categoryId?: number;
-  minPrice?: number;
-  maxPrice?: number;
-  inStockOnly?: boolean;
+  sortField?: string;
+  order?: number;
 }

@@ -1,51 +1,41 @@
 import { Routes } from '@angular/router';
-import { adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./features/home/home.component').then((m) => m.HomeComponent),
+    loadComponent: () => import('./pages/home/home').then((m) => m.Home),
   },
   {
     path: 'books',
-    loadComponent: () =>
-      import('./features/shop/shop.component').then((m) => m.ShopComponent),
+    loadComponent: () => import('./pages/shop/shop').then((m) => m.Shop),
   },
   {
     path: 'books/:id',
-    loadComponent: () =>
-      import('./features/book-detail/book-detail.component').then((m) => m.BookDetailComponent),
+    loadComponent: () => import('./pages/book-detail/book-detail').then((m) => m.BookDetail),
   },
   {
     path: 'cart',
-    loadComponent: () =>
-      import('./features/cart/cart.component').then((m) => m.CartComponent),
+    loadComponent: () => import('./pages/cart/cart').then((m) => m.Cart),
   },
   {
     path: 'checkout',
-    loadComponent: () =>
-      import('./features/checkout/checkout.component').then((m) => m.CheckoutComponent),
+    loadComponent: () => import('./pages/checkout/checkout').then((m) => m.Checkout),
   },
   {
     path: 'orders',
-    loadComponent: () =>
-      import('./features/orders/orders.component').then((m) => m.OrdersComponent),
+    loadComponent: () => import('./pages/orders/orders').then((m) => m.Orders),
   },
   {
     path: 'auth/login',
-    loadComponent: () =>
-      import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+    loadComponent: () => import('./pages/auth/login/login').then((m) => m.Login),
   },
   {
     path: 'auth/register',
-    loadComponent: () =>
-      import('./features/auth/register/register.component').then((m) => m.RegisterComponent),
+    loadComponent: () => import('./pages/auth/register/register').then((m) => m.Register),
   },
   {
     path: 'admin',
-    loadComponent: () =>
-      import('./features/admin/admin-layout.component').then((m) => m.AdminLayoutComponent),
+    loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
     children: [
       {
         path: '',
@@ -54,18 +44,15 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        loadComponent: () =>
-          import('./features/admin/dashboard/admin-dashboard.component').then((m) => m.AdminDashboardComponent),
+        loadComponent: () => import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
         path: 'books',
-        loadComponent: () =>
-          import('./features/admin/books/books-manager.component').then((m) => m.BooksManagerComponent),
+        loadComponent: () => import('./pages/master/books/books').then((m) => m.Books),
       },
       {
         path: 'categories',
-        loadComponent: () =>
-          import('./features/admin/categories/categories-manager.component').then((m) => m.CategoriesManagerComponent),
+        loadComponent: () => import('./pages/master/categories/categories').then((m) => m.Categories),
       },
     ],
   },

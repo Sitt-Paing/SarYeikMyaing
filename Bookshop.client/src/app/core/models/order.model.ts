@@ -1,50 +1,45 @@
-import { Book } from './book.model';
+import { BookModel } from './book.model';
 
+export type PaymentMethod = 'KBZPay' | 'WavePay' | 'AYAPay' | 'CashOnDelivery';
 export type OrderStatus = 'Pending' | 'Confirmed' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
-export type PaymentMethod = 'KBZPay' | 'WavePay' | 'AYAPay' | 'CashOnDelivery' | 'CreditCard';
-export type PaymentStatus = 'Pending' | 'Paid' | 'Failed' | 'Refunded';
 
-export interface OrderItem {
+export interface OrderItemModel {
   id?: number;
   orderId?: number;
   bookId: number;
-  book?: Book;
+  book?: BookModel;
   quantity: number;
   unitPrice: number;
-  totalPrice: number;
+  totalPrice?: number;
 }
 
-export interface Order {
+export interface OrderModel {
   id: number;
   orderNumber?: string;
-  userId?: number | null;
+  userId?: string;
   customerName: string;
   customerPhone: string;
-  customerEmail: string;
+  customerEmail?: string;
   shippingAddress: string;
   city: string;
   stateDivision?: string;
-  postalCode?: string;
   orderNotes?: string;
-  totalAmount: number;
+  paymentMethod: PaymentMethod;
+  status: OrderStatus;
+  subtotal: number;
   shippingFee: number;
   grandTotal: number;
-  status: OrderStatus;
-  paymentMethod: PaymentMethod;
-  paymentStatus: PaymentStatus;
-  items: OrderItem[];
-  createdOn: string;
-  updatedOn?: string | null;
+  items: OrderItemModel[];
+  createdOn?: string;
 }
 
-export interface CreateOrderDto {
+export interface CreateOrderModel {
   customerName: string;
   customerPhone: string;
-  customerEmail: string;
+  customerEmail?: string;
   shippingAddress: string;
   city: string;
   stateDivision?: string;
-  postalCode?: string;
   orderNotes?: string;
   paymentMethod: PaymentMethod;
   items: {

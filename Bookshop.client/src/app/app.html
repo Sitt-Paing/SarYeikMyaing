@@ -1,19 +1,15 @@
-<div class="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-brand-500 selection:text-white">
-  <!-- Top Navigation (Storefront) -->
+<p-toast></p-toast>
+
+<div class="min-h-screen flex flex-col bg-slate-50 text-slate-900 font-sans selection:bg-brand-500 selection:text-white">
   @if (!isAdminRoute()) {
     <app-navbar></app-navbar>
   }
 
-  <!-- Main View Area -->
-  <main class="flex-1 flex flex-col">
+  <main class="flex-1">
     <router-outlet></router-outlet>
   </main>
 
-  <!-- Global Footer (Storefront) -->
   @if (!isAdminRoute()) {
     <app-footer></app-footer>
   }
-
-  <!-- Global Notification Toasts -->
-  <app-notification-toast></app-notification-toast>
 </div>

@@ -1,127 +1,57 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
-import { ApiResponse, PaginatedResult } from '../models/api-response.model';
-import { Book, BookFilterParams } from '../models/book.model';
-import { ApiService } from './api.service';
-import { NotificationService } from './notification.service';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { BookFilterParams, BookModel } from '../models/book.model';
+import { RootModel } from '../models/root.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BookService {
-  private readonly api = inject(ApiService);
-  private readonly notification = inject(NotificationService);
+  private readonly http = inject(HttpClient);
 
-  readonly books = signal<Book[]>([]);
-  readonly totalRecords = signal<number>(0);
-  readonly isLoading = signal<boolean>(false);
+  get(params?: BookFilterParams): Observable<RootModel> {
+    let url = `${environment.main_url}/Book`;
+    const queryParts: string[] = [];
 
-  getBooks(params?: BookFilterParams): Observable<{ books: Book[]; total: number }> {
-    this.isLoading.set(true);
-    const queryParams: Record<string, any> = {
-      skipRows: params?.skipRows ?? 0,
-      pageSize: params?.pageSize ?? 20,
-      q: params?.q || undefined,
-      sortField: params?.sortField || undefined,
-      order: params?.order ?? -1,
-    };
+    if (params?.skipRows !== undefined) queryParts.push(`skipRows=${params.skipRows}`);
+    if (params?.pageSize !== undefined) queryParts.push(`pageSize=${params.pageSize}`);
+    if (params?.q) queryParts.push(`q=${encodeURIComponent(params.q)}`);
+    if (params?.categoryId) queryParts.push(`categoryId=${params.categoryId}`);
+    if (params?.sortField) queryParts.push(`sortField=${params.sortField}`);
+    if (params?.order !== undefined) queryParts.push(`order=${params.order}`);
 
-    return this.api.get<PaginatedResult<Book>>('Book', queryParams).pipe(
-      map((res) => {
-        this.isLoading.set(false);
-        if (res?.success && res.data) {
-          const records = res.data.records || [];
-          const total = res.data.recordsTotal ?? records.length;
-          this.books.set(records);
-          this.totalRecords.set(total);
-          return { books: records, total };
-        }
-        this.books.set([]);
-        this.totalRecords.set(0);
-        return { books: [], total: 0 };
-      }),
-      tap({
-        error: (err) => {
-          this.isLoading.set(false);
-          this.books.set([]);
-          this.totalRecords.set(0);
-          console.error('Failed to load books from API:', err);
-        }
-      })
-    );
+    if (queryParts.length > 0) {
+      url += `?${queryParts.join('&')}`;
+    }
+
+    return this.http.get<RootModel>(url);
   }
 
-  getBookById(id: number): Observable<Book | null> {
-    this.isLoading.set(true);
-    return this.api.get<Book | Book[]>(`Book/${id}`).pipe(
-      map((res) => {
-        this.isLoading.set(false);
-        if (res.success && res.data) {
-          const book = Array.isArray(res.data) ? res.data[0] : res.data;
-          return book || null;
-        }
-        return null;
-      }),
-      tap({
-        error: (err) => {
-          this.isLoading.set(false);
-          console.error(`Failed to get book #${id}:`, err);
-        }
-      })
-    );
+  getById(id: string | number): Observable<RootModel> {
+    const url = `${environment.main_url}/Book/${id}`;
+    return this.http.get<RootModel>(url);
   }
 
-  createBook(book: Partial<Book>): Observable<ApiResponse<Book>> {
-    return this.api.post<Book>('Book', book).pipe(
-      tap({
-        next: (res) => {
-          if (res.success) {
-            this.notification.success('Success', 'Book created successfully');
-            this.getBooks().subscribe();
-          } else {
-            this.notification.error('Error', res.message || 'Failed to create book');
-          }
-        },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to create book');
-        }
-      })
-    );
+  create(model: Partial<BookModel>): Observable<RootModel> {
+    const url = `${environment.main_url}/Book`;
+    return this.http.post<RootModel>(url, model);
   }
 
-  updateBook(id: number, book: Partial<Book>): Observable<ApiResponse<Book>> {
-    return this.api.put<Book>(`Book/${id}`, book).pipe(
-      tap({
-        next: (res) => {
-          if (res.success) {
-            this.notification.success('Success', 'Book updated successfully');
-            this.getBooks().subscribe();
-          } else {
-            this.notification.error('Error', res.message || 'Failed to update book');
-          }
-        },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to update book');
-        }
-      })
-    );
+  update(id: number | string, model: Partial<BookModel>): Observable<RootModel> {
+    const url = `${environment.main_url}/Book/${id}`;
+    return this.http.put<RootModel>(url, model);
   }
 
-  deleteBook(id: number): Observable<ApiResponse<any>> {
-    return this.api.delete<any>(`Book/${id}`).pipe(
-      tap({
-        next: (res) => {
-          if (res.success) {
-            this.notification.success('Deleted', 'Book removed successfully');
-            this.getBooks().subscribe();
-          } else {
-            this.notification.error('Error', res.message || 'Failed to delete book');
-          }
-        },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to delete book');
-        }
-      })
-    );
+  delete(id: string | number): Observable<RootModel> {
+    const url = `${environment.main_url}/Book/${id}`;
+    return this.http.delete<RootModel>(url);
+  }
+
+  save(model: Partial<BookModel>): Observable<RootModel> {
+    const id = model.id;
+    const isEdit = id && Number(id) > 0;
+    return isEdit ? this.update(id, model) : this.create(model);
   }
 }

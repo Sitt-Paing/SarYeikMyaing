@@ -1,86 +1,33 @@
-import { Injectable, inject, signal } from '@angular/core';
-import { Observable, map, tap } from 'rxjs';
-import { ApiResponse } from '../models/api-response.model';
-import { CreateOrderDto, Order } from '../models/order.model';
-import { ApiService } from './api.service';
-import { CartService } from './cart.service';
-import { NotificationService } from './notification.service';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import { CreateOrderModel, OrderModel } from '../models/order.model';
+import { RootModel } from '../models/root.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OrderService {
-  private readonly api = inject(ApiService);
-  private readonly cartService = inject(CartService);
-  private readonly notification = inject(NotificationService);
+  private readonly http = inject(HttpClient);
 
-  readonly orders = signal<Order[]>([]);
-  readonly isLoading = signal<boolean>(false);
-
-  createOrder(dto: CreateOrderDto): Observable<Order | null> {
-    this.isLoading.set(true);
-    return this.api.post<Order>('Order', dto).pipe(
-      map((res) => {
-        this.isLoading.set(false);
-        if (res?.success && res.data) {
-          this.orders.update((list) => [res.data, ...list]);
-          this.cartService.clearCart();
-          this.notification.success('Order Placed!', `Your order #${res.data.orderNumber || res.data.id} is confirmed.`);
-          return res.data;
-        }
-        this.notification.error('Order Failed', res?.message || 'Could not place order');
-        return null;
-      }),
-      tap({
-        error: (err) => {
-          this.isLoading.set(false);
-          this.notification.error('Order Failed', err.error?.message || 'Error communicating with server');
-        }
-      })
-    );
+  get(): Observable<RootModel> {
+    const url = `${environment.main_url}/Order`;
+    return this.http.get<RootModel>(url);
   }
 
-  getOrders(): Observable<Order[]> {
-    this.isLoading.set(true);
-    return this.api.get<Order[]>('Order').pipe(
-      map((res) => {
-        this.isLoading.set(false);
-        if (res?.success && res.data) {
-          this.orders.set(res.data);
-          return res.data;
-        }
-        this.orders.set([]);
-        return [];
-      }),
-      tap({
-        error: (err) => {
-          this.isLoading.set(false);
-          this.orders.set([]);
-          console.error('Failed to load orders:', err);
-        }
-      })
-    );
+  getById(id: number | string): Observable<RootModel> {
+    const url = `${environment.main_url}/Order/${id}`;
+    return this.http.get<RootModel>(url);
   }
 
-  getOrderById(id: number): Observable<Order | null> {
-    return this.api.get<Order>(`Order/${id}`).pipe(
-      map((res) => (res.success && res.data ? res.data : null))
-    );
+  create(model: CreateOrderModel): Observable<RootModel> {
+    const url = `${environment.main_url}/Order`;
+    return this.http.post<RootModel>(url, model);
   }
 
-  updateOrderStatus(orderId: number, status: string): Observable<ApiResponse<any>> {
-    return this.api.put<any>(`Order/${orderId}/status`, { status }).pipe(
-      tap({
-        next: (res) => {
-          if (res.success) {
-            this.notification.success('Status Updated', `Order status changed to ${status}`);
-            this.getOrders().subscribe();
-          }
-        },
-        error: (err) => {
-          this.notification.error('Error', err.error?.message || 'Failed to update order status');
-        }
-      })
-    );
+  updateStatus(id: number | string, status: string): Observable<RootModel> {
+    const url = `${environment.main_url}/Order/${id}/status`;
+    return this.http.put<RootModel>(url, { status });
   }
 }
