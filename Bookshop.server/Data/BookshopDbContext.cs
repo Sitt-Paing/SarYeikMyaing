@@ -1,64 +1,31 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Bookshop.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.Data;
 
-public partial class BookshopDbContext : DbContext
+public partial class BookshopDbContext : IdentityDbContext<IdentityUser>
 {
     public BookshopDbContext(DbContextOptions<BookshopDbContext> options)
         : base(options)
     {
     }
 
-    public virtual DbSet<AspNetRole> AspNetRoles { get; set; }
-
-    public virtual DbSet<AspNetRoleClaim> AspNetRoleClaims { get; set; }
-
-    public virtual DbSet<AspNetUser> AspNetUsers { get; set; }
-
-    public virtual DbSet<AspNetUserClaim> AspNetUserClaims { get; set; }
-
-    public virtual DbSet<AspNetUserLogin> AspNetUserLogins { get; set; }
-
-    public virtual DbSet<AspNetUserRole> AspNetUserRoles { get; set; }
-
-    public virtual DbSet<AspNetUserToken> AspNetUserTokens { get; set; }
-
     public virtual DbSet<Author> Authors { get; set; }
-
     public virtual DbSet<Book> Books { get; set; }
-
     public virtual DbSet<Cart> Carts { get; set; }
-
     public virtual DbSet<CartItem> CartItems { get; set; }
-
     public virtual DbSet<Category> Categories { get; set; }
-
     public virtual DbSet<Order> Orders { get; set; }
-
     public virtual DbSet<OrderItem> OrderItems { get; set; }
-
     public virtual DbSet<Payment> Payments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<AspNetRole>(entity =>
-        {
-            entity.HasIndex(e => e.NormalizedName, "RoleNameIndex")
-                .IsUnique()
-                .HasFilter("([NormalizedName] IS NOT NULL)");
-        });
-
-        modelBuilder.Entity<AspNetUser>(entity =>
-        {
-            entity.HasIndex(e => e.NormalizedUserName, "UserNameIndex")
-                .IsUnique()
-                .HasFilter("([NormalizedUserName] IS NOT NULL)");
-
-            entity.Property(e => e.Id).ValueGeneratedNever();
-        });
+        base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<Author>(entity =>
         {
@@ -78,7 +45,7 @@ public partial class BookshopDbContext : DbContext
         {
             entity.Property(e => e.Id).ValueGeneratedNever();
 
-            entity.HasOne(d => d.User).WithMany(p => p.Carts).HasConstraintName("FK_Cart_AspNetUsers");
+            entity.HasOne(d => d.User).WithMany().HasForeignKey(d => d.UserId).HasConstraintName("FK_Cart_AspNetUsers");
         });
 
         modelBuilder.Entity<CartItem>(entity =>
@@ -99,7 +66,7 @@ public partial class BookshopDbContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasOne(d => d.User).WithMany(p => p.Orders).HasConstraintName("FK_Order_AspNetUsers");
+            entity.HasOne(d => d.User).WithMany().HasForeignKey(d => d.UserId).HasConstraintName("FK_Order_AspNetUsers");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
