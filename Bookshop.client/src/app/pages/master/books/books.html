@@ -5,29 +5,23 @@
   <!-- Header Section -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-        Books Management (စာအုပ်များ စီမံခန့်ခွဲမှု)
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        {{ 'BOOKS.TITLE' | translate }}
       </h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        Manage book inventory, upload book covers, set pricing and descriptions
+        {{ 'BOOKS.SUBTITLE' | translate }}
       </p>
     </div>
 
+    <!-- Single SplitButton Action -->
     <div class="flex items-center gap-2">
       <p-splitButton
-        label="Actions"
-        icon="pi pi-cog"
-        [model]="items"
-        styleClass="p-button-outlined p-button-sm"
-      ></p-splitButton>
-
-      <button
-        pButton
-        label="Add Book (စာအုပ်အသစ်)"
+        [label]="'COMMON.ADD_NEW' | translate"
         icon="pi pi-plus"
-        (click)="create()"
-        class="p-button-primary p-button-sm font-bold"
-      ></button>
+        (onClick)="create()"
+        [model]="items"
+        styleClass="p-button-primary p-button-sm shadow-sm font-semibold"
+      ></p-splitButton>
     </div>
   </div>
 
@@ -37,13 +31,13 @@
     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3 w-full sm:w-auto">
         <p-iconField iconPosition="left" class="w-full sm:w-80">
-          <p-inputIcon styleClass="pi pi-search"></p-inputIcon>
+          <p-inputIcon styleClass="pi pi-search text-slate-400"></p-inputIcon>
           <input
             pInputText
             type="text"
             (input)="tblBooks.filterGlobal($any($event.target).value, 'contains')"
-            placeholder="Search title, ISBN, publisher..."
-            class="w-full text-xs"
+            [placeholder]="'BOOKS.SEARCH_PLACEHOLDER' | translate"
+            class="w-full text-xs rounded-xl border-slate-200 focus:border-brand-500"
           />
         </p-iconField>
 
@@ -53,7 +47,7 @@
           (onChange)="onCategoryFilterChange()"
           optionLabel="name"
           optionValue="id"
-          placeholder="All Categories"
+          [placeholder]="'BOOKS.ALL_CATEGORIES' | translate"
           [showClear]="true"
           styleClass="w-52 text-xs"
         ></p-select>
@@ -64,15 +58,15 @@
           pButton
           icon="pi pi-refresh"
           (click)="loadData()"
-          class="p-button-text p-button-rounded p-button-sm"
-          title="Reload"
+          class="p-button-text p-button-rounded p-button-sm text-slate-600 hover:text-slate-900"
+          [title]="'COMMON.RELOAD' | translate"
         ></button>
         <button
           pButton
           icon="pi pi-file-excel"
           (click)="excel()"
           class="p-button-success p-button-outlined p-button-sm"
-          label="Export Excel"
+          [label]="'COMMON.EXCEL' | translate"
         ></button>
       </div>
     </div>
@@ -91,21 +85,23 @@
       [globalFilterFields]="['title', 'isbn', 'publisher', 'language']"
       responsiveLayout="stack"
       styleClass="p-datatable-sm"
+      [showCurrentPageReport]="true"
+      [currentPageReportTemplate]="'COMMON.SHOWING_ENTRIES' | translate"
     >
       <ng-template pTemplate="header">
-        <tr class="text-xs text-slate-500 uppercase">
-          <th style="width: 4rem">Cover</th>
-          <th pSortableColumn="title">Title <p-sortIcon field="title"></p-sortIcon></th>
-          <th>Category</th>
-          <th pSortableColumn="price">Price <p-sortIcon field="price"></p-sortIcon></th>
-          <th pSortableColumn="stockQuantity">Stock <p-sortIcon field="stockQuantity"></p-sortIcon></th>
-          <th>ISBN</th>
-          <th>Publisher</th>
+        <tr class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/70 border-b border-slate-200">
+          <th style="width: 4rem">{{ 'BOOKS.COVER' | translate }}</th>
+          <th pSortableColumn="title">{{ 'BOOKS.BOOK_TITLE' | translate }} <p-sortIcon field="title"></p-sortIcon></th>
+          <th>{{ 'BOOKS.CATEGORY' | translate }}</th>
+          <th pSortableColumn="price">{{ 'BOOKS.PRICE' | translate }} <p-sortIcon field="price"></p-sortIcon></th>
+          <th pSortableColumn="stockQuantity">{{ 'BOOKS.STOCK' | translate }} <p-sortIcon field="stockQuantity"></p-sortIcon></th>
+          <th>{{ 'BOOKS.ISBN' | translate }}</th>
+          <th>{{ 'BOOKS.PUBLISHER' | translate }}</th>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="body" let-book>
-        <tr [pSelectableRow]="book" class="hover:bg-slate-50/70 text-xs transition-colors cursor-pointer">
+        <tr [pSelectableRow]="book" class="hover:bg-slate-50/80 text-xs transition-colors duration-150 cursor-pointer border-b border-slate-100">
           <td>
             @if (book.imageUrl) {
               <img
@@ -115,13 +111,13 @@
               />
             } @else {
               <div class="w-10 h-14 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-bold border border-slate-200">
-                Book
+                <i class="pi pi-book"></i>
               </div>
             }
           </td>
           <td>
             <span class="font-bold text-slate-900 block truncate max-w-xs">{{ book.title }}</span>
-            <span class="text-[11px] text-slate-400">Language: {{ book.language || 'Burmese' }}</span>
+            <span class="text-[11px] text-slate-400">{{ book.language || 'English' }}</span>
           </td>
           <td>
             <p-tag [value]="getCategoryName(book.categoryId)" severity="info"></p-tag>
@@ -149,8 +145,11 @@
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="text-center p-8 text-slate-400 text-xs">
-            No books found. Click "Add Book" to create a new book.
+          <td colspan="7" class="text-center py-12 text-slate-400 text-xs">
+            <div class="flex flex-col items-center justify-center space-y-2">
+              <i class="pi pi-inbox text-3xl text-slate-300"></i>
+              <span>{{ 'BOOKS.NO_BOOKS' | translate }}</span>
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -160,31 +159,34 @@
   <!-- Create / Edit Dialog with Form -->
   <p-dialog
     [(visible)]="modalVisible"
-    [header]="isEdit ? 'Edit Book Details' : 'Add New Book to Catalog'"
+    [header]="(isEdit ? 'BOOKS.EDIT_BOOK' : 'BOOKS.ADD_BOOK') | translate"
     [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [breakpoints]="{ '960px': '75vw', '640px': '95vw' }"
     [style]="{ width: '90vw', maxWidth: '700px' }"
     styleClass="p-fluid"
   >
     <form [formGroup]="bookForm" (ngSubmit)="save()" class="space-y-4 py-2 text-xs">
       <!-- Title -->
       <div class="space-y-1">
-        <label class="font-bold text-slate-700">Book Title (စာအုပ်အမည်) *</label>
+        <label class="font-bold text-slate-700">{{ 'BOOKS.BOOK_TITLE' | translate }} <span class="text-rose-500">*</span></label>
         <input
           pInputText
           type="text"
           formControlName="title"
           placeholder="e.g. Clean Architecture"
-          class="w-full text-xs"
+          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
         />
         @if (bookForm.get('title')?.touched && bookForm.get('title')?.invalid) {
-          <small class="text-rose-500 font-semibold">Title is required.</small>
+          <small class="text-rose-500 font-medium">Title is required.</small>
         }
       </div>
 
       <!-- Category & Author Selects -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">Category (ကဏ္ဍ) *</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.CATEGORY' | translate }} <span class="text-rose-500">*</span></label>
           <p-select
             [options]="categories"
             formControlName="categoryId"
@@ -196,7 +198,7 @@
         </div>
 
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">Author (စာရေးဆရာ) *</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.AUTHOR' | translate }} <span class="text-rose-500">*</span></label>
           <p-select
             [options]="authors"
             formControlName="authorId"
@@ -211,42 +213,42 @@
       <!-- Pricing & Stock -->
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">Sale Price (MMK) *</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.PRICE' | translate }} (MMK) <span class="text-rose-500">*</span></label>
           <input
             pInputText
             type="number"
             formControlName="price"
             placeholder="15000"
-            class="w-full text-xs"
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
           />
         </div>
 
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">Original Price (MMK)</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.ORIGINAL_PRICE' | translate }} (MMK)</label>
           <input
             pInputText
             type="number"
             formControlName="originalPrice"
             placeholder="18000"
-            class="w-full text-xs"
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
           />
         </div>
 
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">Stock Quantity *</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.STOCK' | translate }} <span class="text-rose-500">*</span></label>
           <input
             pInputText
             type="number"
             formControlName="stockQuantity"
             placeholder="25"
-            class="w-full text-xs"
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
           />
         </div>
       </div>
 
       <!-- Image Upload -->
       <div class="space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-        <label class="font-bold text-slate-700 block">Book Cover Image (စာအုပ်မျက်နှာဖုံးပုံ)</label>
+        <label class="font-bold text-slate-700 block">{{ 'BOOKS.COVER_IMAGE' | translate }}</label>
         <div class="flex flex-col sm:flex-row items-center gap-4">
           <div class="w-20 h-28 rounded-xl border border-slate-300 bg-white overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
             @if (imagePreview) {
@@ -268,7 +270,7 @@
               type="text"
               formControlName="imageUrl"
               placeholder="Or paste direct image URL (https://...)"
-              class="w-full text-xs"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
         </div>
@@ -277,37 +279,37 @@
       <!-- ISBN & Publisher -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">ISBN *</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.ISBN' | translate }} <span class="text-rose-500">*</span></label>
           <input
             pInputText
             type="text"
             formControlName="isbn"
             placeholder="978-0132350884"
-            class="w-full text-xs"
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
           />
         </div>
 
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">Publisher</label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.PUBLISHER' | translate }}</label>
           <input
             pInputText
             type="text"
             formControlName="publisher"
             placeholder="e.g. Pearson"
-            class="w-full text-xs"
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
           />
         </div>
       </div>
 
       <!-- Description -->
       <div class="space-y-1">
-        <label class="font-bold text-slate-700">Description (စာအုပ် အညွှန်း)</label>
+        <label class="font-bold text-slate-700">{{ 'COMMON.DESCRIPTION' | translate }}</label>
         <textarea
           pInputText
           rows="4"
           formControlName="description"
-          placeholder="စာအုပ်အကြောင်း အကျဉ်းချုပ် ရေးသားပါ..."
-          class="w-full text-xs"
+          placeholder="Summary and overview..."
+          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
         ></textarea>
       </div>
 
@@ -315,18 +317,18 @@
         <button
           pButton
           type="button"
-          label="Cancel"
+          [label]="'COMMON.CANCEL' | translate"
           icon="pi pi-times"
           (click)="modalVisible = false"
-          class="p-button-text p-button-sm"
+          class="p-button-text p-button-sm text-slate-600 hover:text-slate-900"
         ></button>
         <button
           pButton
           type="submit"
-          [label]="isEdit ? 'Update Book' : 'Save Book'"
+          [label]="(isEdit ? 'COMMON.UPDATE' : 'COMMON.SAVE') | translate"
           icon="pi pi-check"
           [loading]="isSubmitting"
-          class="p-button-primary p-button-sm font-bold"
+          class="p-button-primary p-button-sm font-bold shadow-sm"
         ></button>
       </div>
     </form>
