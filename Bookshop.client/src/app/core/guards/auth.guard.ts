@@ -1,14 +1,14 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../services/auth.service';
+import { SharedService } from '../services/shared.service';
 
 export const authGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
+  const sharedService = inject(SharedService);
   const router = inject(Router);
   const messageService = inject(MessageService);
 
-  if (authService.isAuthenticated()) {
+  if (sharedService.isAuthenticated()) {
     return true;
   }
 
@@ -22,12 +22,22 @@ export const authGuard: CanActivateFn = () => {
 };
 
 export const adminGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
+  const sharedService = inject(SharedService);
   const router = inject(Router);
   const messageService = inject(MessageService);
 
-  if (authService.isAuthenticated() && authService.isAdmin()) {
+  if (sharedService.isAuthenticated() && sharedService.isAdmin()) {
     return true;
+  }
+
+  if (!sharedService.isAuthenticated()) {
+    messageService.add({
+      severity: 'warn',
+      summary: 'Admin Login Required',
+      detail: 'Please log in with an administrator account to access the management portal.',
+    });
+    router.navigate(['/auth/login']);
+    return false;
   }
 
   messageService.add({
