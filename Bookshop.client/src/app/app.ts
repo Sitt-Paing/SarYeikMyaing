@@ -16,6 +16,6 @@ export class App {
   private readonly router = inject(Router);
 
   isAdminRoute(): boolean {
-    return this.router.url.startsWith('/admin');
+    return (this.router.url || '').includes('/admin');
   }
 }
