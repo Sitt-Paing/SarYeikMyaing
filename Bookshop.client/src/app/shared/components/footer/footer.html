@@ -1,66 +1,73 @@
 <footer class="bg-obsidian-900 text-slate-300 pt-16 pb-12 border-t border-obsidian-800 mt-auto">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-obsidian-800">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-obsidian-800">
+      
       <!-- Brand Column -->
-      <div class="space-y-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 shrink-0">
-            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-              <polygon points="90,40 125,58 125,160 90,160" fill="#1E293B" />
-              <polygon points="125,148 190,150 190,160 125,160" fill="#1E293B" />
-              <polygon points="15,45 38,40 38,158 15,158" fill="#00A3FF" />
-              <polygon points="40,43 63,39 63,158 40,158" fill="#00A3FF" />
-              <polygon points="65,42 88,38 88,158 65,158" fill="#00A3FF" />
-              <polygon points="90,40 90,158 125,158 125,58" fill="#38BDF8" />
-            </svg>
-          </div>
-          <div>
-            <span class="text-xl font-extrabold text-white tracking-tight">စာအုပ်စင်</span>
-            <span class="block text-[11px] text-brand-400 font-semibold tracking-wider">SAR OAT SIN BOOKS</span>
-          </div>
-        </div>
+      <div class="lg:col-span-4 space-y-4">
+        <app-logo [size]="'md'"></app-logo>
 
-        <p class="text-sm text-slate-400 leading-relaxed">
-          စာဖတ်ခြင်းသည် လူကို အသိပညာ ကြွယ်ဝစေသည်။
+        <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
+          စာဖတ်ခြင်းသည် လူကို အသိပညာ ကြွယ်ဝစေသည်။ မြန်မာပြည်အနှံ့ စာပေချစ်သူများအတွက် စာအုပ်ကောင်းများကို အမြန်ဆုံးနှင့် အမှန်ကန်ဆုံး ပို့ဆောင်ပေးပါသည်။
         </p>
+
+        <div class="space-y-1 text-xs text-slate-300 font-medium">
+          <p><i class="pi pi-map-marker text-brand-400 mr-2"></i> Yangon, Myanmar</p>
+          <p><i class="pi pi-phone text-brand-400 mr-2"></i> +95 9 798 123456</p>
+          <p><i class="pi pi-envelope text-brand-400 mr-2"></i> info&#64;saroatsin.com</p>
+        </div>
       </div>
 
       <!-- Quick Navigation -->
-      <div>
-        <h4 class="text-white text-sm font-bold tracking-wider uppercase mb-4">Quick Links</h4>
-        <ul class="space-y-2.5 text-sm">
-          <li><a routerLink="/" class="hover:text-brand-400 transition-colors">Home (ပင်မစာမျက်နှာ)</a></li>
-          <li><a routerLink="/books" class="hover:text-brand-400 transition-colors">All Books (စာအုပ်အားလုံး)</a></li>
-          <li><a routerLink="/cart" class="hover:text-brand-400 transition-colors">Cart (ဈေးဝယ်ခြင်း)</a></li>
-          <li><a routerLink="/orders" class="hover:text-brand-400 transition-colors">Order Tracking</a></li>
+      <div class="lg:col-span-2">
+        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-4">Quick Links</h4>
+        <ul class="space-y-2.5 text-xs">
+          <li><a routerLink="/" class="hover:text-brand-400 transition-colors">Home (ပင်မ)</a></li>
+          <li><a routerLink="/books" class="hover:text-brand-400 transition-colors">Books (စာအုပ်များ)</a></li>
+          <li><a routerLink="/cart" class="hover:text-brand-400 transition-colors">Cart (ခြင်းတောင်း)</a></li>
+          <li><a routerLink="/orders" class="hover:text-brand-400 transition-colors">Order History</a></li>
         </ul>
       </div>
 
-      <!-- Admin & Account -->
-      <div>
-        <h4 class="text-white text-sm font-bold tracking-wider uppercase mb-4">Account & Portal</h4>
-        <ul class="space-y-2.5 text-sm">
-          <li><a routerLink="/auth/login" class="hover:text-brand-400 transition-colors">Sign In (အကောင့်ဝင်ရန်)</a></li>
-          <li><a routerLink="/auth/register" class="hover:text-brand-400 transition-colors">Register (အကောင့်ဖွင့်ရန်)</a></li>
-          <li><a routerLink="/admin/books" class="hover:text-brand-400 transition-colors">Admin Book Manager</a></li>
-          <li><a routerLink="/admin/categories" class="hover:text-brand-400 transition-colors">Admin Category Manager</a></li>
+      <!-- Explore & Genres -->
+      <div class="lg:col-span-2">
+        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-4">Categories</h4>
+        <ul class="space-y-2.5 text-xs">
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 1 }" class="hover:text-brand-400 transition-colors">သည်းထိတ်ရင်ဖို</a></li>
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 2 }" class="hover:text-brand-400 transition-colors">စိတ်ကူးယဉ်နှင့် သိပ္ပံ</a></li>
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 3 }" class="hover:text-brand-400 transition-colors">စီးပွားရေး</a></li>
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 4 }" class="hover:text-brand-400 transition-colors">ဘဝအောင်မြင်ရေး</a></li>
         </ul>
       </div>
 
-      <!-- Contact -->
-      <div>
-        <h4 class="text-white text-sm font-bold tracking-wider uppercase mb-4">Contact & Support</h4>
-        <ul class="space-y-3 text-sm text-slate-400">
-          <li class="flex items-center gap-2.5">
-            <i class="pi pi-phone text-brand-400 shrink-0"></i>
-            <span>+95 9 798 123456</span>
-          </li>
-          <li class="flex items-center gap-2.5">
-            <i class="pi pi-envelope text-brand-400 shrink-0"></i>
-            <span>support&#64;saroatsin.com</span>
-          </li>
-        </ul>
+      <!-- Newsletter Column (Dribbble Style) -->
+      <div class="lg:col-span-4 space-y-3">
+        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-2">Subscribe Now</h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          စာအုပ်သစ်များနှင့် အထူးလျှော့စျေး သတင်းများကို ဦးဦးဖျားဖျား ရယူနိုင်ရန် အီးမေးလ် ထည့်သွင်းထားပါ
+        </p>
+
+        <form class="relative mt-2">
+          <input
+            type="email"
+            placeholder="Your Email Address..."
+            class="w-full pl-4 pr-28 py-3 rounded-full bg-obsidian-800 border border-obsidian-700 text-xs text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-all"
+          />
+          <button
+            type="submit"
+            class="absolute right-1.5 top-1.5 bottom-1.5 px-5 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-bold text-xs transition-all shadow-brand-glow"
+          >
+            Subscribe
+          </button>
+        </form>
+
+        <div class="flex items-center gap-3 pt-2 text-slate-400">
+          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-facebook"></i></a>
+          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-instagram"></i></a>
+          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-telegram"></i></a>
+          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-twitter"></i></a>
+        </div>
       </div>
+
     </div>
 
     <!-- Bottom Row -->
@@ -68,10 +75,12 @@
       <p>© 2026 စာအုပ်စင် (Sar Oat Sin) Bookshop eCommerce. All rights reserved.</p>
 
       <div class="flex items-center flex-wrap gap-2">
-        <span class="px-2.5 py-1 rounded bg-obsidian-800 text-slate-300 font-bold border border-obsidian-700">KBZPay</span>
-        <span class="px-2.5 py-1 rounded bg-obsidian-800 text-yellow-400 font-bold border border-obsidian-700">WavePay</span>
-        <span class="px-2.5 py-1 rounded bg-obsidian-800 text-emerald-400 font-bold border border-obsidian-700">Cash on Delivery</span>
+        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-slate-300 font-bold border border-obsidian-700">KBZPay</span>
+        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-yellow-400 font-bold border border-obsidian-700">WavePay</span>
+        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-sky-400 font-bold border border-obsidian-700">AYA Pay</span>
+        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-emerald-400 font-bold border border-obsidian-700">Cash on Delivery</span>
       </div>
     </div>
   </div>
 </footer>
+
