@@ -35,4 +35,10 @@ export class AuthorService {
     const url = `${environment.main_url}/Author/${id}`;
     return this.http.delete<RootModel>(url);
   }
+
+  save(model: Partial<AuthorModel>): Observable<RootModel> {
+    const id = model.id;
+    const isEdit = id && Number(id) > 0;
+    return isEdit ? this.update(id, model) : this.create(model);
+  }
 }
