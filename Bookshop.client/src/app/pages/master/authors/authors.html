@@ -1,0 +1,210 @@
+<p-toast key="globalMessage"></p-toast>
+<p-confirmDialog key="positionDialog"></p-confirmDialog>
+
+<div class="space-y-6">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        {{ 'AUTHORS.TITLE' | translate }}
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        {{ 'AUTHORS.SUBTITLE' | translate }}
+      </p>
+    </div>
+
+    <!-- Single SplitButton Action -->
+    <div class="flex items-center gap-2">
+      <p-splitButton
+        [label]="'COMMON.ADD_NEW' | translate"
+        icon="pi pi-plus"
+        (onClick)="create()"
+        [model]="items"
+        styleClass="p-button-primary p-button-sm shadow-sm font-semibold"
+      ></p-splitButton>
+    </div>
+  </div>
+
+  <!-- Main Card Container -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-4 sm:p-6 space-y-4">
+    <!-- Filter & Toolbar Row -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p-iconField iconPosition="left" class="w-full sm:w-80">
+        <p-inputIcon styleClass="pi pi-search text-slate-400"></p-inputIcon>
+        <input
+          pInputText
+          type="text"
+          (input)="tblAuthor.filterGlobal($any($event.target).value, 'contains')"
+          [placeholder]="'AUTHORS.SEARCH_PLACEHOLDER' | translate"
+          class="w-full text-xs rounded-xl border-slate-200 focus:border-brand-500"
+        />
+      </p-iconField>
+
+      <div class="flex items-center gap-2">
+        <button
+          pButton
+          icon="pi pi-refresh"
+          (click)="loadData()"
+          class="p-button-text p-button-rounded p-button-sm text-slate-600 hover:text-slate-900"
+          [title]="'COMMON.RELOAD' | translate"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Smooth PrimeNG DataTable with Tailwind Classes -->
+    <p-table
+      #tblAuthor
+      [value]="authors"
+      [loading]="isLoading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[5, 10, 20, 50]"
+      [(selection)]="selectedAuthor"
+      selectionMode="single"
+      dataKey="id"
+      [globalFilterFields]="['name', 'biography']"
+      responsiveLayout="stack"
+      [breakpoint]="'960px'"
+      styleClass="p-datatable-sm"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} records"
+    >
+      <ng-template pTemplate="header">
+        <tr class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/70 border-b border-slate-200">
+          <th style="width: 4rem">{{ 'AUTHORS.PHOTO' | translate }}</th>
+          <th pSortableColumn="name">
+            {{ 'AUTHORS.AUTHOR_NAME' | translate }} <p-sortIcon field="name"></p-sortIcon>
+          </th>
+          <th>{{ 'AUTHORS.BIOGRAPHY' | translate }}</th>
+          <th style="width: 8rem" class="text-center">{{ 'COMMON.STATUS' | translate }}</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-author>
+        <tr
+          [pSelectableRow]="author"
+          class="hover:bg-slate-50/80 text-xs transition-colors duration-150 cursor-pointer border-b border-slate-100"
+        >
+          <td>
+            <div class="w-9 h-9 rounded-full overflow-hidden bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+              @if (author.imageUrl) {
+                <img [src]="author.imageUrl" [alt]="author.name" class="w-full h-full object-cover" />
+              } @else {
+                <i class="pi pi-user text-sm"></i>
+              }
+            </div>
+          </td>
+          <td>
+            <span class="font-semibold text-slate-800">{{ author.name }}</span>
+          </td>
+          <td>
+            <span class="text-slate-600 line-clamp-1">{{ author.biography || '-' }}</span>
+          </td>
+          <td class="text-center">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium"
+              [ngClass]="author.isActive !== false ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700 border border-rose-200'"
+            >
+              {{ (author.isActive !== false ? 'COMMON.ACTIVE' : 'COMMON.INACTIVE') | translate }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center py-12 text-slate-400 text-xs">
+            <div class="flex flex-col items-center justify-center space-y-2">
+              <i class="pi pi-users text-3xl text-slate-300"></i>
+              <span>{{ 'AUTHORS.NO_AUTHORS' | translate }}</span>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Smooth Responsive Modal Dialog -->
+  <p-dialog
+    [(visible)]="modalVisible"
+    [header]="(isEdit ? 'AUTHORS.EDIT_AUTHOR' : 'AUTHORS.ADD_AUTHOR') | translate"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [breakpoints]="{ '960px': '75vw', '640px': '95vw' }"
+    [style]="{ width: '90vw', maxWidth: '520px' }"
+    (onHide)="onDialogHide()"
+    styleClass="p-fluid"
+  >
+    <form [formGroup]="authorForm" (ngSubmit)="onSubmit()" class="space-y-4 py-2 text-xs">
+      <!-- Name Field -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">{{ 'AUTHORS.AUTHOR_NAME' | translate }} <span class="text-rose-500">*</span></label>
+        <input
+          pInputText
+          type="text"
+          formControlName="name"
+          placeholder="e.g. Min Thu Wun"
+          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+        />
+        @if (authorForm.get('name')?.touched && authorForm.get('name')?.invalid) {
+          <small class="text-rose-500 font-medium">Author name is required.</small>
+        }
+      </div>
+
+      <!-- Photo URL Field -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">{{ 'AUTHORS.PHOTO_URL' | translate }}</label>
+        <input
+          pInputText
+          type="text"
+          formControlName="imageUrl"
+          placeholder="https://..."
+          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+        />
+      </div>
+
+      <!-- Biography Field -->
+      <div class="space-y-1">
+        <label class="font-bold text-slate-700">{{ 'AUTHORS.BIOGRAPHY' | translate }}</label>
+        <textarea
+          pInputText
+          rows="3"
+          formControlName="biography"
+          placeholder="Brief author biography or background..."
+          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+        ></textarea>
+      </div>
+
+      <!-- Active Toggle Switch -->
+      <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+        <div>
+          <span class="font-bold text-slate-700 block text-xs">{{ 'COMMON.STATUS' | translate }}</span>
+          <span class="text-[11px] text-slate-500">Enable or disable this author</span>
+        </div>
+        <p-toggleSwitch formControlName="isActive"></p-toggleSwitch>
+      </div>
+
+      <!-- Modal Actions Footer -->
+      <div class="flex justify-end items-center gap-2 pt-4 border-t border-slate-100">
+        <button
+          pButton
+          type="button"
+          [label]="'COMMON.CANCEL' | translate"
+          icon="pi pi-times"
+          (click)="modalVisible = false"
+          class="p-button-text p-button-sm text-slate-600 hover:text-slate-900"
+        ></button>
+        <button
+          pButton
+          type="submit"
+          [label]="(isEdit ? 'COMMON.SAVE' : 'COMMON.ADD_NEW') | translate"
+          [icon]="isSubmitting ? 'pi pi-spin pi-spinner' : 'pi pi-check'"
+          [loading]="isSubmitting"
+          [disabled]="authorForm.invalid || isSubmitting"
+          class="p-button-primary p-button-sm font-bold shadow-sm"
+        ></button>
+      </div>
+    </form>
+  </p-dialog>
+</div>
