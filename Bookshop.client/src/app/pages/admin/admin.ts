@@ -1,15 +1,20 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { AuthService } from '../../core/services/auth.service';
+import { SharedService } from '../../core/services/shared.service';
+import { TranslationService } from '../../core/services/translation.service';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 import { Logo } from '../../shared/components/logo/logo';
 
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logo],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Logo, TranslatePipe],
   templateUrl: './admin.html',
-  styleUrl: './admin.scss',
+  host: {
+    class: 'block min-h-screen bg-slate-100',
+  },
 })
 export class Admin {
-  readonly authService = inject(AuthService);
+  readonly sharedService = inject(SharedService);
+  readonly translationService = inject(TranslationService);
 }
