@@ -1,9 +1,11 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./pages/home/home').then((m) => m.Home),
+    pathMatch: 'full',
   },
   {
     path: 'books',
@@ -35,6 +37,7 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    canActivate: [adminGuard],
     loadComponent: () => import('./pages/admin/admin').then((m) => m.Admin),
     children: [
       {
@@ -53,6 +56,10 @@ export const routes: Routes = [
       {
         path: 'categories',
         loadComponent: () => import('./pages/master/categories/categories').then((m) => m.Categories),
+      },
+      {
+        path: 'authors',
+        loadComponent: () => import('./pages/master/authors/authors').then((m) => m.Authors),
       },
     ],
   },
