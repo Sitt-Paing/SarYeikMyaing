@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { CartService } from '../../core/services/cart.service';
+import { CartState } from '../../core/state/cart.state';
 import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
 
 @Component({
@@ -13,5 +13,5 @@ import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
   styleUrl: './cart.scss',
 })
 export class Cart {
-  readonly cartService = inject(CartService);
+  readonly cartService = inject(CartState);
 }
