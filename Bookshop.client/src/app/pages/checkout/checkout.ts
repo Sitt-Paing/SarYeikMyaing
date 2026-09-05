@@ -6,9 +6,9 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { CreateOrderModel, OrderModel, PaymentMethod } from '../../core/models/order.model';
-import { AuthService } from '../../core/services/auth.service';
-import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
+import { SharedService } from '../../core/services/shared.service';
+import { CartState } from '../../core/state/cart.state';
 import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
 
 @Component({
@@ -20,9 +20,9 @@ import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
   styleUrl: './checkout.scss',
 })
 export class Checkout {
-  readonly cartService = inject(CartService);
+  readonly cartService = inject(CartState);
   private readonly orderService = inject(OrderService);
-  private readonly authService = inject(AuthService);
+  private readonly sharedService = inject(SharedService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
 
@@ -30,7 +30,7 @@ export class Checkout {
   isSubmitting = false;
 
   formData = {
-    customerName: this.authService.userNameSignal() !== 'Guest' ? this.authService.userNameSignal() : '',
+    customerName: this.sharedService.userNameSignal() !== 'Guest' ? this.sharedService.userNameSignal() : '',
     customerPhone: '',
     customerEmail: '',
     shippingAddress: '',
