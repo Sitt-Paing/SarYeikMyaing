@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { AuthService } from '../../../core/services/auth.service';
+import { SharedService } from '../../../core/services/shared.service';
 import { Logo } from '../../../shared/components/logo/logo';
 
 @Component({
@@ -28,6 +29,7 @@ import { Logo } from '../../../shared/components/logo/logo';
 })
 export class Login {
   private readonly authService = inject(AuthService);
+  private readonly sharedService = inject(SharedService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly formBuilder = inject(FormBuilder);
@@ -57,13 +59,21 @@ export class Login {
     this.authService.login(model).subscribe({
       next: (res) => {
         this.isLoading = false;
-        if (res.success) {
+        if (res.success && res.data) {
+          const token = res.data.accessToken || res.data.token || '';
+          const user = res.data.user || {};
+          const roles = user.roles || ['User'];
+          const userName = user.userName || model.userNameOrEmail;
+          const email = user.email || model.userNameOrEmail;
+
+          this.sharedService.storeUserData(token, userName, email, roles);
+
           this.messageService.add({
             severity: 'success',
             summary: 'Welcome!',
             detail: 'Logged in successfully.',
           });
-          if (this.authService.isAdmin()) {
+          if (this.sharedService.isAdmin()) {
             this.router.navigate(['/admin']);
           } else {
             this.router.navigate(['/']);
