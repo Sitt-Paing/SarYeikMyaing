@@ -4,15 +4,26 @@
     <div class="flex items-center gap-3">
       <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold text-[11px]">
         <span class="w-1.5 h-1.5 rounded-full bg-brand-400 animate-pulse"></span>
-        မြန်မာပြည်အနှံ့ မြို့ပေါင်း ၅၀၀ ကျော် အိမ်အရောက်ပို့ဆောင်မှု
+        {{ 'NAVBAR.ANNOUNCEMENT' | translate }}
       </span>
       <span class="hidden sm:inline text-slate-400 text-[11px]">
-        | စာအုပ်အစစ်အမှန် ၁၀၀% အာမခံချက်
+        | {{ 'NAVBAR.AUTHENTIC_GUARANTEE' | translate }}
       </span>
     </div>
     <div class="flex items-center gap-4 text-[11px] text-slate-400">
-      <span class="hidden md:inline"><i class="pi pi-phone text-brand-400 mr-1"></i> Hotline: 09-798123456</span>
-      <a routerLink="/admin" class="hover:text-brand-400 transition-colors font-medium">Admin Portal</a>
+      <span class="hidden md:inline"><i class="pi pi-phone text-brand-400 mr-1"></i> {{ 'NAVBAR.HOTLINE' | translate }}: 09-798123456</span>
+      @if (sharedService.isAdmin()) {
+        <a routerLink="/admin" class="hover:text-brand-400 transition-colors font-medium">{{ 'NAVBAR.ADMIN_PANEL' | translate }}</a>
+      }
+      <!-- Language Switcher Button -->
+      <button
+        (click)="translationService.toggleLanguage()"
+        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-obsidian-800 hover:bg-slate-800 text-brand-400 border border-obsidian-700 font-bold transition-colors text-[10px]"
+        title="Switch Language"
+      >
+        <i class="pi pi-globe text-[10px]"></i>
+        <span>{{ translationService.currentLanguageOption().code.toUpperCase() }}</span>
+      </button>
     </div>
   </div>
 </div>
@@ -31,7 +42,7 @@
             type="text"
             [(ngModel)]="searchQuery"
             name="search"
-            placeholder="စာအုပ်အမည်၊ စာရေးဆရာ၊ ISBN ဖြင့် ရှာဖွေပါ..."
+            [placeholder]="'NAVBAR.SEARCH_PLACEHOLDER' | translate"
             class="w-full pl-10 pr-24 py-2.5 rounded-full bg-slate-50 border border-slate-300 focus:bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 text-xs sm:text-sm transition-all outline-none"
           />
           <i class="pi pi-search absolute left-3.5 top-3.5 text-slate-400 text-xs"></i>
@@ -39,7 +50,7 @@
             type="submit"
             class="absolute right-1.5 top-1.5 bottom-1.5 px-4 rounded-full bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1"
           >
-            ရှာမည်
+            {{ 'NAVBAR.SEARCH_BUTTON' | translate }}
           </button>
         </form>
       </div>
@@ -52,7 +63,7 @@
           [routerLinkActiveOptions]="{ exact: true }"
           class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors"
         >
-          ပင်မ (Home)
+          {{ 'NAVBAR.HOME' | translate }}
         </a>
 
         <!-- Categories Dropdown Menu -->
@@ -60,14 +71,14 @@
           <button
             class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors flex items-center gap-1"
           >
-            <span>စာအုပ်အမျိုးအစားများ</span>
+            <span>{{ 'NAVBAR.CATEGORIES' | translate }}</span>
             <i class="pi pi-chevron-down text-[10px] text-slate-400 group-hover:rotate-180 transition-transform"></i>
           </button>
 
           <!-- Dropdown Mega Menu -->
           <div class="absolute left-0 mt-1 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 hidden group-hover:block transition-all z-50">
             <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">
-              Categories
+              {{ 'NAVBAR.CATEGORIES' | translate }}
             </div>
             @for (cat of categories; track cat.id) {
               <a
@@ -84,7 +95,7 @@
             }
             <div class="pt-2 mt-1 border-t border-slate-100">
               <a routerLink="/books" class="block text-center py-1.5 text-xs font-bold text-brand-600 hover:underline">
-                စာအုပ်အားလုံး ကြည့်ရှုမည် (View All)
+                {{ 'NAVBAR.ALL_CATEGORIES' | translate }}
               </a>
             </div>
           </div>
@@ -95,7 +106,7 @@
           routerLinkActive="text-brand-600 bg-brand-50 font-bold"
           class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors"
         >
-          စာအုပ်များ (Shop)
+          {{ 'NAVBAR.SHOP' | translate }}
         </a>
 
         <a
@@ -103,10 +114,10 @@
           routerLinkActive="text-brand-600 bg-brand-50 font-bold"
           class="px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-50 transition-colors"
         >
-          မှာယူမှု မှတ်တမ်း
+          {{ 'NAVBAR.ORDERS' | translate }}
         </a>
 
-        @if (authService.isAdmin()) {
+        @if (sharedService.isAdmin()) {
           <a
             routerLink="/admin"
             routerLinkActive="text-brand-600 bg-brand-50 font-bold"
@@ -134,17 +145,17 @@
             }
           </div>
           <div class="hidden xl:flex flex-col text-left">
-            <span class="text-[10px] uppercase font-semibold text-slate-400 leading-none">ခြင်းတောင်း</span>
+            <span class="text-[10px] uppercase font-semibold text-slate-400 leading-none">{{ 'NAVBAR.BASKET' | translate }}</span>
             <span class="text-xs font-bold text-slate-800 leading-tight">{{ cartService.subtotal() | mmkCurrency }}</span>
           </div>
         </a>
 
         <!-- Auth Status / Profile Button -->
-        @if (authService.isAuthenticated()) {
+        @if (sharedService.isAuthenticated()) {
           <div class="relative group">
             <button class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-slate-100 transition-colors">
               <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-brand-600 to-brand-400 text-white flex items-center justify-center font-bold text-sm shadow-sm">
-                {{ authService.userNameSignal().charAt(0) || 'U' }}
+                {{ sharedService.userNameSignal().charAt(0) || 'U' }}
               </div>
               <i class="pi pi-chevron-down text-xs text-slate-400"></i>
             </button>
@@ -152,19 +163,19 @@
             <!-- Dropdown Menu -->
             <div class="absolute right-0 mt-1 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-1.5 hidden group-hover:block transition-all z-50">
               <div class="px-3.5 py-2 border-b border-slate-100">
-                <p class="text-xs font-bold text-slate-900 truncate">{{ authService.userNameSignal() }}</p>
-                <p class="text-[11px] text-slate-500 truncate">{{ authService.userNameSignal() }}</p>
+                <p class="text-xs font-bold text-slate-900 truncate">{{ sharedService.userNameSignal() }}</p>
+                <p class="text-[11px] text-slate-500 truncate">{{ sharedService.userNameSignal() }}</p>
               </div>
-              @if (authService.isAdmin()) {
+              @if (sharedService.isAdmin()) {
                 <a routerLink="/admin" class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-600">
-                  <i class="pi pi-th-large text-brand-500"></i> Admin Panel
+                  <i class="pi pi-th-large text-brand-500"></i> {{ 'NAVBAR.ADMIN_PANEL' | translate }}
                 </a>
               }
               <a routerLink="/orders" class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-600">
-                <i class="pi pi-box text-slate-400"></i> My Orders
+                <i class="pi pi-box text-slate-400"></i> {{ 'NAVBAR.ORDERS' | translate }}
               </a>
-              <button (click)="authService.logout()" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 text-left">
-                <i class="pi pi-sign-out"></i> Log Out
+              <button (click)="sharedService.logout()" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 text-left">
+                <i class="pi pi-sign-out"></i> {{ 'ADMIN.LOGOUT' | translate }}
               </button>
             </div>
           </div>
@@ -174,13 +185,13 @@
               routerLink="/auth/login"
               class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-700 hover:text-brand-600 hover:bg-slate-100 transition-colors"
             >
-              အကောင့်ဝင်ရန်
+              {{ 'NAVBAR.LOGIN' | translate }}
             </a>
             <a
               routerLink="/auth/register"
               class="hidden sm:inline-flex px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow transition-all"
             >
-              အကောင့်ဖွင့်ရန်
+              {{ 'NAVBAR.REGISTER' | translate }}
             </a>
           </div>
         }
@@ -205,7 +216,7 @@
           type="text"
           [(ngModel)]="searchQuery"
           name="searchMobile"
-          placeholder="စာအုပ် ရှာဖွေရန်..."
+          [placeholder]="'NAVBAR.SEARCH_PLACEHOLDER' | translate"
           class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-300 text-xs outline-none"
         />
         <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
@@ -216,14 +227,14 @@
         (click)="isMobileMenuOpen.set(false)"
         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
       >
-        <i class="pi pi-home text-brand-500"></i> ပင်မစာမျက်နှာ (Home)
+        <i class="pi pi-home text-brand-500"></i> {{ 'NAVBAR.HOME' | translate }}
       </a>
       <a
         routerLink="/books"
         (click)="isMobileMenuOpen.set(false)"
         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
       >
-        <i class="pi pi-book text-brand-500"></i> စာအုပ်များ အားလုံး
+        <i class="pi pi-book text-brand-500"></i> {{ 'NAVBAR.SHOP' | translate }}
       </a>
       <a
         routerLink="/cart"
@@ -231,7 +242,7 @@
         class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
       >
         <div class="flex items-center gap-3">
-          <i class="pi pi-shopping-cart text-brand-500"></i> ဈေးဝယ်ခြင်း (Cart)
+          <i class="pi pi-shopping-cart text-brand-500"></i> {{ 'NAVBAR.CART' | translate }}
         </div>
         @if (cartService.itemCount() > 0) {
           <span class="bg-brand-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
@@ -244,15 +255,17 @@
         (click)="isMobileMenuOpen.set(false)"
         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-slate-800 hover:bg-brand-50 hover:text-brand-600"
       >
-        <i class="pi pi-box text-brand-500"></i> မှာယူမှု စစ်ဆေးရန်
+        <i class="pi pi-box text-brand-500"></i> {{ 'NAVBAR.ORDERS' | translate }}
       </a>
-      <a
-        routerLink="/admin"
-        (click)="isMobileMenuOpen.set(false)"
-        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-amber-600 hover:bg-amber-50"
-      >
-        <i class="pi pi-cog text-amber-500"></i> Admin Panel
-      </a>
+      @if (sharedService.isAdmin()) {
+        <a
+          routerLink="/admin"
+          (click)="isMobileMenuOpen.set(false)"
+          class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-amber-600 hover:bg-amber-50"
+        >
+          <i class="pi pi-cog text-amber-500"></i> {{ 'NAVBAR.ADMIN_PANEL' | translate }}
+        </a>
+      }
     </div>
   }
 </header>
