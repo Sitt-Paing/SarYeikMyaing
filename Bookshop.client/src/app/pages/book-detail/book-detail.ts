@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { BookModel } from '../../core/models/book.model';
+import { BookModel, CURATED_BOOKS } from '../../core/models/book.model';
 import { CategoryModel } from '../../core/models/category.model';
 import { BookService } from '../../core/services/book.service';
-import { CartService } from '../../core/services/cart.service';
 import { CategoryService } from '../../core/services/category.service';
+import { CartState } from '../../core/state/cart.state';
 import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
 
 @Component({
@@ -20,7 +20,7 @@ export class BookDetail implements OnInit {
   private readonly router = inject(Router);
   private readonly bookService = inject(BookService);
   private readonly categoryService = inject(CategoryService);
-  private readonly cartService = inject(CartService);
+  private readonly cartService = inject(CartState);
 
   book: BookModel | null = null;
   categories: CategoryModel[] = [];
@@ -45,10 +45,13 @@ export class BookDetail implements OnInit {
           next: (res) => {
             if (res.success && res.data) {
               this.book = (Array.isArray(res.data) ? res.data[0] : res.data) as BookModel;
+            } else {
+              this.book = CURATED_BOOKS.find((b) => b.id === id) || null;
             }
             this.isLoading = false;
           },
           error: () => {
+            this.book = CURATED_BOOKS.find((b) => b.id === id) || null;
             this.isLoading = false;
           },
         });
