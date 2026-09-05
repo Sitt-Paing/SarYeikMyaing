@@ -18,6 +18,7 @@ import { CategoryService } from '../../../core/services/category.service';
 import { ExportService } from '../../../core/services/export.service';
 import { LoggerService } from '../../../core/services/logger.service';
 import { SharedService } from '../../../core/services/shared.service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-categories',
@@ -37,10 +38,10 @@ import { SharedService } from '../../../core/services/shared.service';
     TableModule,
     ToastModule,
     InputIconModule,
+    TranslatePipe,
   ],
   providers: [DatePipe, ConfirmationService, ExportService, MessageService],
   templateUrl: './categories.html',
-  styleUrl: './categories.scss',
 })
 export class Categories implements OnInit {
   @ViewChild(Table) tblCategory!: Table;
@@ -87,6 +88,11 @@ export class Categories implements OnInit {
         label: 'Excel',
         icon: 'pi pi-file-excel',
         command: () => this.excel(),
+      },
+      {
+        label: 'Seed Standard',
+        icon: 'pi pi-download',
+        command: () => this.seedStandardCategories(),
       },
     ];
   }
