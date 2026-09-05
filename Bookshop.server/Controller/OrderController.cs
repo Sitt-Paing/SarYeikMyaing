@@ -59,7 +59,7 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
 
     [HttpGet("user/{userId}")]
     [EndpointSummary("Get Orders by User Id")]
-    public async Task<IActionResult> GetByUserIdAsync(int userId)
+    public async Task<IActionResult> GetByUserIdAsync(string userId)
     {
         var data = await _repo.Orders.GetAsync(x => x.UserId == userId && !x.DeletedOn.HasValue);
         return Ok(new DefaultResponseModel
@@ -78,12 +78,7 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
         try
         {
             // Optional authentication: resolve user id from claims if logged in
-            int? currentUserId = null;
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedUserId))
-            {
-                currentUserId = parsedUserId;
-            }
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             string orderId = string.IsNullOrWhiteSpace(model.Id) ? Guid.NewGuid().ToString() : model.Id;
             string orderNumber = string.IsNullOrWhiteSpace(model.OrderNumber)
@@ -107,7 +102,7 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
                 TotalAmount = model.TotalAmount,
                 Status = string.IsNullOrWhiteSpace(model.Status) ? "Pending" : model.Status,
                 CreatedOn = DateTime.Now,
-                CreatedBy = currentUserId?.ToString() ?? "Guest"
+                CreatedBy = currentUserId ?? "Guest"
             };
 
             _repo.Orders.Create(order);
