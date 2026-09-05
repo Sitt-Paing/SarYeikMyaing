@@ -23,6 +23,7 @@ import { CategoryService } from '../../../core/services/category.service';
 import { ExportService } from '../../../core/services/export.service';
 import { LoggerService } from '../../../core/services/logger.service';
 import { SharedService } from '../../../core/services/shared.service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 import { MmkCurrencyPipe } from '../../../shared/pipes/mmk-currency.pipe';
 
 @Component({
@@ -45,10 +46,10 @@ import { MmkCurrencyPipe } from '../../../shared/pipes/mmk-currency.pipe';
     ToastModule,
     InputIconModule,
     MmkCurrencyPipe,
+    TranslatePipe,
   ],
   providers: [DatePipe, CurrencyPipe, ConfirmationService, ExportService, MessageService],
   templateUrl: './books.html',
-  styleUrl: './books.scss',
 })
 export class Books implements OnInit {
   @ViewChild(Table) tblBooks!: Table;
