@@ -47,14 +47,9 @@ public class CartController(IRepositoryWrapper repo) : ControllerBase
     [EndpointSummary("Get or Create Cart for Authenticated User / Guest")]
     public async Task<IActionResult> GetUserCartAsync()
     {
-        int? currentUserId = null;
-        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedUserId))
-        {
-            currentUserId = parsedUserId;
-        }
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (!currentUserId.HasValue)
+        if (string.IsNullOrEmpty(currentUserId))
         {
             return BadRequest(new DefaultResponseModel
             {
@@ -65,14 +60,14 @@ public class CartController(IRepositoryWrapper repo) : ControllerBase
             });
         }
 
-        var carts = await _repo.Carts.GetAsync(x => x.UserId == currentUserId.Value);
+        var carts = await _repo.Carts.GetAsync(x => x.UserId == currentUserId);
         Cart? cart = carts?.FirstOrDefault();
 
         if (cart == null)
         {
             cart = new Cart
             {
-                UserId = currentUserId.Value,
+                UserId = currentUserId,
                 CreatedOn = DateTime.Now
             };
             _repo.Carts.Create(cart);
@@ -100,12 +95,7 @@ public class CartController(IRepositoryWrapper repo) : ControllerBase
     {
         try
         {
-            int? currentUserId = null;
-            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrEmpty(userIdClaim) && int.TryParse(userIdClaim, out var parsedUserId))
-            {
-                currentUserId = parsedUserId;
-            }
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             Cart cart = new Cart
             {
