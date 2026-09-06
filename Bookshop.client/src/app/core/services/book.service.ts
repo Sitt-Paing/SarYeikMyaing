@@ -15,8 +15,11 @@ export class BookService {
     let url = `${environment.main_url}/Book`;
     const queryParts: string[] = [];
 
-    if (params?.skipRows !== undefined) queryParts.push(`skipRows=${params.skipRows}`);
-    if (params?.pageSize !== undefined) queryParts.push(`pageSize=${params.pageSize}`);
+    const skipRows = params?.skipRows ?? 0;
+    const pageSize = params?.pageSize ?? 50;
+    queryParts.push(`skipRows=${skipRows}`);
+    queryParts.push(`pageSize=${pageSize}`);
+
     if (params?.q) queryParts.push(`q=${encodeURIComponent(params.q)}`);
     if (params?.categoryId) queryParts.push(`categoryId=${params.categoryId}`);
     if (params?.sortField) queryParts.push(`sortField=${params.sortField}`);
@@ -27,6 +30,13 @@ export class BookService {
     }
 
     return this.http.get<RootModel>(url);
+  }
+
+  uploadImage(file: File): Observable<RootModel> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const url = `${environment.main_url}/Book/upload-image`;
+    return this.http.post<RootModel>(url, formData);
   }
 
   getById(id: string | number): Observable<RootModel> {
