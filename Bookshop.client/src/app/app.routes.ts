@@ -59,7 +59,11 @@ export const routes: Routes = [
       },
       {
         path: 'authors',
-        loadComponent: () => import('./pages/master/authors/authors').then((m) => m.Authors),
+        redirectTo: 'books',
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./pages/orders/orders').then((m) => m.Orders),
       },
     ],
   },
