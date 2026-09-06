@@ -1,7 +1,8 @@
 export interface BookModel {
   id: number;
   title: string;
-  authorId: number;
+  author?: string;
+  authorId?: number;
   authorName?: string;
   slug?: string;
   isbn: string;
