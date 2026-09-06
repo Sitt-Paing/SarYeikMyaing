@@ -1,29 +1,63 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
+import { AuthService } from '../services/auth.service';
 import { SharedService } from '../services/shared.service';
 
+/**
+ * Global HTTP Interceptor:
+ * 1. Enables withCredentials (transmits HttpOnly access_token / refresh_token cookies)
+ * 2. Attaches X-XSRF-TOKEN anti-forgery header for mutating requests
+ * 3. Handles 401 Unauthorized by attempting a token refresh or redirecting to /auth/login
+ */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
+  const authService = inject(AuthService);
   const sharedService = inject(SharedService);
   const router = inject(Router);
 
-  const token = sharedService.tokenSignal() || localStorage.getItem('token');
-  let headers = req.headers;
+  // Read Anti-CSRF Token from document cookie
+  const xsrfToken = authService.getCookie('XSRF-TOKEN');
 
-  if (token && !headers.has('Authorization')) {
-    headers = headers.set('Authorization', `Bearer ${token}`);
+  let headers = req.headers;
+  const isMutatingMethod = ['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method.toUpperCase());
+
+  if (xsrfToken && isMutatingMethod && !headers.has('X-XSRF-TOKEN')) {
+    headers = headers.set('X-XSRF-TOKEN', xsrfToken);
   }
 
+  // Clone request with credentials & CSRF header
   const authReq = req.clone({
+    withCredentials: true,
     headers,
   });
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        sharedService.logout();
-        router.navigate(['/auth/login']);
+        const isAuthEndpoint =
+          req.url.includes('/Account/Login') ||
+          req.url.includes('/Account/Register') ||
+          req.url.includes('/Account/refresh');
+
+        if (!isAuthEndpoint) {
+          return authService.refreshToken().pipe(
+            switchMap((res) => {
+              if (res.success) {
+                // Retry failed request with new credentials
+                return next(authReq);
+              }
+              sharedService.logout();
+              router.navigate(['/auth/login']);
+              return throwError(() => error);
+            }),
+            catchError((refreshErr) => {
+              sharedService.logout();
+              router.navigate(['/auth/login']);
+              return throwError(() => refreshErr);
+            })
+          );
+        }
       }
       return throwError(() => error);
     })
