@@ -12,22 +12,38 @@ using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+
+// ─────────────────────────────────────────────────────────────────────────────────
+// 1. Database Contexts — Dual Context Pattern (like InventoryManagementSystem ref)
+// ─────────────────────────────────────────────────────────────────────────────────
+
+// ApplicationDbContext: Only for ASP.NET Core Identity infrastructure
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// BookshopDbContext: Business entities + scaffolded AspNet* read-only DbSets
 builder.Services.AddDbContext<BookshopDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// ─────────────────────────────────────────────────────────────────────────────────
+// 2. ASP.NET Core Identity — Must use ApplicationDbContext
+// ─────────────────────────────────────────────────────────────────────────────────
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     {
-        options.Password.RequireDigit = false;
+        options.Password.RequireDigit = true;
         options.Password.RequiredLength = 6;
         options.Password.RequireNonAlphanumeric = false;
         options.Password.RequireUppercase = false;
     })
-    .AddEntityFrameworkStores<BookshopDbContext>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()   // <-- MUST be ApplicationDbContext
     .AddDefaultTokenProviders();
 
+// ─────────────────────────────────────────────────────────────────────────────────
+// 3. JWT Bearer Auth — reads access_token from HttpOnly cookie
+// ─────────────────────────────────────────────────────────────────────────────────
 IConfigurationSection jwtSettings = builder.Configuration.GetSection("Jwt");
 byte[] key = Encoding.UTF8.GetBytes(jwtSettings["Key"] ?? throw new ArgumentNullException("Jwt:Key", "JWT Key is not configured."));
 
@@ -51,8 +67,17 @@ builder.Services.AddAuthentication(options =>
             ValidateLifetime = true,
             ClockSkew = TimeSpan.FromMinutes(2)
         };
+        // Read JWT from HttpOnly cookie instead of Authorization header
         options.Events = new JwtBearerEvents
         {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.TryGetValue("access_token", out var accessToken))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            },
             OnChallenge = async context =>
             {
                 if (!context.Response.HasStarted)
@@ -66,10 +91,27 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();    
-builder.Services.AddScoped<IAccountService, AccountService>();
+// ─────────────────────────────────────────────────────────────────────────────────
+// 4. Antiforgery (XSRF-TOKEN) — Angular reads XSRF-TOKEN cookie and sends X-XSRF-TOKEN header
+// ─────────────────────────────────────────────────────────────────────────────────
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-XSRF-TOKEN";   // header name Angular sends
+    options.Cookie.Name = "XSRF-TOKEN";    // client-readable cookie name
+    options.Cookie.HttpOnly = false;       // must be readable by JS/Angular
+});
 
-// Add services to the container.
+// ─────────────────────────────────────────────────────────────────────────────────
+// 5. Application Services
+// ─────────────────────────────────────────────────────────────────────────────────
+builder.Services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ICookieService, CookieService>();
+builder.Services.AddScoped<ApplicationDbContextInitializer>();
+
+// ─────────────────────────────────────────────────────────────────────────────────
+// 6. ASP.NET Framework Services
+// ─────────────────────────────────────────────────────────────────────────────────
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -95,10 +137,28 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddOpenApi();
-
 builder.Services.AddHttpContextAccessor();
 
+// ─────────────────────────────────────────────────────────────────────────────────
+// 7. Build the app
+// ─────────────────────────────────────────────────────────────────────────────────
 WebApplication app = builder.Build();
+
+// Seed database on startup
+using (var scope = app.Services.CreateScope())
+{
+    var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+    try
+    {
+        await initialiser.InitialiseAsync();
+        await initialiser.SeedAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred during database seeding. App will continue without seeding.");
+    }
+}
 
 app.UseExceptionHandler();
 app.UseCors("AllowAll");
@@ -111,6 +171,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
