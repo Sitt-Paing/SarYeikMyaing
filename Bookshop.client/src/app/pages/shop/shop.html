@@ -3,10 +3,10 @@
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
     <div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-        စာအုပ်များ အားလုံး (Browse Books)
+        {{ 'SHOP.TITLE' | translate }}
       </h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        ရှာဖွေတွေ့ရှိသော စာအုပ် စုစုပေါင်း: <strong class="text-brand-600">{{ totalRecords }}</strong> အုပ်
+        {{ 'SHOP.FOUND_COUNT' | translate: { count: totalRecords } }}
       </p>
     </div>
   </div>
@@ -14,16 +14,16 @@
   <!-- Main Shop Content Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
     <!-- Left Filter Sidebar -->
-    <aside class="hidden lg:block lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6 sticky top-28">
+    <aside class="hidden lg:block lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6 sticky top-28">
       <div>
-        <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Categories (ကဏ္ဍများ)</h3>
+        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">{{ 'NAVBAR.CATEGORIES' | translate }}</h3>
         <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
           <button
             (click)="selectCategory(null)"
             [class]="selectedCategoryId === null ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
-            class="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors"
+            class="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer"
           >
-            <span>အားလုံး (All Categories)</span>
+            <span>{{ 'SHOP.ALL_CATEGORIES' | translate }}</span>
             @if (selectedCategoryId === null) {
               <i class="pi pi-check text-xs"></i>
             }
@@ -33,7 +33,7 @@
             <button
               (click)="selectCategory(cat.id)"
               [class]="selectedCategoryId === cat.id ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
-              class="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors"
+              class="w-full text-left px-3 py-2 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer"
             >
               <span class="truncate">{{ cat.name }}</span>
               @if (selectedCategoryId === cat.id) {
@@ -46,63 +46,94 @@
 
       <button
         (click)="resetFilters()"
-        class="w-full py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+        class="w-full py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
       >
-        Reset All Filters
+        {{ 'SHOP.RESET_FILTERS' | translate }}
       </button>
     </aside>
 
     <!-- Right Products Area -->
     <main class="lg:col-span-3 space-y-6">
       <!-- Filter & Sorting Top Bar -->
-      <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="relative w-full sm:w-80">
           <input
             type="text"
             [(ngModel)]="searchQuery"
             (keyup.enter)="applyFilters()"
-            placeholder="Search books..."
-            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+            [placeholder]="'NAVBAR.SEARCH_PLACEHOLDER' | translate"
+            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
           />
           <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
         </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <span class="text-xs text-slate-500 font-medium whitespace-nowrap">Sort By:</span>
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <span class="text-xs text-slate-500 whitespace-nowrap">{{ 'SHOP.SORT_BY' | translate }}</span>
           <select
             [(ngModel)]="sortOption"
             (change)="onSortChange()"
-            class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 focus:outline-none focus:border-brand-500"
+            class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:border-brand-500"
           >
-            <option value="id_desc">Newest First (အသစ်ဆုံး)</option>
-            <option value="price_asc">Price: Low to High (ဈေးနှုန်း အနိမ့်မှ အမြင့်)</option>
-            <option value="price_desc">Price: High to Low (ဈေးနှုန်း အမြင့်မှ အနိမ့်)</option>
-            <option value="title_asc">Title: A to Z</option>
+            <option value="id_desc">{{ 'SHOP.NEWEST' | translate }}</option>
+            <option value="price_asc">{{ 'SHOP.PRICE_LOW_HIGH' | translate }}</option>
+            <option value="price_desc">{{ 'SHOP.PRICE_HIGH_LOW' | translate }}</option>
+            <option value="title_asc">{{ 'SHOP.TITLE_A_Z' | translate }}</option>
           </select>
         </div>
       </div>
 
+      <!-- Mobile Categories Horizontal Scroll (visible only on mobile/tablet) -->
+      @if (categories.length > 0) {
+        <div class="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide">
+          <button
+            (click)="selectCategory(null)"
+            [class]="selectedCategoryId === null ? 'bg-brand-500 text-white shadow-sm font-bold' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
+            class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer shrink-0"
+          >
+            {{ 'SHOP.ALL_CATEGORIES' | translate }}
+          </button>
+          @for (cat of categories; track cat.id) {
+            <button
+              (click)="selectCategory(cat.id)"
+              [class]="selectedCategoryId === cat.id ? 'bg-brand-500 text-white shadow-sm font-bold' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
+              class="px-3.5 py-2 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer shrink-0"
+            >
+              {{ cat.name }}
+            </button>
+          }
+        </div>
+      }
+
       <!-- Books Grid -->
-      @if (books.length > 0) {
+      @if (isLoading) {
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+            <div class="bg-white rounded-3xl border border-slate-200/80 p-4 space-y-3 animate-pulse">
+              <div class="w-full h-48 bg-slate-200 rounded-2xl"></div>
+              <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+              <div class="h-3 bg-slate-200 rounded w-1/2"></div>
+            </div>
+          }
+        </div>
+      } @else if (books.length > 0) {
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
           @for (book of books; track book.id) {
             <app-book-card [book]="book"></app-book-card>
           }
         </div>
       } @else {
-        <div class="p-12 text-center bg-white rounded-2xl border border-slate-200 space-y-4">
-          <div class="w-16 h-16 rounded-full bg-brand-50 text-brand-500 flex items-center justify-center text-2xl mx-auto">
+        <!-- Empty State -->
+        <div class="bg-white p-12 rounded-3xl border border-slate-200/80 text-center space-y-4 shadow-sm">
+          <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto">
             <i class="pi pi-search"></i>
           </div>
-          <h3 class="text-lg font-bold text-slate-800">စာအုပ် ရှာမတွေ့ပါ (No Books Found)</h3>
-          <p class="text-xs text-slate-500 max-w-sm mx-auto">
-            သင်ရှာဖွေနေသော အချက်အလက်များနှင့် ကိုက်ညီသည့် စာအုပ် မရှိသေးပါ။
-          </p>
+          <h2 class="text-base font-bold text-slate-900">{{ 'BOOKS.NO_BOOKS' | translate }}</h2>
+          <p class="text-xs text-slate-500">{{ 'HOME.NO_BOOKS_FILTER' | translate }}</p>
           <button
             (click)="resetFilters()"
-            class="px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs shadow-brand-glow"
+            class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer"
           >
-            Clear All Filters
+            {{ 'SHOP.RESET_FILTERS' | translate }}
           </button>
         </div>
       }
