@@ -10,7 +10,6 @@ import { MmkCurrencyPipe } from '../../pipes/mmk-currency.pipe';
   standalone: true,
   imports: [CommonModule, RouterLink, MmkCurrencyPipe],
   templateUrl: './book-card.html',
-  styleUrl: './book-card.scss',
 })
 export class BookCard {
   private readonly cartService = inject(CartState);
