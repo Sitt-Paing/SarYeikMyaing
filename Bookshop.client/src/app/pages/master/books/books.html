@@ -28,8 +28,8 @@
   <!-- Filter & Table Card -->
   <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-4 sm:p-6 space-y-4">
     <!-- Filter Row -->
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-3 w-full sm:w-auto">
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
         <p-iconField iconPosition="left" class="w-full sm:w-80">
           <p-inputIcon styleClass="pi pi-search text-slate-400"></p-inputIcon>
           <input
@@ -49,32 +49,26 @@
           optionValue="id"
           [placeholder]="'BOOKS.ALL_CATEGORIES' | translate"
           [showClear]="true"
-          styleClass="w-52 text-xs"
+          styleClass="w-full sm:w-52 text-xs"
         ></p-select>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 self-end sm:self-auto">
         <button
           pButton
           icon="pi pi-refresh"
           (click)="loadData()"
-          class="p-button-text p-button-rounded p-button-sm text-slate-600 hover:text-slate-900"
+          class="p-button-text p-button-rounded p-button-sm text-slate-600 hover:text-slate-900 cursor-pointer"
           [title]="'COMMON.RELOAD' | translate"
-        ></button>
-        <button
-          pButton
-          icon="pi pi-file-excel"
-          (click)="excel()"
-          class="p-button-success p-button-outlined p-button-sm"
-          [label]="'COMMON.EXCEL' | translate"
         ></button>
       </div>
     </div>
 
-    <!-- PrimeNG DataTable -->
-    <p-table
-      #tblBooks
-      [value]="filteredBooks"
+    <!-- PrimeNG DataTable (wrapped in overflow container) -->
+    <div class="overflow-x-auto -mx-4 sm:mx-0">
+      <p-table
+        #tblBooks
+        [value]="filteredBooks"
       [loading]="isLoading"
       [paginator]="true"
       [rows]="10"
@@ -82,7 +76,7 @@
       [(selection)]="selectedBook"
       selectionMode="single"
       dataKey="id"
-      [globalFilterFields]="['title', 'isbn', 'publisher', 'language']"
+      [globalFilterFields]="['title', 'author', 'isbn', 'publisher', 'language']"
       responsiveLayout="stack"
       styleClass="p-datatable-sm"
       [showCurrentPageReport]="true"
@@ -117,7 +111,8 @@
           </td>
           <td>
             <span class="font-bold text-slate-900 block truncate max-w-xs">{{ book.title }}</span>
-            <span class="text-[11px] text-slate-400">{{ book.language || 'English' }}</span>
+            <span class="text-[11px] text-slate-500 block truncate max-w-xs">{{ book.author || '-' }}</span>
+            <span class="text-[10px] text-slate-400">{{ book.language || 'English' }}</span>
           </td>
           <td>
             <p-tag [value]="getCategoryName(book.categoryId)" severity="info"></p-tag>
@@ -154,6 +149,7 @@
         </tr>
       </ng-template>
     </p-table>
+    </div>
   </div>
 
   <!-- Create / Edit Dialog with Form -->
@@ -163,157 +159,195 @@
     [modal]="true"
     [draggable]="false"
     [resizable]="false"
-    [breakpoints]="{ '960px': '75vw', '640px': '95vw' }"
-    [style]="{ width: '90vw', maxWidth: '700px' }"
+    [breakpoints]="{ '960px': '85vw', '640px': '95vw' }"
+    [style]="{ width: '92vw', maxWidth: '680px' }"
     styleClass="p-fluid"
   >
-    <form [formGroup]="bookForm" (ngSubmit)="save()" class="space-y-4 py-2 text-xs">
-      <!-- Title -->
-      <div class="space-y-1">
-        <label class="font-bold text-slate-700">{{ 'BOOKS.BOOK_TITLE' | translate }} <span class="text-rose-500">*</span></label>
-        <input
-          pInputText
-          type="text"
-          formControlName="title"
-          placeholder="e.g. Clean Architecture"
-          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
-        />
-        @if (bookForm.get('title')?.touched && bookForm.get('title')?.invalid) {
-          <small class="text-rose-500 font-medium">Title is required.</small>
-        }
-      </div>
-
-      <!-- Category & Author Selects -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <form [formGroup]="bookForm" (ngSubmit)="save()" class="flex flex-col space-y-4 pt-1">
+      <div class="max-h-[68vh] overflow-y-auto pr-1 space-y-4 text-xs">
+        <!-- Title -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.CATEGORY' | translate }} <span class="text-rose-500">*</span></label>
-          <p-select
-            [options]="categories"
-            formControlName="categoryId"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select Category"
-            styleClass="w-full text-xs"
-          ></p-select>
-        </div>
-
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.AUTHOR' | translate }} <span class="text-rose-500">*</span></label>
-          <p-select
-            [options]="authors"
-            formControlName="authorId"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select Author"
-            styleClass="w-full text-xs"
-          ></p-select>
-        </div>
-      </div>
-
-      <!-- Pricing & Stock -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.PRICE' | translate }} (MMK) <span class="text-rose-500">*</span></label>
+          <label class="font-bold text-slate-700">{{ 'BOOKS.BOOK_TITLE' | translate }} <span class="text-rose-500">*</span></label>
           <input
             pInputText
-            type="number"
-            formControlName="price"
-            placeholder="15000"
-            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            type="text"
+            formControlName="title"
+            placeholder="e.g. Clean Architecture"
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all leading-relaxed"
           />
+          @if (bookForm.get('title')?.touched && bookForm.get('title')?.invalid) {
+            <small class="text-rose-500 font-medium">Title is required.</small>
+          }
         </div>
 
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.ORIGINAL_PRICE' | translate }} (MMK)</label>
-          <input
-            pInputText
-            type="number"
-            formControlName="originalPrice"
-            placeholder="18000"
-            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
-          />
-        </div>
-
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.STOCK' | translate }} <span class="text-rose-500">*</span></label>
-          <input
-            pInputText
-            type="number"
-            formControlName="stockQuantity"
-            placeholder="25"
-            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
-          />
-        </div>
-      </div>
-
-      <!-- Image Upload -->
-      <div class="space-y-2 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-        <label class="font-bold text-slate-700 block">{{ 'BOOKS.COVER_IMAGE' | translate }}</label>
-        <div class="flex flex-col sm:flex-row items-center gap-4">
-          <div class="w-20 h-28 rounded-xl border border-slate-300 bg-white overflow-hidden flex items-center justify-center shrink-0 shadow-sm">
-            @if (imagePreview) {
-              <img [src]="imagePreview" alt="Preview" class="w-full h-full object-cover" />
-            } @else {
-              <i class="pi pi-image text-2xl text-slate-300"></i>
-            }
+        <!-- Category & Author Selects -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.CATEGORY' | translate }} <span class="text-rose-500">*</span></label>
+            <p-select
+              [options]="categories"
+              formControlName="categoryId"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Select Category"
+              styleClass="w-full text-xs"
+            ></p-select>
           </div>
 
-          <div class="flex-1 w-full space-y-2">
-            <input
-              type="file"
-              accept="image/*"
-              (change)="onImageSelected($event)"
-              class="block w-full text-xs text-slate-500 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100 cursor-pointer"
-            />
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.AUTHOR' | translate }} <span class="text-rose-500">*</span></label>
             <input
               pInputText
               type="text"
-              formControlName="imageUrl"
-              placeholder="Or paste direct image URL (https://...)"
+              formControlName="author"
+              placeholder="Enter author name"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all leading-relaxed"
+            />
+            @if (bookForm.get('author')?.touched && bookForm.get('author')?.invalid) {
+              <small class="text-rose-500 font-medium">Author name is required.</small>
+            }
+          </div>
+        </div>
+
+        <!-- Pricing & Stock -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.PRICE' | translate }} (MMK) <span class="text-rose-500">*</span></label>
+            <input
+              pInputText
+              type="number"
+              formControlName="price"
+              placeholder="15000"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.ORIGINAL_PRICE' | translate }} (MMK)</label>
+            <input
+              pInputText
+              type="number"
+              formControlName="originalPrice"
+              placeholder="18000"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.STOCK' | translate }} <span class="text-rose-500">*</span></label>
+            <input
+              pInputText
+              type="number"
+              formControlName="stockQuantity"
+              placeholder="25"
               class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
         </div>
-      </div>
 
-      <!-- ISBN & Publisher -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.ISBN' | translate }} <span class="text-rose-500">*</span></label>
-          <input
-            pInputText
-            type="text"
-            formControlName="isbn"
-            placeholder="978-0132350884"
-            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
-          />
+        <!-- Image Upload UX -->
+        <div class="p-3.5 rounded-2xl bg-slate-50/80 border border-slate-200/90 space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-bold text-slate-700 text-xs">{{ 'BOOKS.COVER_IMAGE' | translate }}</label>
+            @if (imagePreview) {
+              <button
+                type="button"
+                (click)="removeImage()"
+                class="text-[11px] font-semibold text-rose-600 hover:text-rose-700 flex items-center gap-1 transition-colors"
+              >
+                <i class="pi pi-trash text-xs"></i>
+                <span>Remove</span>
+              </button>
+            }
+          </div>
+
+          <div class="flex flex-col sm:flex-row items-center gap-4">
+            <div class="w-20 h-28 rounded-xl border border-slate-300 bg-white overflow-hidden flex items-center justify-center shrink-0 shadow-sm relative">
+              @if (imagePreview) {
+                <img [src]="imagePreview" alt="Preview" class="w-full h-full object-cover" />
+              } @else {
+                <div class="flex flex-col items-center justify-center text-slate-300 space-y-1">
+                  <i class="pi pi-image text-2xl"></i>
+                  <span class="text-[9px] text-slate-400 font-medium">No Image</span>
+                </div>
+              }
+              @if (isUploadingImage) {
+                <div class="absolute inset-0 bg-white/80 flex items-center justify-center">
+                  <i class="pi pi-spin pi-spinner text-brand-500 text-lg"></i>
+                </div>
+              }
+            </div>
+
+            <div class="flex-1 w-full space-y-2">
+              <div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onImageSelected($event)"
+                  class="block w-full text-xs text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-600 hover:file:bg-brand-100 cursor-pointer"
+                />
+                @if (isUploadingImage) {
+                  <span class="text-[10px] text-brand-600 font-medium mt-0.5 block flex items-center gap-1">
+                    <i class="pi pi-spin pi-spinner text-[10px]"></i> Uploading cover image...
+                  </span>
+                }
+              </div>
+
+              <div class="space-y-1">
+                <span class="text-[10px] text-slate-400 block font-medium">Or paste image web link:</span>
+                <input
+                  pInputText
+                  type="text"
+                  formControlName="imageUrl"
+                  (input)="onImageUrlChange($any($event.target).value)"
+                  placeholder="https://images.unsplash.com/photo-..."
+                  class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+                />
+              </div>
+            </div>
+          </div>
         </div>
 
+        <!-- ISBN & Publisher -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.ISBN' | translate }} <span class="text-rose-500">*</span></label>
+            <input
+              pInputText
+              type="text"
+              formControlName="isbn"
+              placeholder="978-0132350884"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.PUBLISHER' | translate }}</label>
+            <input
+              pInputText
+              type="text"
+              formControlName="publisher"
+              placeholder="e.g. Pearson"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            />
+          </div>
+        </div>
+
+        <!-- Description with Burmese typography line-height support -->
         <div class="space-y-1">
-          <label class="font-bold text-slate-700">{{ 'BOOKS.PUBLISHER' | translate }}</label>
-          <input
+          <label class="font-bold text-slate-700">{{ 'COMMON.DESCRIPTION' | translate }}</label>
+          <textarea
             pInputText
-            type="text"
-            formControlName="publisher"
-            placeholder="e.g. Pearson"
-            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
-          />
+            rows="4"
+            formControlName="description"
+            placeholder="Summary and overview (Burmese Unicode / Zawgyi supported)..."
+            class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all leading-relaxed py-2.5 px-3 min-h-[90px]"
+          ></textarea>
         </div>
       </div>
 
-      <!-- Description -->
-      <div class="space-y-1">
-        <label class="font-bold text-slate-700">{{ 'COMMON.DESCRIPTION' | translate }}</label>
-        <textarea
-          pInputText
-          rows="4"
-          formControlName="description"
-          placeholder="Summary and overview..."
-          class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
-        ></textarea>
-      </div>
-
-      <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+      <!-- Sticky Footer Actions -->
+      <div class="flex justify-end items-center gap-2 pt-3 border-t border-slate-100">
         <button
           pButton
           type="button"
