@@ -71,6 +71,60 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
         });
     }
 
+    [HttpPost("upload-slip")]
+    [EndpointSummary("Upload Payment Slip Screenshot")]
+    public async Task<IActionResult> UploadSlipAsync([FromForm] IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "No file was uploaded.",
+                Data = null
+            });
+        }
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(ext))
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Invalid image file type. Allowed: .jpg, .jpeg, .png, .webp",
+                Data = null
+            });
+        }
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "slips");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var uniqueFileName = $"slip_{Guid.NewGuid():N}{ext}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var request = HttpContext.Request;
+        var slipUrl = $"{request.Scheme}://{request.Host}/uploads/slips/{uniqueFileName}";
+
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = 200,
+            Message = "Payment slip uploaded successfully",
+            Data = new { url = slipUrl, fileName = uniqueFileName }
+        });
+    }
+
     [HttpPost]
     [EndpointSummary("Create Order (Supports Authenticated & Guest Mode)")]
     public async Task<IActionResult> CreateAsync([FromBody] Order model)
@@ -100,7 +154,10 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
                 ShippingFee = model.ShippingFee,
                 Discount = model.Discount,
                 TotalAmount = model.TotalAmount,
-                Status = string.IsNullOrWhiteSpace(model.Status) ? "Pending" : model.Status,
+                PaymentMethod = model.PaymentMethod,
+                PaymentSlipUrl = model.PaymentSlipUrl,
+                PaymentNotes = model.PaymentNotes,
+                Status = "Pending", // Order confirmation pending until admin approval
                 CreatedOn = DateTime.Now,
                 CreatedBy = currentUserId ?? "Guest"
             };
@@ -235,5 +292,96 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
                 Message = "Failed to delete order",
                 Data = null
             });
+    }
+    [HttpPut("{id}/approve")]
+    [EndpointSummary("Admin: Approve Pending Order")]
+    public async Task<IActionResult> ApproveOrderAsync(string id)
+    {
+        var existingOrder = await _repo.Orders.GetByIdAsync(id);
+        if (existingOrder == null || existingOrder.DeletedOn.HasValue)
+        {
+            return NotFound(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 404,
+                Message = "Order not found",
+                Data = null
+            });
+        }
+
+        var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        existingOrder.Status = "Confirmed";
+        existingOrder.UpdatedOn = DateTime.Now;
+        existingOrder.UpdatedBy = currentUserId ?? "admin";
+
+        _repo.Orders.Update(existingOrder);
+        return await _repo.SaveAsync()
+            ? Ok(new DefaultResponseModel
+            {
+                Success = true,
+                Statuscode = 200,
+                Message = "Order confirmed successfully",
+                Data = existingOrder
+            })
+            : BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Failed to confirm order",
+                Data = null
+            });
+    }
+
+    [HttpPut("{id}/reject")]
+    [EndpointSummary("Admin: Reject Pending Order")]
+    public async Task<IActionResult> RejectOrderAsync(string id)
+    {
+        var existingOrder = await _repo.Orders.GetByIdAsync(id);
+        if (existingOrder == null || existingOrder.DeletedOn.HasValue)
+        {
+            return NotFound(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 404,
+                Message = "Order not found",
+                Data = null
+            });
+        }
+
+        var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        existingOrder.Status = "Cancelled";
+        existingOrder.UpdatedOn = DateTime.Now;
+        existingOrder.UpdatedBy = currentUserId ?? "admin";
+
+        _repo.Orders.Update(existingOrder);
+        return await _repo.SaveAsync()
+            ? Ok(new DefaultResponseModel
+            {
+                Success = true,
+                Statuscode = 200,
+                Message = "Order rejected",
+                Data = existingOrder
+            })
+            : BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Failed to reject order",
+                Data = null
+            });
+    }
+
+    [HttpGet("pending")]
+    [EndpointSummary("Get Pending Orders (for admin notification)")]
+    public async Task<IActionResult> GetPendingAsync()
+    {
+        var data = await _repo.Orders.GetAsync(x => x.Status == "Pending" && !x.DeletedOn.HasValue);
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = 200,
+            Message = "Success",
+            Data = data
+        });
     }
 }
