@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.Entities;
@@ -12,12 +13,15 @@ public partial class Order
 {
     [Key]
     [StringLength(50)]
-    public string Id { get; set; } = null!;
+    [ValidateNever]
+    public string? Id { get; set; }
 
     [StringLength(50)]
-    public string OrderNumber { get; set; } = null!;
+    [ValidateNever]
+    public string? OrderNumber { get; set; }
 
-    public int? UserId { get; set; }
+    [StringLength(450)]
+    public string? UserId { get; set; }
 
     [StringLength(100)]
     public string CusName { get; set; } = null!;
@@ -49,8 +53,17 @@ public partial class Order
     public decimal TotalAmount { get; set; }
 
     [StringLength(50)]
+    public string? PaymentMethod { get; set; }
+
+    public string? PaymentSlipUrl { get; set; }
+
+    [StringLength(500)]
+    public string? PaymentNotes { get; set; }
+
+    [StringLength(50)]
     [Unicode(false)]
-    public string Status { get; set; } = null!;
+    [ValidateNever]
+    public string Status { get; set; } = "Pending";
 
     [Column(TypeName = "datetime")]
     public DateTime? CreatedOn { get; set; }
