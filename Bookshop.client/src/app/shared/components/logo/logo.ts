@@ -7,7 +7,6 @@ import { RouterLink } from '@angular/router';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './logo.html',
-  styleUrl: './logo.scss',
 })
 export class Logo {
   size = input<'sm' | 'md' | 'lg'>('md');
