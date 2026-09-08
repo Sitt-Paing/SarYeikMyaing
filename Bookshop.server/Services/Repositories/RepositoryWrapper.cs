@@ -22,14 +22,6 @@ public class RepositoryWrapper(
     private readonly IHttpContextAccessor _accessor = accessor ?? throw new Exception("Http Context is null");
     private readonly IConfiguration _configuration = configuration ?? throw new Exception("Configuration is null");
 
-    public IAuthorRepo Authors
-    {
-        get
-        {
-            field ??= new AuthorRepo(context);
-            return field;
-        }
-    }
 
     public IBookRepo Books
     {
