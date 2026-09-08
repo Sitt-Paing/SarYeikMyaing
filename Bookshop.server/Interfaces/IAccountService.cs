@@ -7,7 +7,7 @@ public interface IAccountService
 {
     Task<IdentityResult> RegisterAsync(RegisterDto dto);
 
-    Task<(string AccessToken, string RefreshToken, DateTime Expiry)?> LoginAsync(LoginDto dto);
+    Task<(string AccessToken, string RefreshToken, DateTime Expiry, string UserId, string UserName, string Email, IList<string> Roles)?> LoginAsync(LoginDto dto);
 
     Task<string?> GenerateResetTokenAsync(string email);
 
