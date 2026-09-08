@@ -7,7 +7,6 @@ export class SharedService {
   private readonly USERNAME_KEY = 'userName';
   private readonly EMAIL_KEY = 'email';
   private readonly ROLES_KEY = 'userRoles';
-  private readonly TOKEN_KEY = 'token';
   private readonly THEME_KEY = 'theme';
 
   sidebarCollapsed = signal<boolean>(false);
@@ -15,39 +14,44 @@ export class SharedService {
 
   public userNameSignal = signal<string>(this.getStoredUserName());
   public userRolesSignal = signal<string[]>(this.getStoredUserRoles());
-  public tokenSignal = signal<string | null>(this.getStoredToken());
 
   constructor() {
     this.applyDarkModeClass(this.isDarkMode());
+    // Clean up any legacy sensitive tokens from local storage if present
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('TOKEN_KEY');
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+    }
   }
 
   // --- User Session State ---
 
-  storeUserData(token: string, userName: string, email: string, roles: string[]): void {
-    if (token) {
-      localStorage.setItem(this.TOKEN_KEY, token);
-      this.tokenSignal.set(token);
+  storeUserData(userName: string, email: string, roles: string[]): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.USERNAME_KEY, userName);
+      localStorage.setItem(this.EMAIL_KEY, email);
+      localStorage.setItem(this.ROLES_KEY, JSON.stringify(roles));
     }
-    localStorage.setItem(this.USERNAME_KEY, userName);
-    localStorage.setItem(this.EMAIL_KEY, email);
-    localStorage.setItem(this.ROLES_KEY, JSON.stringify(roles));
 
     this.userNameSignal.set(userName);
     this.userRolesSignal.set(roles);
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USERNAME_KEY);
-    localStorage.removeItem(this.EMAIL_KEY);
-    localStorage.removeItem(this.ROLES_KEY);
-    this.tokenSignal.set(null);
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(this.USERNAME_KEY);
+      localStorage.removeItem(this.EMAIL_KEY);
+      localStorage.removeItem(this.ROLES_KEY);
+      localStorage.removeItem('token');
+    }
     this.userNameSignal.set('Guest');
     this.userRolesSignal.set([]);
   }
 
   isAuthenticated(): boolean {
-    return !!this.tokenSignal() && this.userNameSignal() !== 'Guest';
+    return this.userNameSignal() !== 'Guest' && this.userNameSignal().trim() !== '';
   }
 
   isAdmin(): boolean {
@@ -64,42 +68,39 @@ export class SharedService {
     return (name && name.length > 0 ? name.charAt(0) : 'U').toUpperCase();
   }
 
-  getToken(): string | null {
-    return this.tokenSignal();
-  }
-
   private getStoredUserName(): string {
+    if (typeof localStorage === 'undefined') return 'Guest';
     return localStorage.getItem(this.USERNAME_KEY) ?? 'Guest';
   }
 
   private getStoredUserRoles(): string[] {
+    if (typeof localStorage === 'undefined') return [];
     const raw = localStorage.getItem(this.ROLES_KEY);
     if (raw) {
       try {
         return JSON.parse(raw);
       } catch {
-        return [];
+        return [raw];
       }
     }
     return [];
   }
 
-  private getStoredToken(): string | null {
-    return localStorage.getItem(this.TOKEN_KEY);
-  }
-
   // --- UI Preferences ---
 
   private loadDarkModePreference(): boolean {
+    if (typeof localStorage === 'undefined') return false;
     const saved = localStorage.getItem(this.THEME_KEY);
     return saved === 'dark';
   }
 
   private applyDarkModeClass(dark: boolean): void {
-    if (dark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
+    if (typeof document !== 'undefined') {
+      if (dark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
     }
   }
 
@@ -110,7 +111,9 @@ export class SharedService {
   toggleDarkMode(): void {
     this.isDarkMode.update((val) => {
       const next = !val;
-      localStorage.setItem(this.THEME_KEY, next ? 'dark' : 'light');
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(this.THEME_KEY, next ? 'dark' : 'light');
+      }
       this.applyDarkModeClass(next);
       return next;
     });
