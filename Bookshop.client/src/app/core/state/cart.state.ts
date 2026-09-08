@@ -19,8 +19,8 @@ export class CartState {
   );
 
   readonly shippingFee = computed(() => {
-    const sub = this.subtotal();
-    return sub === 0 ? 0 : sub >= 50000 ? 0 : 2500;
+    // Storewide free nationwide delivery (as advertised in top banner)
+    return 0;
   });
 
   readonly grandTotal = computed(() => this.subtotal() + this.shippingFee());
@@ -76,6 +76,10 @@ export class CartState {
     const filtered = this.items().filter((i) => i.book.id !== bookId);
     this.items.set(filtered);
     this.saveCart();
+  }
+
+  removeFromCart(bookId: number): void {
+    this.removeItem(bookId);
   }
 
   clearCart(): void {
