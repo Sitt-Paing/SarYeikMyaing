@@ -2,55 +2,73 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   @if (completedOrder) {
-    <!-- Order Success State -->
+    <!-- Order Submitted & Pending State -->
     <div class="max-w-2xl mx-auto bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-xl text-center space-y-6">
-      <div class="w-20 h-20 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-4xl mx-auto shadow-inner">
-        <i class="pi pi-check"></i>
+      <div class="w-20 h-20 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-4xl mx-auto shadow-inner">
+        <i class="pi pi-clock"></i>
       </div>
 
-      <div>
-        <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">
-          Order Confirmed (မှာယူမှု အောင်မြင်ပါသည်)
+      <div class="space-y-2">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-200">
+          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+          {{ 'CHECKOUT.ORDER_PENDING_BADGE' | translate }}
         </span>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3">
-          ကျေးဇူးတင်ရှိပါသည်၊ {{ completedOrder.customerName }}!
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
+          {{ 'CHECKOUT.THANK_YOU' | translate }}, {{ completedOrder.cusName }}!
         </h1>
-        <p class="text-xs sm:text-sm text-slate-500 mt-2">
-          သင်၏ စာအုပ်မှာယူမှု အမှတ်မှာ <strong class="text-brand-600 font-mono">{{ completedOrder.orderNumber || ('#' + completedOrder.id) }}</strong> ဖြစ်ပါသည်။
+        <p class="text-xs sm:text-sm text-slate-500">
+          {{ 'CHECKOUT.ORDER_NO' | translate }}: <strong class="text-brand-600 font-mono">{{ completedOrder.orderNumber || completedOrder.id }}</strong>
         </p>
       </div>
 
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-100 text-xs sm:text-sm text-left space-y-2">
+      <!-- Pending Notification Notice -->
+      <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-left text-xs text-amber-900 space-y-1">
+        <div class="flex items-center gap-2 font-bold text-amber-800">
+          <i class="pi pi-info-circle text-sm"></i>
+          <span>{{ 'CHECKOUT.PENDING_NOTICE_TITLE' | translate }}</span>
+        </div>
+        <p class="leading-relaxed pl-6">
+          {{ 'CHECKOUT.PENDING_NOTICE_DESC' | translate }}
+        </p>
+      </div>
+
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-left space-y-2.5">
         <div class="flex justify-between text-slate-600">
-          <span>လိပ်စာ:</span>
-          <span class="font-bold text-slate-800 text-right">{{ completedOrder.shippingAddress }}, {{ completedOrder.city }}</span>
+          <span>{{ 'CHECKOUT.ADDRESS' | translate }}:</span>
+          <span class="font-bold text-slate-800 text-right">{{ completedOrder.shippingAddress }}, {{ completedOrder.shippingCity }}</span>
         </div>
         <div class="flex justify-between text-slate-600">
-          <span>ငွေပေးချေမှု:</span>
+          <span>{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}:</span>
           <span class="font-bold text-brand-600">{{ completedOrder.paymentMethod }}</span>
         </div>
-        <div class="flex justify-between text-slate-600">
-          <span>စုစုပေါင်း ကျသင့်ငွေ:</span>
-          <span class="font-extrabold text-slate-900">{{ completedOrder.grandTotal | mmkCurrency }}</span>
+        <div class="flex justify-between text-slate-600 border-t border-slate-200 pt-2 text-sm font-extrabold text-slate-900">
+          <span>{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}:</span>
+          <span class="text-brand-600">{{ completedOrder.totalAmount | mmkCurrency }}</span>
         </div>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-3 justify-center pt-4">
+      <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
         <a
           routerLink="/orders"
           class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center justify-center gap-2"
         >
-          <i class="pi pi-box"></i> မှာယူမှု စာရင်း ကြည့်ရှုမည် (View Orders)
+          <i class="pi pi-box"></i> {{ 'NAVBAR.ORDERS' | translate }}
+        </a>
+        <a
+          routerLink="/books"
+          class="px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all flex items-center justify-center gap-2"
+        >
+          <i class="pi pi-arrow-left"></i> {{ 'HOME.BROWSE_ALL' | translate }}
         </a>
       </div>
     </div>
   } @else if (cartService.items().length === 0) {
-    <div class="max-w-md mx-auto p-12 bg-white rounded-3xl border border-slate-200 text-center space-y-4">
-      <i class="pi pi-info-circle text-4xl text-brand-500"></i>
-      <h2 class="text-lg font-bold text-slate-900">သင့်ခြင်းထဲတွင် စာအုပ် မရှိပါ</h2>
-      <p class="text-xs text-slate-500">ငွေပေးချေရန်အတွက် စာအုပ်များကို အရင် ရွေးချယ်ပေးပါ။</p>
-      <a routerLink="/books" class="inline-block px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs">
-        စာအုပ်များ ကြည့်ရှုမည်
+    <div class="max-w-md mx-auto p-12 bg-white rounded-3xl border border-slate-200 text-center space-y-4 shadow-sm">
+      <i class="pi pi-shopping-cart text-5xl text-slate-300"></i>
+      <h2 class="text-lg font-bold text-slate-900">{{ 'CHECKOUT.EMPTY_CART_TITLE' | translate }}</h2>
+      <p class="text-xs text-slate-500">{{ 'CHECKOUT.EMPTY_CART_DESC' | translate }}</p>
+      <a routerLink="/books" class="inline-block px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs shadow-sm hover:bg-brand-600 transition-colors">
+        {{ 'HOME.BROWSE_ALL' | translate }}
       </a>
     </div>
   } @else {
@@ -58,122 +76,254 @@
     <div class="flex items-center justify-between pb-4 border-b border-slate-200">
       <div>
         <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-          ငွေပေးချေခြင်း (Checkout)
+          {{ 'CHECKOUT.TITLE' | translate }}
         </h1>
         <p class="text-xs sm:text-sm text-slate-500 mt-1">
-          ပို့ဆောင်မည့် လိပ်စာနှင့် ငွေပေးချေမှု နည်းလမ်းကို ဖြည့်စွက်ပါ
+          {{ 'CHECKOUT.SUBTITLE' | translate }}
         </p>
       </div>
     </div>
 
     <form (submit)="onSubmitOrder($event)" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-      <!-- Shipping Form -->
+      <!-- Form Column -->
       <div class="lg:col-span-7 space-y-6">
+        
+        <!-- 1. Shipping Details -->
         <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
           <div class="flex items-center gap-2 text-slate-900 font-bold text-sm uppercase tracking-wider pb-2 border-b border-slate-100">
-            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">1</span>
-            <span>ပို့ဆောင်မည့် လိပ်စာ (Shipping Details)</span>
+            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs font-extrabold">1</span>
+            <span>{{ 'CHECKOUT.SHIPPING_SECTION' | translate }}</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-700">အမည် (Name) *</label>
+              <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.NAME' | translate }} *</label>
               <input
                 type="text"
                 [(ngModel)]="formData.customerName"
                 name="customerName"
                 required
-                placeholder="e.g. Sitt Paing"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+                placeholder="Mg Mg"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
               />
             </div>
 
             <div class="space-y-1">
-              <label class="text-xs font-semibold text-slate-700">ဖုန်းနံပါတ် (Phone Number) *</label>
+              <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.PHONE' | translate }} *</label>
               <input
                 type="tel"
                 [(ngModel)]="formData.customerPhone"
                 name="customerPhone"
                 required
                 placeholder="09XXXXXXXXX"
-                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
               />
             </div>
           </div>
 
           <div class="space-y-1">
-            <label class="text-xs font-semibold text-slate-700">အပြည့်အစုံ လိပ်စာ (Address) *</label>
+            <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.EMAIL' | translate }}</label>
+            <input
+              type="email"
+              [(ngModel)]="formData.customerEmail"
+              name="customerEmail"
+              placeholder="example@gmail.com"
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.ADDRESS' | translate }} *</label>
             <textarea
               [(ngModel)]="formData.shippingAddress"
               name="shippingAddress"
               required
               rows="2"
-              placeholder="အိမ်အမှတ်၊ လမ်း၊ မြို့နယ်..."
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
+              placeholder="Building, Street, Township..."
+              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
             ></textarea>
           </div>
 
-          <div class="space-y-1">
-            <label class="text-xs font-semibold text-slate-700">မြို့ (City) *</label>
-            <input
-              type="text"
-              [(ngModel)]="formData.city"
-              name="city"
-              required
-              placeholder="Yangon"
-              class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none"
-            />
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.CITY' | translate }} *</label>
+              <input
+                type="text"
+                [(ngModel)]="formData.city"
+                name="city"
+                required
+                placeholder="Yangon"
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
+              />
+            </div>
+
+            <div class="space-y-1">
+              <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.TOWNSHIP' | translate }}</label>
+              <input
+                type="text"
+                [(ngModel)]="formData.shippingTownship"
+                name="shippingTownship"
+                placeholder="Hledan, Kamayut..."
+                class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
+              />
+            </div>
           </div>
         </div>
 
-        <!-- Payment Selection -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+        <!-- 2. Payment Method -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-5">
           <div class="flex items-center gap-2 text-slate-900 font-bold text-sm uppercase tracking-wider pb-2 border-b border-slate-100">
-            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs">2</span>
-            <span>ငွေပေးချေမှု နည်းလမ်း (Payment Method)</span>
+            <span class="w-6 h-6 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs font-extrabold">2</span>
+            <span>{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Radio Selector Cards -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
             <label
-              [class]="formData.paymentMethod === 'KBZPay' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20' : 'border-slate-200'"
-              class="p-4 rounded-xl border flex items-center gap-3 cursor-pointer"
+              [class]="formData.paymentMethod === 'KBZPay' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm' : 'border-slate-200 hover:border-slate-300'"
+              class="p-3.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all"
             >
-              <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="KBZPay" class="accent-brand-500" />
-              <div>
-                <span class="font-bold text-xs text-slate-900 block">KBZPay</span>
-                <span class="text-[11px] text-slate-500">QR / Transfer</span>
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-brand-600">KBZPay</span>
+                <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="KBZPay" class="accent-brand-500" />
               </div>
+              <span class="text-[11px] text-slate-500 mt-2">KPay Mobile Wallet</span>
             </label>
 
             <label
-              [class]="formData.paymentMethod === 'WavePay' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20' : 'border-slate-200'"
-              class="p-4 rounded-xl border flex items-center gap-3 cursor-pointer"
+              [class]="formData.paymentMethod === 'KBZBank' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm' : 'border-slate-200 hover:border-slate-300'"
+              class="p-3.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all"
             >
-              <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="WavePay" class="accent-brand-500" />
-              <div>
-                <span class="font-bold text-xs text-slate-900 block">WavePay</span>
-                <span class="text-[11px] text-slate-500">WaveMoney</span>
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-blue-700">KBZ Bank</span>
+                <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="KBZBank" class="accent-brand-500" />
               </div>
+              <span class="text-[11px] text-slate-500 mt-2">Bank Transfer</span>
             </label>
 
             <label
-              [class]="formData.paymentMethod === 'CashOnDelivery' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20' : 'border-slate-200'"
-              class="p-4 rounded-xl border flex items-center gap-3 cursor-pointer"
+              [class]="formData.paymentMethod === 'WavePay' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm' : 'border-slate-200 hover:border-slate-300'"
+              class="p-3.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all"
             >
-              <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="CashOnDelivery" class="accent-brand-500" />
-              <div>
-                <span class="font-bold text-xs text-slate-900 block">Cash On Delivery</span>
-                <span class="text-[11px] text-slate-500">Pay when delivered</span>
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-yellow-600">WavePay</span>
+                <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="WavePay" class="accent-brand-500" />
               </div>
+              <span class="text-[11px] text-slate-500 mt-2">WaveMoney Wallet</span>
+            </label>
+
+            <label
+              [class]="formData.paymentMethod === 'AYABank' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm' : 'border-slate-200 hover:border-slate-300'"
+              class="p-3.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-red-700">AYA Bank</span>
+                <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="AYABank" class="accent-brand-500" />
+              </div>
+              <span class="text-[11px] text-slate-500 mt-2">Bank Transfer</span>
+            </label>
+
+            <label
+              [class]="formData.paymentMethod === 'CashOnDelivery' ? 'border-brand-500 bg-brand-50/40 ring-2 ring-brand-500/20 shadow-sm' : 'border-slate-200 hover:border-slate-300'"
+              class="p-3.5 rounded-xl border flex flex-col justify-between cursor-pointer transition-all col-span-2 sm:col-span-1"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-xs text-emerald-700">Cash On Delivery</span>
+                <input type="radio" name="payment" [(ngModel)]="formData.paymentMethod" value="CashOnDelivery" class="accent-brand-500" />
+              </div>
+              <span class="text-[11px] text-slate-500 mt-2">Pay when delivered</span>
             </label>
           </div>
+
+          <!-- Bank Account / KPay Display Box -->
+          @if (formData.paymentMethod !== 'CashOnDelivery') {
+            @let account = currentAccount;
+            <div class="p-4 rounded-2xl bg-gradient-to-r from-brand-50/80 to-sky-50/80 border border-brand-200 space-y-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <i class="pi pi-credit-card text-brand-600 text-lg"></i>
+                  <div>
+                    <span class="text-xs font-bold text-slate-900 block">{{ account.type }}</span>
+                    <span class="text-[11px] text-slate-500">{{ account.accountName }}</span>
+                  </div>
+                </div>
+                <span class="px-2.5 py-1 rounded-full bg-brand-500 text-white text-[11px] font-mono font-bold tracking-wider">
+                  {{ account.accountNumber }}
+                </span>
+              </div>
+
+              <p class="text-[11px] text-slate-600 leading-relaxed">
+                {{ account.instructions }}
+              </p>
+            </div>
+
+            <!-- 3. Payslip Upload Section -->
+            <div class="space-y-3 pt-2">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <i class="pi pi-upload text-brand-500"></i>
+                  <span>{{ 'CHECKOUT.UPLOAD_SLIP' | translate }} <span class="text-rose-500">*</span></span>
+                </label>
+                @if (paymentSlipUrl) {
+                  <button
+                    type="button"
+                    (click)="removeSlip()"
+                    class="text-[11px] text-rose-500 hover:text-rose-700 font-semibold"
+                  >
+                    {{ 'CHECKOUT.REMOVE_SLIP' | translate }}
+                  </button>
+                }
+              </div>
+
+              @if (!paymentSlipUrl) {
+                <!-- Drag/Click to upload -->
+                <label class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-300 hover:border-brand-500 rounded-2xl cursor-pointer bg-slate-50 hover:bg-brand-50/20 transition-all text-center">
+                  <i class="pi pi-image text-3xl text-slate-400 mb-2"></i>
+                  <span class="text-xs font-bold text-slate-700">{{ 'CHECKOUT.CHOOSE_SLIP_IMAGE' | translate }}</span>
+                  <span class="text-[10px] text-slate-400 mt-1">PNG, JPG or JPEG (Max 5MB)</span>
+                  <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" />
+                </label>
+              } @else {
+                <!-- Slip Preview -->
+                <div class="relative rounded-2xl overflow-hidden border border-slate-200 max-w-xs bg-slate-100 p-2">
+                  <img [src]="paymentSlipUrl" alt="Payment Slip" class="w-full h-48 object-cover rounded-xl shadow-sm" />
+                  <div class="p-2 flex items-center justify-between text-xs font-semibold text-emerald-700">
+                    <span class="flex items-center gap-1">
+                      <i class="pi pi-check-circle"></i> Slip Attached
+                    </span>
+                    <label class="cursor-pointer text-brand-600 hover:underline text-[11px]">
+                      Change
+                      <input type="file" accept="image/*" (change)="onFileSelected($event)" class="hidden" />
+                    </label>
+                  </div>
+                </div>
+              }
+
+              @if (slipUploadError) {
+                <small class="text-rose-500 font-medium block">{{ slipUploadError }}</small>
+              }
+
+              <!-- Transaction Notes -->
+              <div class="space-y-1 pt-2">
+                <label class="text-xs font-semibold text-slate-700">{{ 'CHECKOUT.PAYMENT_NOTES' | translate }}</label>
+                <input
+                  type="text"
+                  [(ngModel)]="formData.paymentNotes"
+                  name="paymentNotes"
+                  placeholder="Last 6 digits of transaction ID or transfer remarks"
+                  class="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
+                />
+              </div>
+            </div>
+          }
         </div>
+
       </div>
 
-      <!-- Right Column: Summary -->
+      <!-- Right Column: Order Summary -->
       <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-6 sticky top-28">
         <h2 class="text-base font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-3">
-          Order Summary
+          {{ 'CHECKOUT.ORDER_SUMMARY' | translate }}
         </h2>
 
         <div class="max-h-60 overflow-y-auto space-y-3 pr-1 divide-y divide-slate-100">
@@ -188,9 +338,21 @@
           }
         </div>
 
-        <div class="space-y-2.5 text-xs sm:text-sm border-t border-slate-100 pt-4">
+        <div class="space-y-2 text-xs sm:text-sm border-t border-slate-100 pt-4">
+          <div class="flex items-center justify-between text-slate-600">
+            <span>{{ 'CHECKOUT.SUBTOTAL' | translate }}</span>
+            <span>{{ cartService.subtotal() | mmkCurrency }}</span>
+          </div>
+          <div class="flex items-center justify-between text-slate-600">
+            <span>{{ 'CHECKOUT.SHIPPING_FEE' | translate }}</span>
+            @if (cartService.shippingFee() === 0) {
+              <span class="text-emerald-600 font-semibold">{{ 'CHECKOUT.FREE_SHIPPING' | translate }}</span>
+            } @else {
+              <span class="text-slate-800 font-semibold">{{ cartService.shippingFee() | mmkCurrency }}</span>
+            }
+          </div>
           <div class="flex items-center justify-between text-base font-extrabold text-slate-900 border-t border-slate-200 pt-3">
-            <span>Total Amount</span>
+            <span>{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}</span>
             <span class="text-brand-600">{{ cartService.grandTotal() | mmkCurrency }}</span>
           </div>
         </div>
@@ -198,14 +360,20 @@
         <button
           type="submit"
           [disabled]="isSubmitting"
-          class="w-full py-4 rounded-xl font-bold text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:bg-slate-300"
+          class="w-full py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:bg-slate-300 cursor-pointer"
         >
           @if (isSubmitting) {
-            <i class="pi pi-spin pi-spinner"></i> Processing...
+            <i class="pi pi-spin pi-spinner"></i>
+            <span>{{ 'COMMON.SUBMITTING' | translate }}</span>
           } @else {
-            <i class="pi pi-check-circle"></i> မှာယူမှု အတည်ပြုမည် (Place Order)
+            <i class="pi pi-check-circle"></i>
+            <span>{{ 'CHECKOUT.SUBMIT_ORDER_BTN' | translate }}</span>
           }
         </button>
+
+        <p class="text-[10px] text-center text-slate-400">
+          {{ 'CHECKOUT.CONFIRMATION_EXPLANATION' | translate }}
+        </p>
       </div>
     </form>
   }
