@@ -174,7 +174,7 @@
               <a routerLink="/orders" class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-brand-600">
                 <i class="pi pi-box text-slate-400"></i> {{ 'NAVBAR.ORDERS' | translate }}
               </a>
-              <button (click)="sharedService.logout()" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 text-left">
+              <button (click)="onLogout()" class="w-full flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 text-left cursor-pointer">
                 <i class="pi pi-sign-out"></i> {{ 'ADMIN.LOGOUT' | translate }}
               </button>
             </div>
