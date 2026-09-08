@@ -1,86 +1,84 @@
-<footer class="bg-obsidian-900 text-slate-300 pt-16 pb-12 border-t border-obsidian-800 mt-auto">
+<footer class="bg-obsidian-900 text-slate-300 pt-8 sm:pt-14 pb-6 sm:pb-10 border-t border-obsidian-800 mt-auto">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-obsidian-800">
+    <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-12 gap-6 sm:gap-8 pb-8 sm:pb-10 border-b border-obsidian-800">
       
-      <!-- Brand Column -->
-      <div class="lg:col-span-4 space-y-4">
-        <app-logo [size]="'md'"></app-logo>
+      <!-- Brand Column (spans 2 cols on mobile) -->
+      <div class="col-span-2 lg:col-span-4 space-y-3">
+        <app-logo [size]="'sm'"></app-logo>
 
         <p class="text-xs text-slate-400 leading-relaxed max-w-sm">
-          စာဖတ်ခြင်းသည် လူကို အသိပညာ ကြွယ်ဝစေသည်။ မြန်မာပြည်အနှံ့ စာပေချစ်သူများအတွက် စာအုပ်ကောင်းများကို အမြန်ဆုံးနှင့် အမှန်ကန်ဆုံး ပို့ဆောင်ပေးပါသည်။
+          {{ 'FOOTER.TAGLINE' | translate }}
         </p>
 
-        <div class="space-y-1 text-xs text-slate-300 font-medium">
-          <p><i class="pi pi-map-marker text-brand-400 mr-2"></i> Yangon, Myanmar</p>
-          <p><i class="pi pi-phone text-brand-400 mr-2"></i> +95 9 798 123456</p>
-          <p><i class="pi pi-envelope text-brand-400 mr-2"></i> info&#64;saroatsin.com</p>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-300 font-medium pt-1">
+          <p class="inline-flex items-center"><i class="pi pi-map-marker text-brand-400 mr-1.5 text-xs"></i> Yangon, Myanmar</p>
+          <p class="inline-flex items-center"><i class="pi pi-phone text-brand-400 mr-1.5 text-xs"></i> 09-798123456</p>
+          <p class="inline-flex items-center"><i class="pi pi-envelope text-brand-400 mr-1.5 text-xs"></i> info&#64;saryeikmyaing.com</p>
         </div>
       </div>
 
       <!-- Quick Navigation -->
-      <div class="lg:col-span-2">
-        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-4">Quick Links</h4>
-        <ul class="space-y-2.5 text-xs">
-          <li><a routerLink="/" class="hover:text-brand-400 transition-colors">Home (ပင်မ)</a></li>
-          <li><a routerLink="/books" class="hover:text-brand-400 transition-colors">Books (စာအုပ်များ)</a></li>
-          <li><a routerLink="/cart" class="hover:text-brand-400 transition-colors">Cart (ခြင်းတောင်း)</a></li>
-          <li><a routerLink="/orders" class="hover:text-brand-400 transition-colors">Order History</a></li>
+      <div class="col-span-1 lg:col-span-2">
+        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-3">{{ 'FOOTER.QUICK_LINKS' | translate }}</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a routerLink="/" class="text-slate-400 hover:text-brand-400 transition-colors">{{ 'NAVBAR.HOME' | translate }}</a></li>
+          <li><a routerLink="/books" class="text-slate-400 hover:text-brand-400 transition-colors">{{ 'NAVBAR.SHOP' | translate }}</a></li>
+          <li><a routerLink="/cart" class="text-slate-400 hover:text-brand-400 transition-colors">{{ 'NAVBAR.CART' | translate }}</a></li>
+          <li><a routerLink="/orders" class="text-slate-400 hover:text-brand-400 transition-colors">{{ 'NAVBAR.ORDERS' | translate }}</a></li>
         </ul>
       </div>
 
       <!-- Explore & Genres -->
-      <div class="lg:col-span-2">
-        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-4">Categories</h4>
-        <ul class="space-y-2.5 text-xs">
-          <li><a routerLink="/books" [queryParams]="{ categoryId: 1 }" class="hover:text-brand-400 transition-colors">သည်းထိတ်ရင်ဖို</a></li>
-          <li><a routerLink="/books" [queryParams]="{ categoryId: 2 }" class="hover:text-brand-400 transition-colors">စိတ်ကူးယဉ်နှင့် သိပ္ပံ</a></li>
-          <li><a routerLink="/books" [queryParams]="{ categoryId: 3 }" class="hover:text-brand-400 transition-colors">စီးပွားရေး</a></li>
-          <li><a routerLink="/books" [queryParams]="{ categoryId: 4 }" class="hover:text-brand-400 transition-colors">ဘဝအောင်မြင်ရေး</a></li>
+      <div class="col-span-1 lg:col-span-2">
+        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-3">{{ 'NAVBAR.CATEGORIES' | translate }}</h4>
+        <ul class="space-y-2 text-xs">
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 1 }" class="text-slate-400 hover:text-brand-400 transition-colors">Mystery & Thriller</a></li>
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 2 }" class="text-slate-400 hover:text-brand-400 transition-colors">Fantasy & Sci-Fi</a></li>
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 3 }" class="text-slate-400 hover:text-brand-400 transition-colors">Business & Finance</a></li>
+          <li><a routerLink="/books" [queryParams]="{ categoryId: 4 }" class="text-slate-400 hover:text-brand-400 transition-colors">Self-Help</a></li>
         </ul>
       </div>
 
-      <!-- Newsletter Column (Dribbble Style) -->
-      <div class="lg:col-span-4 space-y-3">
-        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-2">Subscribe Now</h4>
+      <!-- Newsletter Column -->
+      <div class="col-span-2 lg:col-span-4 space-y-3">
+        <h4 class="text-white text-xs font-black tracking-widest uppercase mb-2">{{ 'FOOTER.SUBSCRIBE' | translate }}</h4>
         <p class="text-xs text-slate-400 leading-relaxed">
-          စာအုပ်သစ်များနှင့် အထူးလျှော့စျေး သတင်းများကို ဦးဦးဖျားဖျား ရယူနိုင်ရန် အီးမေးလ် ထည့်သွင်းထားပါ
+          {{ 'FOOTER.SUBSCRIBE_DESC' | translate }}
         </p>
 
-        <form class="relative mt-2">
+        <form class="relative mt-2 max-w-md">
           <input
             type="email"
-            placeholder="Your Email Address..."
-            class="w-full pl-4 pr-28 py-3 rounded-full bg-obsidian-800 border border-obsidian-700 text-xs text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-all"
+            placeholder="email@example.com"
+            class="w-full pl-3.5 pr-24 py-2 sm:py-2.5 rounded-full bg-obsidian-800 border border-obsidian-700 text-xs text-white placeholder-slate-500 focus:border-brand-500 focus:outline-none transition-all"
           />
           <button
             type="submit"
-            class="absolute right-1.5 top-1.5 bottom-1.5 px-5 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-bold text-xs transition-all shadow-brand-glow"
+            class="absolute right-1 top-1 bottom-1 px-4 rounded-full bg-brand-500 hover:bg-brand-400 text-white font-bold text-xs transition-all shadow-brand-glow"
           >
-            Subscribe
+            {{ 'FOOTER.SUBSCRIBE_BTN' | translate }}
           </button>
         </form>
 
-        <div class="flex items-center gap-3 pt-2 text-slate-400">
-          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-facebook"></i></a>
-          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-instagram"></i></a>
-          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-telegram"></i></a>
-          <a href="#" class="w-8 h-8 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-twitter"></i></a>
+        <div class="flex items-center gap-2.5 pt-1 text-slate-400">
+          <a href="#" class="w-7 h-7 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-facebook"></i></a>
+          <a href="#" class="w-7 h-7 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-instagram"></i></a>
+          <a href="#" class="w-7 h-7 rounded-full bg-obsidian-800 hover:bg-brand-500 hover:text-white flex items-center justify-center text-xs transition-all"><i class="pi pi-telegram"></i></a>
         </div>
       </div>
 
     </div>
 
-    <!-- Bottom Row -->
-    <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-      <p>© 2026 စာအုပ်စင် (Sar Oat Sin) Bookshop eCommerce. All rights reserved.</p>
+    <!-- Bottom Row (Mobile Optimized) -->
+    <div class="pt-4 sm:pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-500">
+      <p>© 2026 Sar Yeik Myaing (စာရိပ်မြိုင်) Bookshop. All rights reserved.</p>
 
-      <div class="flex items-center flex-wrap gap-2">
-        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-slate-300 font-bold border border-obsidian-700">KBZPay</span>
-        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-yellow-400 font-bold border border-obsidian-700">WavePay</span>
-        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-sky-400 font-bold border border-obsidian-700">AYA Pay</span>
-        <span class="px-3 py-1 rounded-md bg-obsidian-800 text-emerald-400 font-bold border border-obsidian-700">Cash on Delivery</span>
+      <div class="flex items-center flex-wrap gap-1.5">
+        <span class="px-2 py-0.5 rounded bg-obsidian-800 text-slate-300 font-bold border border-obsidian-700 text-[10px]">KBZPay</span>
+        <span class="px-2 py-0.5 rounded bg-obsidian-800 text-yellow-400 font-bold border border-obsidian-700 text-[10px]">WavePay</span>
+        <span class="px-2 py-0.5 rounded bg-obsidian-800 text-sky-400 font-bold border border-obsidian-700 text-[10px]">AYA Pay</span>
+        <span class="px-2 py-0.5 rounded bg-obsidian-800 text-emerald-400 font-bold border border-obsidian-700 text-[10px]">Cash on Delivery</span>
       </div>
     </div>
   </div>
 </footer>
-
