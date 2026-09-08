@@ -60,7 +60,7 @@ public class AccountService(
         return IdentityResult.Success;
     }
 
-    public async Task<(string AccessToken, string RefreshToken, DateTime Expiry)?> LoginAsync(LoginDto dto)
+    public async Task<(string AccessToken, string RefreshToken, DateTime Expiry, string UserId, string UserName, string Email, IList<string> Roles)?> LoginAsync(LoginDto dto)
     {
         logger.LogInformation("Login attempt for: {Identifier}", dto.UserNameOrEmailOrPhone);
 
@@ -83,14 +83,16 @@ public class AccountService(
 
         if (result.Succeeded)
         {
-            (string, string, DateTime) tokenInfo = await GenerateJwtToken(user);
+            var (accessToken, refreshToken, expiry) = await GenerateJwtToken(user);
+            IList<string> roles = await userManager.GetRolesAsync(user);
             logger.LogInformation("User {Email} logged in successfully. Token generated.", user.Email);
-            return tokenInfo;
+            return (accessToken, refreshToken, expiry, user.Id, user.UserName ?? "", user.Email ?? "", roles);
         }
 
         logger.LogWarning("Invalid password attempt for User: {Email}", user.Email);
         return null;
     }
+
 
     public async Task<string?> GenerateResetTokenAsync(string email)
     {
