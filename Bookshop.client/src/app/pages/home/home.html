@@ -1,402 +1,218 @@
-<div class="space-y-16 pb-20 overflow-hidden">
+<div class="space-y-12 sm:space-y-16 pb-16 bg-slate-50/50">
 
   <!-- ========================================================================= -->
-  <!-- 1. HERO SECTION (Dribbble Hero with 3D Stacked Books & Brand Gradients)   -->
+  <!-- 1. HERO SECTION (ONLY ONE BANNER AS REQUESTED)                            -->
   <!-- ========================================================================= -->
-  <section class="relative mx-3 sm:mx-6 lg:mx-8 mt-4 sm:mt-6 rounded-3xl overflow-hidden bg-gradient-to-r from-obsidian-900 via-brand-900 to-brand-700 text-white shadow-2xl border border-brand-500/20">
-    <!-- Decorative background elements -->
-    <div class="absolute -top-32 -left-32 w-96 h-96 bg-brand-400/20 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-32 -right-32 w-[500px] h-[500px] bg-brand-500/25 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute inset-0 bg-[radial-gradient(#00A3FF_1px,transparent_1px)] [background-size:24px_24px] opacity-10 pointer-events-none"></div>
+  <section class="relative mx-3 sm:mx-6 lg:mx-8 mt-4 rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 text-white shadow-2xl border border-emerald-500/20">
+    <!-- Subtle artistic background glow & rings -->
+    <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-12 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-12 sm:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
       
-      <!-- Hero Left Content -->
-      <div class="lg:col-span-7 space-y-6">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-brand-300 text-xs font-extrabold uppercase tracking-widest">
-          <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+      <!-- Hero Left: Content -->
+      <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-emerald-300 text-[11px] font-bold tracking-wider uppercase">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           SPECIAL OFFER
         </div>
 
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-white">
+        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white">
           There is nothing <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-sky-200 to-white">
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-teal-100 to-white">
             better than to read
           </span>
         </h1>
 
-        <p class="text-sm sm:text-base text-slate-200/90 max-w-lg leading-relaxed font-normal">
-          စာအုပ်ကောင်းများဖြင့် သင့်ဘဝကို အလင်းရောင် ဖြည့်ဆည်းလိုက်ပါ။ မြန်မာစာပေ၊ ဘာသာပြန်၊ အောင်မြင်ရေးနှင့် အထွေထွေ ဗဟုသုတ စာအုပ်ပေါင်း ထောင်ပေါင်းများစွာကို တစ်နေရာတည်းတွင် ရှာဖွေဝယ်ယူနိုင်ပါသည်။
+        <p class="text-xs sm:text-sm text-emerald-100/90 max-w-lg leading-relaxed mx-auto lg:mx-0 font-normal">
+          Explore authentic Burmese literature, global bestsellers, and timeless classics with nationwide express delivery across 500+ townships.
         </p>
 
-        <div class="flex flex-wrap items-center gap-4 pt-2">
+        <!-- Call to Action Buttons -->
+        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
           <a
             routerLink="/books"
-            class="px-8 py-3.5 rounded-full font-bold text-sm bg-white text-obsidian-900 hover:bg-brand-50 hover:text-brand-600 hover:shadow-xl hover:shadow-white/20 transition-all duration-300 flex items-center gap-2.5 group"
+            class="px-8 py-3.5 rounded-full font-bold text-xs sm:text-sm bg-white text-emerald-950 hover:bg-emerald-50 hover:shadow-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer group"
           >
             <span>SHOP NOW</span>
-            <i class="pi pi-arrow-right text-xs transition-transform group-hover:translate-x-1 text-brand-500"></i>
+            <i class="pi pi-arrow-right text-xs text-emerald-600 group-hover:translate-x-1 transition-transform"></i>
           </a>
-
           <a
-            routerLink="/books"
-            [queryParams]="{ categoryId: 1 }"
-            class="px-6 py-3.5 rounded-full font-bold text-sm bg-brand-500/20 hover:bg-brand-500/30 text-white border border-brand-400/30 backdrop-blur-md transition-all duration-300 flex items-center gap-2"
+            routerLink="/cart"
+            class="px-6 py-3.5 rounded-full font-semibold text-xs sm:text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md transition-all flex items-center gap-2"
           >
-            <i class="pi pi-compass text-brand-300"></i>
-            <span>Explore Genres</span>
+            <i class="pi pi-shopping-bag text-xs"></i>
+            <span>{{ 'NAVBAR.CART' | translate }}</span>
           </a>
         </div>
-
-        <!-- Slider Pagination Dots -->
-        <div class="flex items-center gap-2 pt-4">
-          <span class="w-7 h-2 rounded-full bg-white transition-all"></span>
-          <span class="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer"></span>
-          <span class="w-2 h-2 rounded-full bg-white/40 hover:bg-white/70 transition-all cursor-pointer"></span>
-        </div>
       </div>
 
-      <!-- Hero Right 3D Books Illustration Stack -->
-      <div class="lg:col-span-5 flex justify-center items-center relative">
-        <div class="relative w-full max-w-md h-80 sm:h-96 flex items-center justify-center">
-          
-          <!-- Floating Leaf & Doodle Accents -->
-          <div class="absolute -top-4 right-6 text-brand-300 text-3xl animate-bounce duration-1000">
-            <i class="pi pi-sparkle"></i>
-          </div>
-          <div class="absolute bottom-6 -left-4 text-brand-400 text-2xl">
-            <i class="pi pi-star-fill"></i>
-          </div>
+      <!-- Hero Right: Illustrated Book Visuals -->
+      <div class="lg:col-span-5 flex justify-center">
+        <div class="relative w-full max-w-sm flex items-center justify-center">
+          <!-- Ambient Glow Ring -->
+          <div class="absolute inset-0 bg-emerald-400/20 rounded-full blur-2xl"></div>
 
-          <!-- Stack of 3D Stylized Book Covers -->
-          <div class="relative w-72 h-80 flex flex-col items-center justify-center">
-            
-            <!-- Book 1 (Top angled) -->
-            <div class="absolute -top-2 transform -rotate-6 w-52 h-14 bg-gradient-to-r from-amber-400 to-amber-500 rounded-lg shadow-xl border-l-4 border-amber-600 flex items-center justify-between px-4 text-xs font-bold text-slate-900 z-30">
-              <span>SAR OAT SIN CLASSICS</span>
-              <i class="pi pi-bookmark text-amber-900"></i>
-            </div>
-
-            <!-- Book 2 (Middle angled) -->
-            <div class="absolute top-10 transform rotate-3 w-56 h-14 bg-gradient-to-r from-rose-500 to-pink-500 rounded-lg shadow-xl border-l-4 border-rose-700 flex items-center justify-between px-4 text-xs font-bold text-white z-20">
-              <span>THE SECRET LIFE</span>
-              <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded">NEW</span>
-            </div>
-
-            <!-- Book 3 (Middle stacked) -->
-            <div class="absolute top-24 transform -rotate-2 w-60 h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg shadow-xl border-l-4 border-emerald-700 flex items-center justify-between px-4 text-xs font-bold text-white z-10">
-              <span class="truncate">MINDFULNESS & PEACE</span>
-              <i class="pi pi-heart-fill text-emerald-200"></i>
-            </div>
-
-            <!-- Book 4 (Bottom large base) -->
-            <div class="absolute top-40 transform rotate-1 w-64 h-20 bg-gradient-to-r from-brand-500 to-sky-600 rounded-xl shadow-2xl border-l-8 border-brand-700 flex items-center justify-between px-5 text-sm font-extrabold text-white z-0">
-              <div>
-                <p class="leading-none">MYANMAR LITERATURE</p>
-                <span class="text-[10px] font-normal text-sky-200">Masterpieces & Novels</span>
+          <!-- Featured Visual Books Composition -->
+          <div class="relative z-10 flex items-center justify-center -space-x-8 sm:-space-x-12">
+            @if (books().length > 0) {
+              <!-- Book 1 (Left Tilt) -->
+              <div class="w-28 sm:w-36 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl transform -rotate-12 hover:rotate-0 transition-transform duration-300 border-2 border-white/30 shrink-0">
+                @if (books()[0]?.imageUrl) {
+                  <img [src]="books()[0].imageUrl" [alt]="books()[0].title" class="w-full h-full object-cover" />
+                } @else {
+                  <div class="w-full h-full bg-emerald-800 flex items-center justify-center text-white font-bold text-xs">Book</div>
+                }
               </div>
-              <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                <i class="pi pi-book text-white"></i>
+
+              <!-- Book 2 (Center Hero Standout) -->
+              <div class="w-36 sm:w-44 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl z-20 transform hover:scale-105 transition-transform duration-300 border-2 border-white/50 shrink-0">
+                @if (books()[1]?.imageUrl || books()[0]?.imageUrl) {
+                  <img [src]="books()[1]?.imageUrl || books()[0]?.imageUrl" [alt]="books()[1]?.title || 'Book'" class="w-full h-full object-cover" />
+                } @else {
+                  <div class="w-full h-full bg-teal-800 flex items-center justify-center text-white font-bold text-xs">Book</div>
+                }
               </div>
-            </div>
 
-            <!-- Decorative Base Pedestal Glow -->
-            <div class="absolute -bottom-4 w-60 h-10 bg-brand-400/30 blur-xl rounded-full"></div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 2. CIRCULAR CATEGORY SHELF CAROUSEL (Dribbble Circle Carousel)            -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="relative">
-      
-      <!-- Prev & Next Arrows -->
-      <button
-        (click)="scrollCategory('prev')"
-        class="absolute -left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 text-slate-700 hover:text-brand-600 hover:border-brand-500 flex items-center justify-center transition-all"
-        aria-label="Previous Category"
-      >
-        <i class="pi pi-chevron-left text-sm"></i>
-      </button>
-
-      <button
-        (click)="scrollCategory('next')"
-        class="absolute -right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-white shadow-lg border border-slate-200 text-slate-700 hover:text-brand-600 hover:border-brand-500 flex items-center justify-center transition-all"
-        aria-label="Next Category"
-      >
-        <i class="pi pi-chevron-right text-sm"></i>
-      </button>
-
-      <!-- Carousel Container -->
-      <div
-        id="category-carousel-track"
-        class="flex items-center gap-6 sm:gap-8 overflow-x-auto scrollbar-hide py-4 px-2 scroll-smooth"
-        style="scrollbar-width: none; -ms-overflow-style: none;"
-      >
-        @for (slide of categorySlides; track slide.id) {
-          <a
-            [routerLink]="['/books']"
-            [queryParams]="{ categoryId: slide.id }"
-            class="group flex flex-col items-center shrink-0 w-36 sm:w-44 text-center select-none"
-          >
-            <!-- Circular Pedestal with Floating 3D Book -->
-            <div class="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-gradient-to-b {{ slide.bgColor }} border border-slate-200/80 group-hover:border-brand-500 group-hover:shadow-brand-glow transition-all duration-300 flex items-center justify-center mb-3">
-              <div class="w-16 h-22 sm:w-18 sm:h-24 rounded-lg overflow-hidden shadow-lg transform -rotate-3 group-hover:rotate-0 group-hover:scale-110 transition-transform duration-300 border border-white/60">
-                <img [src]="slide.coverImage" [alt]="slide.name" class="w-full h-full object-cover" />
-              </div>
-            </div>
-
-            <!-- Title & Subtitle -->
-            <h4 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-brand-600 transition-colors leading-tight">
-              {{ slide.name }}
-            </h4>
-            <span class="text-[11px] text-slate-400 font-medium mt-0.5">{{ slide.burmeseName }}</span>
-          </a>
-        }
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 3. DUAL PROMO BANNERS (Dribbble 25% OFF & 45% OFF Cards)                    -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <!-- Promo Card 1: Sale 25% OFF (Dark Brand Tone) -->
-      <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-obsidian-900 via-slate-900 to-brand-950 p-8 text-white shadow-lg border border-slate-800 flex items-center justify-between group">
-        <div class="space-y-3 z-10 max-w-[60%]">
-          <span class="text-[11px] font-extrabold uppercase tracking-wider text-brand-400">Special Edition</span>
-          <h3 class="text-2xl sm:text-3xl font-black leading-tight text-white">
-            Sale <span class="text-brand-400">25% OFF</span>
-          </h3>
-          <p class="text-xs text-slate-300">သီးသန့် ရွေးချယ်ထားသော စာပေလက်ရာမွန်များ</p>
-          <div class="pt-2">
-            <a
-              routerLink="/books"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-obsidian-900 font-bold text-xs hover:bg-brand-50 hover:text-brand-600 transition-all shadow-md"
-            >
-              <span>Read More</span>
-              <i class="pi pi-arrow-right text-[10px] text-brand-500"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- 3D Book Visual Right -->
-        <div class="relative w-32 sm:w-36 h-44 shrink-0 transform rotate-6 group-hover:rotate-3 group-hover:scale-105 transition-all duration-300">
-          <img
-            src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=300&q=80"
-            alt="Promo Book 1"
-            class="w-full h-full object-cover rounded-xl shadow-2xl border border-white/20"
-          />
-        </div>
-      </div>
-
-      <!-- Promo Card 2: Sale 45% OFF (Electric Cyan Sky Tone) -->
-      <div class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-brand-600 via-sky-600 to-brand-800 p-8 text-white shadow-lg border border-brand-400/30 flex items-center justify-between group">
-        <div class="space-y-3 z-10 max-w-[60%]">
-          <span class="text-[11px] font-extrabold uppercase tracking-wider text-sky-200">Best Seller Offer</span>
-          <h3 class="text-2xl sm:text-3xl font-black leading-tight text-white">
-            Sale <span class="text-yellow-300">45% OFF</span>
-          </h3>
-          <p class="text-xs text-sky-100">အရောင်းရဆုံး ထိပ်တန်း စာအုပ်သစ်များ</p>
-          <div class="pt-2">
-            <a
-              routerLink="/books"
-              class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white text-obsidian-900 font-bold text-xs hover:bg-sky-50 hover:text-brand-600 transition-all shadow-md"
-            >
-              <span>Shop Now</span>
-              <i class="pi pi-arrow-right text-[10px] text-brand-500"></i>
-            </a>
-          </div>
-        </div>
-
-        <!-- 3D Book Visual Right -->
-        <div class="relative w-32 sm:w-36 h-44 shrink-0 transform -rotate-6 group-hover:rotate-0 group-hover:scale-105 transition-all duration-300">
-          <img
-            src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=80"
-            alt="Promo Book 2"
-            class="w-full h-full object-cover rounded-xl shadow-2xl border border-white/30"
-          />
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 4. TOP SELLING VENDOR / PUBLISHERS (Dribbble 4-Grid Publisher Cards)       -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Top Selling Vendor</h2>
-        <p class="text-xs text-slate-500 mt-0.5">နာမည်ကြီး စာအုပ်တိုက်များနှင့် စာပေထုတ်ဝေသူများ</p>
-      </div>
-      <a routerLink="/books" class="text-brand-600 hover:text-brand-700 font-bold text-xs sm:text-sm flex items-center gap-1">
-        View All (Standard) <i class="pi pi-chevron-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      @for (vendor of topVendors; track vendor.id) {
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-sm hover:shadow-xl hover:border-brand-400 transition-all duration-300 flex flex-col justify-between group">
-          
-          <!-- 2x2 Covers Collage -->
-          <div class="grid grid-cols-2 gap-2 aspect-[4/3] rounded-xl overflow-hidden bg-slate-50 p-2 mb-4">
-            @for (c of vendor.covers; track $index) {
-              <div class="rounded-lg overflow-hidden shadow-sm group-hover:scale-105 transition-transform duration-300">
-                <img [src]="c" [alt]="vendor.name" class="w-full h-full object-cover" />
+              <!-- Book 3 (Right Tilt) -->
+              <div class="w-28 sm:w-36 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300 border-2 border-white/30 shrink-0">
+                @if (books()[2]?.imageUrl || books()[0]?.imageUrl) {
+                  <img [src]="books()[2]?.imageUrl || books()[0]?.imageUrl" [alt]="books()[2]?.title || 'Book'" class="w-full h-full object-cover" />
+                } @else {
+                  <div class="w-full h-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs">Book</div>
+                }
               </div>
             }
           </div>
+        </div>
+      </div>
 
-          <!-- Vendor Info -->
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full {{ vendor.avatarColor }} text-white font-extrabold text-xs flex items-center justify-center shrink-0 shadow-sm">
-              {{ vendor.badge }}
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 2. CIRCULAR BOOK SHOWCASE STRIP (From Reference Image)                    -->
+  <!-- ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between gap-4 pb-4">
+      <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">Top Featured Selections</h3>
+      <a routerLink="/books" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+        <span>View All</span>
+        <i class="pi pi-angle-right text-xs"></i>
+      </a>
+    </div>
+
+    <!-- Rounded circular books row with soft ambient shadows -->
+    <div class="flex items-center justify-between gap-4 overflow-x-auto py-3 scrollbar-hide px-2">
+      @for (book of featuredBooks(); track book.id) {
+        <a
+          [routerLink]="['/books', book.id]"
+          class="flex flex-col items-center gap-2 shrink-0 group cursor-pointer"
+          [title]="book.title"
+        >
+          <div class="w-20 sm:w-24 aspect-[3/4] rounded-xl overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-slate-200 bg-white">
+            @if (book.imageUrl) {
+              <img [src]="book.imageUrl" [alt]="book.title" class="w-full h-full object-cover" loading="lazy" />
+            } @else {
+              <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">Book</div>
+            }
+          </div>
+          <span class="text-[11px] font-bold text-slate-700 max-w-[5.5rem] truncate text-center group-hover:text-brand-600 transition-colors">
+            {{ book.title }}
+          </span>
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 3. OUR FAVOURITE READS (3-Column Layout from Reference Image)             -->
+  <!-- ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Our Favourite Reads
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Handpicked recommendations curated for every curious mind</p>
+      </div>
+      <a routerLink="/books" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+        <span>View All</span>
+        <i class="pi pi-angle-right text-xs"></i>
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- Left Column (4 Compact Books) -->
+      <div class="lg:col-span-4 space-y-3">
+        @for (b of favouriteReads().leftList; track b.id) {
+          <div class="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+            <a [routerLink]="['/books', b.id]" class="w-14 h-18 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shrink-0">
+              @if (b.imageUrl) {
+                <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">Book</div>
+              }
+            </a>
+            <div class="flex-1 min-w-0">
+              <span class="text-[10px] font-bold text-brand-600 uppercase tracking-wider block">Bestseller</span>
+              <a [routerLink]="['/books', b.id]" class="text-xs font-bold text-slate-900 hover:text-brand-600 transition-colors truncate block">
+                {{ b.title }}
+              </a>
+              <span class="text-[11px] text-slate-500 block truncate">{{ b.author || b.publisher || 'Sar Yeik Myaing' }}</span>
+              <span class="text-xs font-extrabold text-slate-900 block mt-1">{{ b.price | mmkCurrency }}</span>
             </div>
-            <div class="min-w-0 flex-1">
-              <h4 class="text-xs font-bold text-slate-900 truncate group-hover:text-brand-600 transition-colors">
-                {{ vendor.name }}
-              </h4>
-              <div class="flex items-center gap-2 mt-0.5">
-                <div class="flex text-amber-400 text-[10px]">
+            <button
+              (click)="cartService.addToCart(b, 1)"
+              class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-500 hover:text-white text-slate-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
+              title="Add to Cart"
+            >
+              <i class="pi pi-shopping-cart text-xs"></i>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Center Column (2 Large Featured Spotlight Cards) -->
+      <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
+        @for (feat of favouriteReads().centerFeatured; track feat.id) {
+          <div class="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-md hover:shadow-xl transition-all flex flex-col justify-between group">
+            <a [routerLink]="['/books', feat.id]" class="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 mb-4 block">
+              @if (feat.imageUrl) {
+                <img [src]="feat.imageUrl" [alt]="feat.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-slate-400 text-lg">Featured</div>
+              }
+            </a>
+
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
+                  Spotlight
+                </span>
+                <div class="flex items-center text-amber-400 text-xs">
                   <i class="pi pi-star-fill"></i>
                   <i class="pi pi-star-fill"></i>
                   <i class="pi pi-star-fill"></i>
                   <i class="pi pi-star-fill"></i>
                   <i class="pi pi-star-fill"></i>
                 </div>
-                <span class="text-[10px] text-slate-400 font-medium">{{ vendor.booksCount }} books</span>
               </div>
-            </div>
-          </div>
 
-        </div>
-      }
-    </div>
-  </section>
+              <a [routerLink]="['/books', feat.id]" class="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-1 block">
+                {{ feat.title }}
+              </a>
 
-
-  <!-- ========================================================================= -->
-  <!-- 5. SUBSCRIPTION / SPECIAL DEAL BANNER (Dribbble Wide Ribbon Banner)       -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="relative rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-600 via-teal-600 to-brand-700 text-white p-8 sm:p-10 shadow-xl border border-teal-400/30 flex flex-col md:flex-row items-center justify-between gap-8">
-      
-      <!-- Left side angled book previews -->
-      <div class="flex items-center gap-4 overflow-hidden py-2">
-        <div class="w-20 sm:w-24 h-32 rounded-xl shadow-2xl transform -rotate-12 overflow-hidden border border-white/30 shrink-0">
-          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=200&q=80" alt="Sub 1" class="w-full h-full object-cover" />
-        </div>
-        <div class="w-20 sm:w-24 h-32 rounded-xl shadow-2xl transform -rotate-3 overflow-hidden border border-white/30 shrink-0">
-          <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=200&q=80" alt="Sub 2" class="w-full h-full object-cover" />
-        </div>
-        <div class="w-20 sm:w-24 h-32 rounded-xl shadow-2xl transform rotate-6 overflow-hidden border border-white/30 shrink-0">
-          <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=200&q=80" alt="Sub 3" class="w-full h-full object-cover" />
-        </div>
-      </div>
-
-      <!-- Right side deal text & CTA -->
-      <div class="text-center md:text-right space-y-2">
-        <span class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-200">UNLIMITED READING PASS</span>
-        <h3 class="text-2xl sm:text-3xl font-black text-white">
-          Only <span class="text-yellow-300">5,000 Ks</span> / Month
-        </h3>
-        <p class="text-xs text-emerald-100 max-w-sm">
-          လစဉ်ကြေး တစ်ကြိမ်ပေးရုံဖြင့် စာအုပ်ပေါင်း ထောင်ကျော် ဖတ်ရှုခွင့်
-        </p>
-        <div class="pt-2">
-          <a
-            routerLink="/books"
-            class="inline-flex items-center gap-2 px-8 py-3 rounded-full bg-white text-obsidian-900 font-extrabold text-xs hover:bg-brand-50 hover:text-brand-600 shadow-xl transition-all"
-          >
-            <span>JOIN NOW</span>
-            <i class="pi pi-arrow-right text-[10px] text-brand-500"></i>
-          </a>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 6. OUR FAVOURITE READS (Dribbble 3-Column: Mini Left | 2 Big Center | Mini Right) -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Our Favourite Reads</h2>
-        <p class="text-xs text-slate-500 mt-0.5">ကျွန်ုပ်တို့ အကြိုက်ဆုံး စာအုပ်ကောင်းများ စုစည်းမှု</p>
-      </div>
-      <a routerLink="/books" class="text-brand-600 hover:text-brand-700 font-bold text-xs sm:text-sm flex items-center gap-1">
-        View All (Standard) <i class="pi pi-chevron-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-      
-      <!-- Left Column: 4 Mini Books List -->
-      <div class="lg:col-span-3 space-y-3 flex flex-col justify-between">
-        @for (b of favouriteBooksLeft; track b.id) {
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-2.5 flex items-center gap-3 hover:border-brand-400 hover:shadow-md transition-all group">
-            <div class="w-14 h-18 rounded-lg overflow-hidden bg-slate-100 shrink-0 shadow-sm cursor-pointer" [routerLink]="['/books', b.id]">
-              <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <span class="text-[10px] font-bold text-brand-600 uppercase">{{ b.categoryName || 'Book' }}</span>
-              <h4 class="text-xs font-bold text-slate-900 truncate group-hover:text-brand-600 cursor-pointer" [routerLink]="['/books', b.id]">
-                {{ b.title }}
-              </h4>
-              <p class="text-[11px] font-extrabold text-slate-900 mt-1">{{ b.price | mmkCurrency }}</p>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Center 2 Large Featured Books -->
-      <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        @for (b of favouriteBooksCenter; track b.id) {
-          <div class="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-sm hover:shadow-2xl hover:border-brand-400 transition-all flex flex-col justify-between group">
-            <div class="aspect-[3/4] w-full rounded-2xl overflow-hidden bg-slate-100 shadow-md mb-4 relative cursor-pointer" [routerLink]="['/books', b.id]">
-              <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-              <span class="absolute top-3 left-3 bg-obsidian-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full">
-                HOT PICK
-              </span>
-            </div>
-
-            <div class="space-y-2">
-              <span class="text-[11px] font-bold text-brand-600 uppercase">{{ b.categoryName || 'Featured' }}</span>
-              <h3 class="text-base font-black text-slate-900 line-clamp-1 group-hover:text-brand-600 transition-colors cursor-pointer" [routerLink]="['/books', b.id]">
-                {{ b.title }}
-              </h3>
-              <div class="flex items-center gap-1 text-amber-400 text-xs">
-                <i class="pi pi-star-fill"></i>
-                <i class="pi pi-star-fill"></i>
-                <i class="pi pi-star-fill"></i>
-                <i class="pi pi-star-fill"></i>
-                <i class="pi pi-star-fill"></i>
-                <span class="text-slate-400 text-[11px] ml-1">5.0</span>
-              </div>
+              <p class="text-xs text-slate-500 line-clamp-1">{{ feat.author || feat.publisher || 'Sar Yeik Myaing' }}</p>
 
               <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                <span class="text-lg font-black text-slate-900">{{ b.price | mmkCurrency }}</span>
+                <span class="text-base font-black text-brand-600">{{ feat.price | mmkCurrency }}</span>
                 <button
-                  (click)="onAddToCart(b, $event)"
-                  class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs font-bold shadow-brand-glow flex items-center gap-1.5 transition-all"
+                  (click)="cartService.addToCart(feat, 1)"
+                  class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <i class="pi pi-shopping-bag text-xs"></i>
+                  <i class="pi pi-shopping-cart text-xs"></i>
                   <span>Add</span>
                 </button>
               </div>
@@ -405,246 +221,32 @@
         }
       </div>
 
-      <!-- Right Column: 4 Mini Books List -->
-      <div class="lg:col-span-3 space-y-3 flex flex-col justify-between">
-        @for (b of favouriteBooksRight; track b.id) {
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-2.5 flex items-center gap-3 hover:border-brand-400 hover:shadow-md transition-all group">
-            <div class="w-14 h-18 rounded-lg overflow-hidden bg-slate-100 shrink-0 shadow-sm cursor-pointer" [routerLink]="['/books', b.id]">
-              <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <span class="text-[10px] font-bold text-brand-600 uppercase">{{ b.categoryName || 'Book' }}</span>
-              <h4 class="text-xs font-bold text-slate-900 truncate group-hover:text-brand-600 cursor-pointer" [routerLink]="['/books', b.id]">
-                {{ b.title }}
-              </h4>
-              <p class="text-[11px] font-extrabold text-slate-900 mt-1">{{ b.price | mmkCurrency }}</p>
-            </div>
-          </div>
-        }
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 7. TRENDING NOW (Dribbble 4 Book Cards + Right 30% Off Promo Banner)      -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Trending Now</h2>
-        <p class="text-xs text-slate-500 mt-0.5">ယခုတစ်ပတ် လူကြိုက်အများဆုံး စာအုပ်များ</p>
-      </div>
-      <a routerLink="/books" class="text-brand-600 hover:text-brand-700 font-bold text-xs sm:text-sm flex items-center gap-1">
-        View All (Standard) <i class="pi pi-chevron-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-      
-      <!-- 4 Standard Book Cards -->
-      @for (b of trendingBooks; track b.id) {
-        <div class="col-span-1">
-          <app-book-card [book]="b"></app-book-card>
-        </div>
-      }
-
-      <!-- 1 Right Large Special Promo Card (30% Off) -->
-      <div class="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-1 rounded-2xl bg-gradient-to-br from-teal-700 via-emerald-800 to-obsidian-900 text-white p-5 flex flex-col justify-between shadow-lg border border-teal-500/20 group">
-        <div class="space-y-2">
-          <span class="text-[10px] font-extrabold uppercase tracking-widest text-teal-300">SPECIAL PROMOTION</span>
-          <h3 class="text-2xl font-black text-white">30% Off</h3>
-          <p class="text-[11px] text-teal-100">သတ်မှတ်ထားသော စာအုပ်များအတွက် အထူးလျှော့စျေး</p>
-        </div>
-
-        <div class="my-4 aspect-[4/3] rounded-xl overflow-hidden shadow-xl transform rotate-3 group-hover:rotate-0 transition-transform">
-          <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=300&q=80" alt="Promo Trend" class="w-full h-full object-cover" />
-        </div>
-
-        <a
-          routerLink="/books"
-          class="w-full py-2.5 rounded-xl bg-white text-obsidian-900 font-extrabold text-xs text-center hover:bg-brand-50 hover:text-brand-600 transition-colors shadow-md"
-        >
-          Shop Now
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 8. BESTSELLING BOOKS (Dribbble 4 Book Cards + Right 25% Off Flash Sale)   -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Bestselling Books</h2>
-        <p class="text-xs text-slate-500 mt-0.5">အရောင်းရဆုံး စာအုပ်စာရင်းများ</p>
-      </div>
-      <a routerLink="/books" class="text-brand-600 hover:text-brand-700 font-bold text-xs sm:text-sm flex items-center gap-1">
-        View All (Standard) <i class="pi pi-chevron-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-      
-      <!-- 4 Standard Book Cards -->
-      @for (b of bestsellingBooks; track b.id) {
-        <div class="col-span-1">
-          <app-book-card [book]="b"></app-book-card>
-        </div>
-      }
-
-      <!-- 1 Right Large Flash Sale Card (25% Off) -->
-      <div class="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-1 rounded-2xl bg-gradient-to-br from-amber-600 via-orange-700 to-rose-900 text-white p-5 flex flex-col justify-between shadow-lg border border-amber-400/30 group">
-        <div class="space-y-2">
-          <span class="text-[10px] font-extrabold uppercase tracking-widest text-amber-200">FLASH SALE</span>
-          <h3 class="text-2xl font-black text-white">25% Off</h3>
-          <p class="text-[11px] text-amber-100">ယနေ့အတွက်သာ သီးသန့် လျှော့စျေး</p>
-        </div>
-
-        <div class="my-4 aspect-[4/3] rounded-xl overflow-hidden shadow-xl transform -rotate-3 group-hover:rotate-0 transition-transform">
-          <img src="https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=300&q=80" alt="Flash Sale" class="w-full h-full object-cover" />
-        </div>
-
-        <a
-          routerLink="/books"
-          class="w-full py-2.5 rounded-xl bg-white text-obsidian-900 font-extrabold text-xs text-center hover:bg-amber-50 hover:text-amber-600 transition-colors shadow-md"
-        >
-          Grab Deal
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 9. POPULAR BOOKS (Dribbble 4 Book Cards + Right Monthly Picks Banner)      -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Popular Books</h2>
-        <p class="text-xs text-slate-500 mt-0.5">စာဖတ်ပရိသတ်များ အကြိုက်တွေ့နေသော စာအုပ်များ</p>
-      </div>
-      <a routerLink="/books" class="text-brand-600 hover:text-brand-700 font-bold text-xs sm:text-sm flex items-center gap-1">
-        View All (Standard) <i class="pi pi-chevron-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-      
-      <!-- 4 Standard Book Cards -->
-      @for (b of popularBooks; track b.id) {
-        <div class="col-span-1">
-          <app-book-card [book]="b"></app-book-card>
-        </div>
-      }
-
-      <!-- 1 Right Monthly Picks Card -->
-      <div class="col-span-1 sm:col-span-2 md:col-span-1 lg:col-span-1 rounded-2xl bg-gradient-to-br from-brand-600 via-sky-700 to-indigo-900 text-white p-5 flex flex-col justify-between shadow-lg border border-brand-400/30 group">
-        <div class="space-y-2">
-          <span class="text-[10px] font-extrabold uppercase tracking-widest text-sky-200">MONTHLY HIGHLIGHTS</span>
-          <h3 class="text-xl font-black text-white">Our Monthly Picks!</h3>
-          <p class="text-[11px] text-sky-100">စာအုပ်စင်အဖွဲ့သားများ၏ လစဉ် အကြံပြုစာအုပ်</p>
-        </div>
-
-        <div class="my-4 aspect-[4/3] rounded-xl overflow-hidden shadow-xl transform rotate-2 group-hover:rotate-0 transition-transform">
-          <img src="https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=300&q=80" alt="Monthly Picks" class="w-full h-full object-cover" />
-        </div>
-
-        <a
-          routerLink="/books"
-          class="w-full py-2.5 rounded-xl bg-white text-obsidian-900 font-extrabold text-xs text-center hover:bg-brand-50 hover:text-brand-600 transition-colors shadow-md"
-        >
-          Discover Now
-        </a>
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- ========================================================================= -->
-  <!-- 10. LATEST BLOG POST (Dribbble 3-Column: 3 Mini | 1 Big Featured | 3 Mini)  -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900">Latest Blog Post</h2>
-        <p class="text-xs text-slate-500 mt-0.5">စာပေသတင်းနှင့် ဗဟုသုတ ဆောင်းပါးများ</p>
-      </div>
-      <a routerLink="/books" class="text-brand-600 hover:text-brand-700 font-bold text-xs sm:text-sm flex items-center gap-1">
-        View All <i class="pi pi-chevron-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-      
-      <!-- Left 3 Mini Blog Posts -->
-      <div class="lg:col-span-3 space-y-4 flex flex-col justify-between">
-        @for (post of blogPostsLeft; track post.id) {
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-3 flex items-center gap-3 hover:border-brand-400 hover:shadow-md transition-all group cursor-pointer">
-            <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
-              <img [src]="post.imageUrl" [alt]="post.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-            </div>
-            <div class="min-w-0 flex-1">
-              <span class="text-[10px] font-bold text-brand-600 uppercase">{{ post.date }}</span>
-              <h4 class="text-xs font-bold text-slate-900 line-clamp-2 group-hover:text-brand-600 mt-0.5">
-                {{ post.title }}
-              </h4>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Center Large Featured Blog Post -->
-      <div class="lg:col-span-6 bg-gradient-to-br from-obsidian-900 via-slate-900 to-brand-950 text-white rounded-3xl overflow-hidden shadow-xl border border-slate-800 flex flex-col justify-between p-6 group">
-        <div class="aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-lg mb-4">
-          <img [src]="featuredBlog.imageUrl" [alt]="featuredBlog.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        </div>
-
-        <div class="space-y-3">
-          <div class="flex items-center gap-2 text-[11px] font-bold text-brand-400">
-            <span>{{ featuredBlog.date }}</span>
-            <span>•</span>
-            <span class="text-slate-300">{{ featuredBlog.category }}</span>
-          </div>
-
-          <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-brand-300 transition-colors">
-            {{ featuredBlog.title }}
-          </h3>
-
-          <p class="text-xs text-slate-300 line-clamp-2">
-            {{ featuredBlog.summary }}
-          </p>
-
-          <div class="pt-2 flex items-center justify-between border-t border-slate-800">
-            <span class="text-[10px] text-slate-400 font-semibold">{{ featuredBlog.readTime }}</span>
-            <a routerLink="/books" class="text-brand-400 hover:text-brand-300 text-xs font-bold flex items-center gap-1.5">
-              <span>Read More</span>
-              <i class="pi pi-arrow-right text-[10px]"></i>
+      <!-- Right Column (4 Compact Books) -->
+      <div class="lg:col-span-4 space-y-3">
+        @for (b of favouriteReads().rightList; track b.id) {
+          <div class="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
+            <a [routerLink]="['/books', b.id]" class="w-14 h-18 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shrink-0">
+              @if (b.imageUrl) {
+                <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">Book</div>
+              }
             </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right 3 Mini Blog Posts -->
-      <div class="lg:col-span-3 space-y-4 flex flex-col justify-between">
-        @for (post of blogPostsRight; track post.id) {
-          <div class="bg-white rounded-2xl border border-slate-200/80 p-3 flex items-center gap-3 hover:border-brand-400 hover:shadow-md transition-all group cursor-pointer">
-            <div class="w-16 h-16 rounded-xl overflow-hidden bg-slate-100 shrink-0 shadow-sm">
-              <img [src]="post.imageUrl" [alt]="post.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+            <div class="flex-1 min-w-0">
+              <span class="text-[10px] font-bold text-teal-600 uppercase tracking-wider block">Recommended</span>
+              <a [routerLink]="['/books', b.id]" class="text-xs font-bold text-slate-900 hover:text-brand-600 transition-colors truncate block">
+                {{ b.title }}
+              </a>
+              <span class="text-[11px] text-slate-500 block truncate">{{ b.author || b.publisher || 'Sar Yeik Myaing' }}</span>
+              <span class="text-xs font-extrabold text-slate-900 block mt-1">{{ b.price | mmkCurrency }}</span>
             </div>
-            <div class="min-w-0 flex-1">
-              <span class="text-[10px] font-bold text-brand-600 uppercase">{{ post.date }}</span>
-              <h4 class="text-xs font-bold text-slate-900 line-clamp-2 group-hover:text-brand-600 mt-0.5">
-                {{ post.title }}
-              </h4>
-            </div>
+            <button
+              (click)="cartService.addToCart(b, 1)"
+              class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-500 hover:text-white text-slate-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
+              title="Add to Cart"
+            >
+              <i class="pi pi-shopping-cart text-xs"></i>
+            </button>
           </div>
         }
       </div>
@@ -652,87 +254,106 @@
     </div>
   </section>
 
+  <!-- ========================================================================= -->
+  <!-- 4. CATEGORY FILTER BAR & ALL BOOKS CATALOG                                -->
+  <!-- ========================================================================= -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          Trending Books Catalog
+        </h2>
+        <p class="text-xs text-slate-500 mt-0.5">Discover the newest titles across all genres</p>
+      </div>
 
-  <!-- ========================================================================= -->
-  <!-- 11. PUBLISHER / PARTNER BRAND LOGOS STRIP                                 -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="p-6 bg-white rounded-2xl border border-slate-200/80 shadow-sm flex items-center justify-around flex-wrap gap-6">
-      @for (pub of publisherLogos; track pub.name) {
-        <div class="flex items-center gap-2 text-slate-400 hover:text-brand-600 transition-colors font-bold text-xs cursor-pointer select-none">
-          <i [class]="'pi ' + pub.icon + ' text-base text-brand-500'"></i>
-          <span>{{ pub.name }}</span>
-        </div>
-      }
+      <!-- Category filter pills -->
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <button
+          (click)="selectCategory(null)"
+          [class]="selectedCategoryId() === null ? 'bg-brand-500 text-white shadow-sm font-bold' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
+          class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer"
+        >
+          All
+        </button>
+        @for (cat of categories(); track cat.id) {
+          <button
+            (click)="selectCategory(cat.id)"
+            [class]="selectedCategoryId() === cat.id ? 'bg-brand-500 text-white shadow-sm font-bold' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
+            class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer"
+          >
+            {{ cat.name }}
+          </button>
+        }
+      </div>
     </div>
-  </section>
 
-
-  <!-- ========================================================================= -->
-  <!-- 12. READER COMMUNITY / INSTAGRAM PHOTO FEED                               -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-6">
-      <h3 class="text-lg font-black text-slate-900">#SarOatSinBookClub</h3>
-      <p class="text-xs text-slate-500">စာဖတ်ပရိသတ်များနှင့်အတူ စာပေအလှတရားကို မျှဝေလိုက်ပါ</p>
-    </div>
-
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-      @for (photo of readerPhotos; track $index) {
-        <div class="aspect-square rounded-2xl overflow-hidden relative group shadow-sm">
-          <img [src]="photo" alt="Community Reader" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-          <div class="absolute inset-0 bg-brand-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center text-white text-xl">
-            <i class="pi pi-instagram"></i>
+    <!-- Books Grid -->
+    @if (isLoading()) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <div class="bg-white rounded-3xl border border-slate-200 p-4 space-y-3 animate-pulse">
+            <div class="w-full h-48 bg-slate-200 rounded-2xl"></div>
+            <div class="h-4 bg-slate-200 rounded w-3/4"></div>
+            <div class="h-3 bg-slate-100 rounded w-1/2"></div>
           </div>
-        </div>
-      }
-    </div>
+        }
+      </div>
+    } @else {
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
+        @for (book of filteredBooks(); track book.id) {
+          <app-book-card [book]="book"></app-book-card>
+        }
+      </div>
+    }
   </section>
 
-
   <!-- ========================================================================= -->
-  <!-- 13. VALUE PROPOSITION & TRUST BADGES BAR                                  -->
+  <!-- 5. TRUST BADGES BAR (Directly from Reference Design Bottom)               -->
   <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl shrink-0">
+      <!-- Free Shipping -->
+      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
           <i class="pi pi-truck"></i>
         </div>
         <div>
-          <h4 class="text-xs font-bold text-slate-900">Free Shipping</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">Orders over 30,000 MMK</p>
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Free Shipping</h4>
+          <p class="text-[11px] text-slate-500 mt-0.5">Free nationwide delivery over 500 towns</p>
         </div>
       </div>
 
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+      <!-- Money Guarantee -->
+      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl shrink-0">
           <i class="pi pi-verified"></i>
         </div>
         <div>
-          <h4 class="text-xs font-bold text-slate-900">Money Guarantee</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">100% Genuine original books</p>
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">100% Authentic</h4>
+          <p class="text-[11px] text-slate-500 mt-0.5">Guaranteed genuine publishers & authors</p>
         </div>
       </div>
 
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shrink-0">
-          <i class="pi pi-headphones"></i>
+      <!-- Online Support -->
+      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shrink-0">
+          <i class="pi pi-phone"></i>
         </div>
         <div>
-          <h4 class="text-xs font-bold text-slate-900">Online Support</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">24/7 dedicated customer care</p>
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Online Support</h4>
+          <p class="text-[11px] text-slate-500 mt-0.5">24/7 hotline 09-798123456</p>
         </div>
       </div>
 
-      <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+      <!-- Flexible Payment -->
+      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
+        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
           <i class="pi pi-credit-card"></i>
         </div>
         <div>
-          <h4 class="text-xs font-bold text-slate-900">Flexible Payment</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">KBZPay, Wave, Cash on Delivery</p>
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Flexible Payment</h4>
+          <p class="text-[11px] text-slate-500 mt-0.5">KBZPay, WavePay, AYA & Cash On Delivery</p>
         </div>
       </div>
 
@@ -740,4 +361,3 @@
   </section>
 
 </div>
-
