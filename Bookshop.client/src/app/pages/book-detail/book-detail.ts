@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { BookModel, CURATED_BOOKS } from '../../core/models/book.model';
 import { CategoryModel } from '../../core/models/category.model';
@@ -7,13 +7,13 @@ import { BookService } from '../../core/services/book.service';
 import { CategoryService } from '../../core/services/category.service';
 import { CartState } from '../../core/state/cart.state';
 import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-book-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, MmkCurrencyPipe],
+  imports: [CommonModule, RouterLink, MmkCurrencyPipe, TranslatePipe],
   templateUrl: './book-detail.html',
-  styleUrl: './book-detail.scss',
 })
 export class BookDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -21,6 +21,7 @@ export class BookDetail implements OnInit {
   private readonly bookService = inject(BookService);
   private readonly categoryService = inject(CategoryService);
   private readonly cartService = inject(CartState);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   book: BookModel | null = null;
   categories: CategoryModel[] = [];
@@ -30,9 +31,13 @@ export class BookDetail implements OnInit {
   ngOnInit(): void {
     this.categoryService.get().subscribe({
       next: (res) => {
-        if (res.success && res.data) {
-          this.categories = res.data as CategoryModel[];
+        if (res && res.data) {
+          this.categories = (Array.isArray(res.data) ? res.data : (res.data.records || [])) as CategoryModel[];
         }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cdr.detectChanges();
       },
     });
 
@@ -41,18 +46,21 @@ export class BookDetail implements OnInit {
       if (id) {
         this.quantity = 1;
         this.isLoading = true;
+        this.cdr.detectChanges();
         this.bookService.getById(id).subscribe({
           next: (res) => {
-            if (res.success && res.data) {
+            if (res && res.data) {
               this.book = (Array.isArray(res.data) ? res.data[0] : res.data) as BookModel;
             } else {
               this.book = CURATED_BOOKS.find((b) => b.id === id) || null;
             }
             this.isLoading = false;
+            this.cdr.detectChanges();
           },
           error: () => {
             this.book = CURATED_BOOKS.find((b) => b.id === id) || null;
             this.isLoading = false;
+            this.cdr.detectChanges();
           },
         });
       }
