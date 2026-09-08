@@ -3,111 +3,130 @@
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
     <div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-        Admin Dashboard (စီမံခန့်ခွဲမှု မျက်နှာစာ)
+        {{ 'DASHBOARD.TITLE' | translate }}
       </h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        Overview of books inventory, category structure, and customer order fulfillment
+        {{ 'DASHBOARD.SUBTITLE' | translate }}
       </p>
     </div>
 
     <div class="flex items-center gap-2">
       <a
         routerLink="/admin/books"
-        class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center gap-1.5"
+        class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center gap-1.5"
       >
-        <i class="pi pi-plus text-xs"></i> စာအုပ်အသစ်ထည့်မည်
+        <i class="pi pi-plus text-xs"></i>
+        <span>{{ 'BOOKS.ADD_BOOK' | translate }}</span>
       </a>
     </div>
   </div>
 
   <!-- KPI Metrics Cards Grid -->
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
+    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
       <div class="space-y-1">
-        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Books</span>
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ 'DASHBOARD.TOTAL_BOOKS' | translate }}</span>
         <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ totalBooks }}</h3>
-        <span class="text-[11px] text-emerald-600 font-semibold">Active in Catalog</span>
+        <span class="text-[11px] text-emerald-600 font-semibold">{{ 'DASHBOARD.ACTIVE_CATALOG' | translate }}</span>
       </div>
-      <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
+      <div class="w-12 h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-xl">
         <i class="pi pi-book"></i>
       </div>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
+    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
       <div class="space-y-1">
-        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Categories</span>
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ 'DASHBOARD.TOTAL_CATEGORIES' | translate }}</span>
         <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ totalCategories }}</h3>
-        <span class="text-[11px] text-brand-600 font-semibold">Classifications</span>
+        <span class="text-[11px] text-brand-600 font-semibold">{{ 'NAVBAR.CATEGORIES' | translate }}</span>
       </div>
-      <div class="w-12 h-12 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
+      <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl">
         <i class="pi pi-tags"></i>
       </div>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
+    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
       <div class="space-y-1">
-        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Orders</span>
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ 'DASHBOARD.TOTAL_ORDERS' | translate }}</span>
         <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900">{{ orders.length }}</h3>
-        <span class="text-[11px] text-amber-600 font-semibold">Processed</span>
+        <span class="text-[11px] text-amber-600 font-semibold">{{ 'ADMIN.ORDERS' | translate }}</span>
       </div>
-      <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+      <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
         <i class="pi pi-shopping-bag"></i>
       </div>
     </div>
 
-    <div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
+    <div class="p-6 rounded-3xl bg-white border border-slate-200/80 shadow-sm flex items-center justify-between">
       <div class="space-y-1">
-        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Revenue</span>
+        <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">{{ 'DASHBOARD.TOTAL_REVENUE' | translate }}</span>
         <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">{{ totalRevenue | mmkCurrency }}</h3>
-        <span class="text-[11px] text-emerald-600 font-semibold">Grand Total</span>
+        <span class="text-[11px] text-emerald-600 font-semibold">{{ 'COMMON.CONFIRM' | translate }}</span>
       </div>
-      <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-        <i class="pi pi-dollar"></i>
+      <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+        <i class="pi pi-wallet"></i>
       </div>
     </div>
   </div>
 
-  <!-- Recent Orders Table -->
-  <div class="bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-4">
-    <div class="flex items-center justify-between">
-      <h2 class="text-base font-bold text-slate-900">Recent Customer Orders</h2>
-      <a routerLink="/orders" class="text-xs text-brand-600 font-bold hover:underline">View All Orders</a>
+  <!-- Latest Orders Section -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 space-y-4">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+      <h2 class="text-base font-bold text-slate-900">
+        {{ 'DASHBOARD.LATEST_ORDERS' | translate }}
+      </h2>
+      <a routerLink="/admin/orders" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
+        <span>{{ 'DASHBOARD.VIEW_ALL_ORDERS' | translate }}</span>
+        <i class="pi pi-arrow-right text-[10px]"></i>
+      </a>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="w-full text-xs text-left">
-        <thead class="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-100">
-          <tr>
-            <th class="p-3">Order #</th>
-            <th class="p-3">Customer</th>
-            <th class="p-3">Payment</th>
-            <th class="p-3">Amount</th>
-            <th class="p-3">Status</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-100">
-          @for (order of orders; track order.id) {
-            <tr class="hover:bg-slate-50/60 transition-colors">
-              <td class="p-3 font-mono font-bold text-brand-600">{{ order.orderNumber || ('#' + order.id) }}</td>
-              <td class="p-3 font-medium text-slate-800">{{ order.customerName }}</td>
-              <td class="p-3 text-slate-600">{{ order.paymentMethod }}</td>
-              <td class="p-3 font-extrabold text-slate-900">{{ order.grandTotal | mmkCurrency }}</td>
-              <td class="p-3">
-                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-brand-50 text-brand-700">
-                  {{ order.status }}
-                </span>
-              </td>
+    @if (orders.length > 0) {
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead>
+            <tr class="text-[11px] text-slate-400 uppercase tracking-wider border-b border-slate-100">
+              <th class="pb-3">{{ 'DASHBOARD.ORDER_NO' | translate }}</th>
+              <th class="pb-3">{{ 'DASHBOARD.CUSTOMER' | translate }}</th>
+              <th class="pb-3">{{ 'DASHBOARD.PAYMENT' | translate }}</th>
+              <th class="pb-3">{{ 'COMMON.STATUS' | translate }}</th>
+              <th class="pb-3 text-right">{{ 'DASHBOARD.AMOUNT' | translate }}</th>
             </tr>
-          }
-          @if (orders.length === 0) {
-            <tr>
-              <td colspan="5" class="p-6 text-center text-slate-400">
-                No orders recorded yet.
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (order of orders.slice(0, 5); track order.id) {
+              <tr class="hover:bg-slate-50 transition-colors">
+                <td class="py-3 font-mono font-bold text-slate-900">
+                  <a routerLink="/admin/orders" class="hover:text-brand-600">
+                    {{ order.orderNumber || order.id }}
+                  </a>
+                </td>
+                <td class="py-3 text-slate-700 font-medium">{{ order.cusName || order.customerName }}</td>
+                <td class="py-3 text-slate-500">{{ order.paymentMethod }}</td>
+                <td class="py-3">
+                  <span
+                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
+                    [ngClass]="{
+                      'bg-amber-100 text-amber-800': order.status === 'Pending',
+                      'bg-emerald-100 text-emerald-800': order.status === 'Confirmed',
+                      'bg-rose-100 text-rose-800': order.status === 'Cancelled'
+                    }"
+                  >
+                    {{ order.status }}
+                  </span>
+                </td>
+                <td class="py-3 text-right font-bold text-brand-600">
+                  {{ (order.totalAmount || order.grandTotal) | mmkCurrency }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    } @else {
+      <div class="text-center py-8 text-slate-400 text-xs">
+        <i class="pi pi-inbox text-3xl mb-2 text-slate-300 block"></i>
+        <span>{{ 'ORDERS.NO_ORDERS_FOUND' | translate }}</span>
+      </div>
+    }
   </div>
 </div>
