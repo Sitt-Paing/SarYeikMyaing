@@ -1,90 +1,268 @@
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+  <!-- Header Row -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
     <div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-        မှာယူမှု မှတ်တမ်း (Order History & Tracking)
+        {{ (sharedService.isAdmin() ? 'ADMIN.ORDERS' : 'NAVBAR.ORDERS') | translate }}
       </h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
-        သင်၏ စာအုပ်မှာယူမှု အခြေအနေများကို စစ်ဆေးပါ
+        {{ 'ORDERS.SUBTITLE' | translate }}
       </p>
     </div>
 
-    <div class="relative w-full sm:w-64">
+    <!-- Search input -->
+    <div class="relative w-full sm:w-72">
       <input
         type="text"
         [(ngModel)]="searchOrderNo"
-        placeholder="Search by Order #..."
-        class="w-full pl-9 pr-4 py-2 rounded-xl bg-white border border-slate-300 text-xs focus:border-brand-500 outline-none shadow-sm"
+        [placeholder]="'ORDERS.SEARCH_PLACEHOLDER' | translate"
+        class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-300 text-xs focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none shadow-sm transition-all"
       />
-      <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+      <i class="pi pi-search absolute left-3 top-3 text-slate-400 text-xs"></i>
     </div>
   </div>
 
-  @if (filteredOrders().length > 0) {
-    <div class="space-y-6">
+  <!-- Status Filter Chips -->
+  <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+    <button
+      (click)="selectedFilterStatus.set('ALL')"
+      [class]="selectedFilterStatus() === 'ALL' ? 'bg-brand-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
+      class="px-4 py-1.5 rounded-xl text-xs transition-all"
+    >
+      {{ 'ORDERS.ALL' | translate }}
+    </button>
+    <button
+      (click)="selectedFilterStatus.set('PENDING')"
+      [class]="selectedFilterStatus() === 'PENDING' ? 'bg-amber-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500'"
+      class="px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
+    >
+      <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+      <span>{{ 'ORDERS.PENDING' | translate }}</span>
+    </button>
+    <button
+      (click)="selectedFilterStatus.set('CONFIRMED')"
+      [class]="selectedFilterStatus() === 'CONFIRMED' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-600'"
+      class="px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
+    >
+      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+      <span>{{ 'ORDERS.CONFIRMED' | translate }}</span>
+    </button>
+    <button
+      (click)="selectedFilterStatus.set('CANCELLED')"
+      [class]="selectedFilterStatus() === 'CANCELLED' ? 'bg-rose-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-rose-500'"
+      class="px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
+    >
+      <span>{{ 'ORDERS.CANCELLED' | translate }}</span>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="space-y-4">
+      @for (i of [1,2,3]; track i) {
+        <div class="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 animate-pulse">
+          <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+          <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+          <div class="h-8 bg-slate-100 rounded w-full"></div>
+        </div>
+      }
+    </div>
+  } @else if (filteredOrders().length === 0) {
+    <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
+      <i class="pi pi-inbox text-4xl text-slate-300"></i>
+      <h3 class="text-sm font-bold text-slate-800">{{ 'COMMON.NO_RECORDS' | translate }}</h3>
+      <p class="text-xs text-slate-400">{{ 'ORDERS.NO_ORDERS_FOUND' | translate }}</p>
+    </div>
+  } @else {
+    <!-- Orders List -->
+    <div class="space-y-4">
       @for (order of filteredOrders(); track order.id) {
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden divide-y divide-slate-100">
-          <div class="p-6 bg-slate-50/70 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+          <!-- Card Header -->
+          <div class="p-4 sm:p-6 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
               <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-brand-glow">
                 <i class="pi pi-box"></i>
               </div>
               <div>
-                <span class="text-xs text-slate-500 block">Order Number</span>
-                <h3 class="text-base font-extrabold text-slate-900 font-mono">{{ order.orderNumber || ('#' + order.id) }}</h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-sm sm:text-base font-extrabold text-slate-900 font-mono">
+                    {{ order.orderNumber || order.id }}
+                  </h3>
+                  <!-- Status Badge -->
+                  <span
+                    class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase"
+                    [ngClass]="{
+                      'bg-amber-100 text-amber-800 border border-amber-200': order.status === 'Pending',
+                      'bg-emerald-100 text-emerald-800 border border-emerald-200': order.status === 'Confirmed',
+                      'bg-rose-100 text-rose-800 border border-rose-200': order.status === 'Cancelled'
+                    }"
+                  >
+                    {{ order.status }}
+                  </span>
+                </div>
+                <span class="text-[11px] text-slate-400">
+                  {{ order.createdOn | date:'medium' }}
+                </span>
               </div>
             </div>
 
+            <!-- Header Right: Info & Actions -->
             <div class="flex flex-wrap items-center gap-4 text-xs">
-              <div>
-                <span class="text-slate-400 block">Customer</span>
-                <span class="font-bold text-slate-700">{{ order.customerName }}</span>
+              <div class="text-right">
+                <span class="text-slate-400 block text-[11px]">{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}</span>
+                <span class="font-extrabold text-brand-600 text-sm sm:text-base">{{ order.totalAmount | mmkCurrency }}</span>
               </div>
-              <div>
-                <span class="text-slate-400 block">Payment</span>
-                <span class="font-bold text-slate-700">{{ order.paymentMethod }}</span>
-              </div>
-              <div>
-                <span class="text-slate-400 block">Total Amount</span>
-                <span class="font-extrabold text-brand-600 text-sm">{{ order.grandTotal | mmkCurrency }}</span>
-              </div>
-            </div>
-          </div>
 
-          <div class="p-6 space-y-3">
-            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Order Items:</h4>
-            <div class="divide-y divide-slate-100">
-              @for (item of order.items; track item.bookId) {
-                <div class="py-2.5 flex items-center justify-between text-xs">
-                  <div class="flex items-center gap-3">
-                    <span class="w-6 h-6 rounded bg-slate-100 flex items-center justify-center font-bold text-slate-600">
-                      {{ item.quantity }}x
-                    </span>
-                    <span class="font-bold text-slate-900">{{ item.book?.title || ('Book ID #' + item.bookId) }}</span>
-                  </div>
-                  <span class="font-bold text-slate-700">{{ item.unitPrice * item.quantity | mmkCurrency }}</span>
+              <!-- Payslip View Button -->
+              @if (order.paymentSlipUrl) {
+                <button
+                  type="button"
+                  (click)="viewSlip(order)"
+                  class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  <i class="pi pi-image text-brand-500"></i>
+                  <span>{{ 'ORDERS.VIEW_SLIP' | translate }}</span>
+                </button>
+              }
+
+              <!-- Admin Approval Actions -->
+              @if (sharedService.isAdmin() && order.status === 'Pending') {
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    (click)="approveOrder(order)"
+                    class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1"
+                  >
+                    <i class="pi pi-check"></i>
+                    <span>{{ 'ORDERS.APPROVE' | translate }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    (click)="rejectOrder(order)"
+                    class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold border border-rose-200 transition-all"
+                  >
+                    <i class="pi pi-times"></i>
+                    <span>{{ 'ORDERS.REJECT' | translate }}</span>
+                  </button>
                 </div>
               }
             </div>
           </div>
 
-          <div class="p-4 bg-slate-50/50 text-xs text-slate-500">
-            <i class="pi pi-map-marker text-brand-500 mr-1"></i>
-            Delivery to: <strong class="text-slate-700">{{ order.customerName }}</strong> ({{ order.customerPhone }}), {{ order.shippingAddress }}, {{ order.city }}
+          <!-- Card Body: Customer & Shipping Details -->
+          <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs border-b border-slate-100">
+            <div>
+              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.NAME' | translate }}</span>
+              <p class="font-bold text-slate-800 mt-0.5">{{ order.cusName || order.customerName }}</p>
+              <p class="text-slate-500 text-[11px]">{{ order.cusPhone || order.customerPhone }}</p>
+            </div>
+
+            <div>
+              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.ADDRESS' | translate }}</span>
+              <p class="font-medium text-slate-700 mt-0.5">{{ order.shippingAddress }}</p>
+              <p class="text-slate-500 text-[11px]">{{ order.shippingCity || order.city }}</p>
+            </div>
+
+            <div>
+              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}</span>
+              <p class="font-bold text-slate-800 mt-0.5">{{ order.paymentMethod || 'KBZPay' }}</p>
+              @if (order.paymentNotes) {
+                <p class="text-slate-500 text-[11px] truncate" [title]="order.paymentNotes">
+                  Ref: {{ order.paymentNotes }}
+                </p>
+              }
+            </div>
           </div>
+
+          <!-- Card Items List (if available) -->
+          @if (order.orderItems && order.orderItems.length > 0) {
+            <div class="p-4 sm:p-6 bg-slate-50/40 text-xs space-y-2">
+              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'ORDERS.ITEMS' | translate }}</span>
+              <div class="divide-y divide-slate-100">
+                @for (item of order.orderItems; track item.bookId) {
+                  <div class="py-1.5 flex items-center justify-between">
+                    <span class="text-slate-700 font-medium">{{ item.bookTitle || ('Book #' + item.bookId) }}</span>
+                    <span class="text-slate-500">{{ item.quantity }} × {{ item.unitPrice | mmkCurrency }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </div>
       }
     </div>
-  } @else {
-    <div class="p-16 bg-white rounded-3xl border border-slate-200 text-center space-y-4 max-w-md mx-auto shadow-sm">
-      <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto">
-        <i class="pi pi-box"></i>
-      </div>
-      <h2 class="text-lg font-bold text-slate-800">မှာယူထားသော စာရင်း မရှိသေးပါ</h2>
-      <p class="text-xs text-slate-500">သင်၏ စာအုပ်မှာယူမှု မှတ်တမ်းများကို ဤနေရာတွင် ကြည့်ရှုနိုင်ပါသည်။</p>
-      <a routerLink="/books" class="inline-block px-5 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs shadow-brand-glow">
-        စာအုပ်များ စတင်ဝယ်ယူမည်
-      </a>
-    </div>
   }
 </div>
+
+<!-- Payslip Inspection Dialog -->
+<p-dialog
+  [(visible)]="slipModalVisible"
+  [header]="'ORDERS.SLIP_PREVIEW_TITLE' | translate"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [breakpoints]="{ '960px': '85vw', '640px': '95vw' }"
+  [style]="{ width: '90vw', maxWidth: '540px' }"
+>
+  @if (selectedSlipOrder) {
+    <div class="space-y-4 py-2 text-xs">
+      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+        <div>
+          <span class="font-bold text-slate-800 block">{{ selectedSlipOrder.cusName || selectedSlipOrder.customerName }}</span>
+          <span class="text-slate-500 text-[11px]">{{ selectedSlipOrder.paymentMethod }} • {{ selectedSlipOrder.totalAmount | mmkCurrency }}</span>
+        </div>
+        <span
+          class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
+          [ngClass]="{
+            'bg-amber-100 text-amber-800': selectedSlipOrder.status === 'Pending',
+            'bg-emerald-100 text-emerald-800': selectedSlipOrder.status === 'Confirmed'
+          }"
+        >
+          {{ selectedSlipOrder.status }}
+        </span>
+      </div>
+
+      <!-- Full image preview -->
+      <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center max-h-96">
+        <img
+          [src]="selectedSlipOrder.paymentSlipUrl"
+          alt="Transaction Payslip"
+          class="w-full h-auto max-h-96 object-contain"
+        />
+      </div>
+
+      @if (selectedSlipOrder.paymentNotes) {
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-100">
+          <span class="text-slate-400 block text-[11px] font-semibold uppercase">Notes / Transaction ID:</span>
+          <p class="text-slate-800 font-mono mt-0.5">{{ selectedSlipOrder.paymentNotes }}</p>
+        </div>
+      }
+
+      <!-- Admin Actions inside dialog -->
+      @if (sharedService.isAdmin() && selectedSlipOrder.status === 'Pending') {
+        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+          <button
+            pButton
+            type="button"
+            (click)="rejectOrder(selectedSlipOrder)"
+            [label]="'ORDERS.REJECT' | translate"
+            icon="pi pi-times"
+            class="p-button-text p-button-sm p-button-danger"
+          ></button>
+          <button
+            pButton
+            type="button"
+            (click)="approveOrder(selectedSlipOrder)"
+            [label]="'ORDERS.APPROVE' | translate"
+            icon="pi pi-check"
+            class="p-button-success p-button-sm font-bold shadow-sm"
+          ></button>
+        </div>
+      }
+    </div>
+  }
+</p-dialog>
