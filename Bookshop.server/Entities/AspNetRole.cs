@@ -23,4 +23,7 @@ public partial class AspNetRole
     [JsonIgnore]
     [InverseProperty("Role")]
     public virtual ICollection<AspNetRoleClaim> AspNetRoleClaims { get; set; } = new List<AspNetRoleClaim>();
+
+    [JsonIgnore]
+    public virtual ICollection<AspNetUser> Users { get; set; } = new List<AspNetUser>();
 }
