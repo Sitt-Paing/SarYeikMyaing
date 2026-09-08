@@ -17,10 +17,12 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
 
     [HttpGet]
     [EndpointSummary("Get Book List with Pagination")]
-    public async Task<IActionResult> GetAsync(int skipRows, int pageSize, string? q, string? sortField, int order)
+    public async Task<IActionResult> GetAsync(int skipRows = 0, int pageSize = 50, int? categoryId = null, string? q = null, string? sortField = null, int order = 1)
     {
+        if (pageSize <= 0) pageSize = 50;
+        if (skipRows < 0) skipRows = 0;
 
-        IQueryable<Book> booksQuery = BookQuery( q, sortField, order);
+        IQueryable<Book> booksQuery = BookQuery(q, categoryId, sortField, order);
 
         int recordsTotal = await booksQuery.CountAsync();
         List<Book> records = await booksQuery
@@ -38,12 +40,67 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
         });
     }
 
+    [HttpPost("upload-image")]
+    [EndpointSummary("Upload Book Cover Image")]
+    public async Task<IActionResult> UploadImageAsync([FromForm] IFormFile file)
+    {
+        if (file == null || file.Length == 0)
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "No file was uploaded.",
+                Data = null
+            });
+        }
+
+        var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!allowedExtensions.Contains(ext))
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Invalid image file type. Allowed: .jpg, .jpeg, .png, .webp, .gif",
+                Data = null
+            });
+        }
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "books");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        var uniqueFileName = $"{Guid.NewGuid():N}{ext}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var stream = new FileStream(filePath, FileMode.Create))
+        {
+            await file.CopyToAsync(stream);
+        }
+
+        var request = HttpContext.Request;
+        var imageUrl = $"{request.Scheme}://{request.Host}/uploads/books/{uniqueFileName}";
+
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = 200,
+            Message = "Image uploaded successfully",
+            Data = new { url = imageUrl, fileName = uniqueFileName }
+        });
+    }
+
     [HttpGet("{id}")]
     [EndpointSummary("Get Book by Id")]
     public async Task<IActionResult> GetAsync(int id)
     {
-        IReadOnlyList<Book>? data = await _repo.Books.GetAsync(x => x.Id == id);
-        if (data == null || data.Count == 0)
+        IReadOnlyList<Book>? data = await _repo.Books.GetAsync(x => x.Id == id && !x.DeletedOn.HasValue);
+        var book = data?.FirstOrDefault();
+        if (book == null)
         {
             return NotFound(new DefaultResponseModel
             {
@@ -58,7 +115,7 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
             Success = true,
             Statuscode = 200,
             Message = "Success",
-            Data = data
+            Data = book
         });
     }
     
@@ -71,7 +128,7 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
             Book data = new Book
             {
                 Title = model.Title,
-                AuthorId = model.AuthorId,
+                Author = model.Author,
                 Slug = model.Slug,
                 Description = model.Description,
                 OriginalPrice = model.OriginalPrice,
@@ -132,7 +189,7 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
         }
 
         existingBook.Title = model.Title;
-        existingBook.AuthorId = model.AuthorId;
+        existingBook.Author = model.Author;
         existingBook.Slug = model.Slug;
         existingBook.Description = model.Description;
         existingBook.OriginalPrice = model.OriginalPrice;
@@ -201,20 +258,20 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
     }
 
     [NonAction]
-    private IQueryable<Book> BookQuery(string? q, string? sortField, int order)
+    private IQueryable<Book> BookQuery(string? q, int? categoryId, string? sortField, int order)
     {
         IQueryable<Book> query = _context.Books.Where(x => !x.DeletedOn.HasValue);
 
-        //if (sDate.HasValue && eDate.HasValue)
-        //{
-        //    query = query.Where(x => x.CreatedOn >= sDate.Value && x.CreatedOn <= eDate.Value.AddDays(1));
-        //}
+        if (categoryId.HasValue && categoryId.Value > 0)
+        {
+            query = query.Where(x => x.CategoryId == categoryId.Value);
+        }
 
         if (!string.IsNullOrWhiteSpace(q))
         {
             string search = q.Trim().ToLower();
             query = query.Where(x => (x.Title != null && x.Title.ToLower().Contains(search))
-                                  //|| (x.Author != null && x.Author.ToLower().Contains(search))
+                                  || (x.Author != null && x.Author.ToLower().Contains(search))
                                   || (x.Isbn != null && x.Isbn.ToLower().Contains(search)));
         }
 
