@@ -57,9 +57,10 @@
       </div>
     </div>
 
-    <!-- PrimeNG DataTable -->
-    <p-table
-      #tblCategory
+    <!-- PrimeNG DataTable (responsive scroll) -->
+    <div class="overflow-x-auto -mx-4 sm:mx-0">
+      <p-table
+        #tblCategory
       [value]="categories"
       [loading]="isLoading"
       [paginator]="true"
@@ -109,6 +110,7 @@
         </tr>
       </ng-template>
     </p-table>
+    </div>
   </div>
 
   <!-- Create / Edit Dialog with Form -->
