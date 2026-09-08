@@ -7,10 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.Entities;
 
-[Keyless]
+[PrimaryKey("UserId", "LoginProvider", "Name")]
 public partial class AspNetUserToken
 {
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     [StringLength(450)]
     public string LoginProvider { get; set; } = null!;
@@ -22,5 +22,6 @@ public partial class AspNetUserToken
 
     [JsonIgnore]
     [ForeignKey("UserId")]
+    [InverseProperty("AspNetUserTokens")]
     public virtual AspNetUser User { get; set; } = null!;
 }
