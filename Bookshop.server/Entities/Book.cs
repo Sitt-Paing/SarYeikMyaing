@@ -16,7 +16,10 @@ public partial class Book
     [StringLength(300)]
     public string Title { get; set; } = null!;
 
-    public int AuthorId { get; set; }
+    [StringLength(150)]
+    public string? Author { get; set; }
+
+    public int? AuthorId { get; set; }
 
     [StringLength(200)]
     public string? Slug { get; set; }
@@ -67,11 +70,6 @@ public partial class Book
 
     [StringLength(100)]
     public string? DeletedBy { get; set; }
-
-    [JsonIgnore]
-    [ForeignKey("AuthorId")]
-    [InverseProperty("Books")]
-    public virtual Author Author { get; set; } = null!;
 
     [JsonIgnore]
     [InverseProperty("Book")]
