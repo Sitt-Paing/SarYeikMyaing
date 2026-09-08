@@ -2,7 +2,6 @@ namespace Bookshop.Interfaces.Repositories;
 
 public interface IRepositoryWrapper
 {
-    IAuthorRepo Authors { get; }
     IBookRepo Books { get; }
     ICartRepo Carts { get; }
     ICartItemRepo CartItems { get; }
