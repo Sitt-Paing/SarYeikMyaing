@@ -19,7 +19,7 @@ public partial class AspNetUserLogin
 
     public string? ProviderDisplayName { get; set; }
 
-    public int UserId { get; set; }
+    public string UserId { get; set; } = null!;
 
     [JsonIgnore]
     [ForeignKey("UserId")]
