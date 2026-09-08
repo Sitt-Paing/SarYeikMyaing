@@ -1,5 +1,5 @@
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BookModel } from '../../core/models/book.model';
 import { CategoryModel } from '../../core/models/category.model';
@@ -8,18 +8,19 @@ import { BookService } from '../../core/services/book.service';
 import { CategoryService } from '../../core/services/category.service';
 import { OrderService } from '../../core/services/order.service';
 import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, MmkCurrencyPipe],
+  imports: [CommonModule, RouterLink, MmkCurrencyPipe, TranslatePipe],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
   private readonly bookService = inject(BookService);
   private readonly categoryService = inject(CategoryService);
   private readonly orderService = inject(OrderService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   totalBooks = 0;
   totalCategories = 0;
@@ -33,6 +34,10 @@ export class Dashboard implements OnInit {
           const records = res.data.records || res.data || [];
           this.totalBooks = res.data.recordsTotal || records.length;
         }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cdr.detectChanges();
       },
     });
 
@@ -41,15 +46,23 @@ export class Dashboard implements OnInit {
         if (res.success && res.data) {
           this.totalCategories = (res.data as CategoryModel[]).length;
         }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cdr.detectChanges();
       },
     });
 
     this.orderService.get().subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          this.orders = res.data as OrderModel[];
-          this.totalRevenue = this.orders.reduce((sum, o) => sum + (o.grandTotal || 0), 0);
+          this.orders = (res.data.records || res.data || []) as OrderModel[];
+          this.totalRevenue = this.orders.reduce((sum, o) => sum + (o.totalAmount || o.grandTotal || 0), 0);
         }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.cdr.detectChanges();
       },
     });
   }
