@@ -11,7 +11,7 @@ namespace Bookshop.Entities;
 public partial class AspNetUser
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = null!;
 
     [StringLength(256)]
     public string? UserName { get; set; }
@@ -53,6 +53,13 @@ public partial class AspNetUser
     [JsonIgnore]
     [InverseProperty("User")]
     public virtual ICollection<AspNetUserLogin> AspNetUserLogins { get; set; } = new List<AspNetUserLogin>();
+
+    [JsonIgnore]
+    [InverseProperty("User")]
+    public virtual ICollection<AspNetUserToken> AspNetUserTokens { get; set; } = new List<AspNetUserToken>();
+
+    [JsonIgnore]
+    public virtual ICollection<AspNetRole> Roles { get; set; } = new List<AspNetRole>();
 
     [JsonIgnore]
     [InverseProperty("User")]
