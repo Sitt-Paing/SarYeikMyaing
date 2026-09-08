@@ -13,7 +13,8 @@ public partial class Cart
     [Key]
     public int Id { get; set; }
 
-    public int? UserId { get; set; }
+    [StringLength(450)]
+    public string? UserId { get; set; }
 
     [Column(TypeName = "datetime")]
     public DateTime? CreatedOn { get; set; }
