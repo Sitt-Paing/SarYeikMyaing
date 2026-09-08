@@ -14,10 +14,8 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import { AuthorModel } from '../../../core/models/author.model';
 import { BookModel } from '../../../core/models/book.model';
 import { CategoryModel } from '../../../core/models/category.model';
-import { AuthorService } from '../../../core/services/author.service';
 import { BookService } from '../../../core/services/book.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ExportService } from '../../../core/services/export.service';
@@ -57,7 +55,6 @@ export class Books implements OnInit {
   books: BookModel[] = [];
   filteredBooks: BookModel[] = [];
   categories: CategoryModel[] = [];
-  authors: AuthorModel[] = [];
   selectedBook!: BookModel;
   errorMessage = signal<any[]>([]);
 
@@ -74,7 +71,7 @@ export class Books implements OnInit {
   public bookForm = this.formBuilder.group({
     id: [0],
     title: ['', Validators.required],
-    authorId: [1, Validators.required],
+    author: ['', Validators.required],
     categoryId: [1, Validators.required],
     isbn: ['', Validators.required],
     price: [0, [Validators.required, Validators.min(0)]],
@@ -90,7 +87,6 @@ export class Books implements OnInit {
     private shareService: SharedService,
     private bookService: BookService,
     private categoryService: CategoryService,
-    private authorService: AuthorService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
     private loggerService: LoggerService,
@@ -125,12 +121,6 @@ export class Books implements OnInit {
     this.categoryService.get().subscribe({
       next: (res) => {
         this.categories = (res.data || []) as CategoryModel[];
-        this.cdr.detectChanges();
-      },
-    });
-    this.authorService.get().subscribe({
-      next: (res) => {
-        this.authors = (res.data || []) as AuthorModel[];
         this.cdr.detectChanges();
       },
     });
@@ -179,7 +169,7 @@ export class Books implements OnInit {
     this.bookForm.reset({
       id: 0,
       title: '',
-      authorId: this.authors.length > 0 ? this.authors[0].id : 1,
+      author: '',
       categoryId: this.categories.length > 0 ? this.categories[0].id : 1,
       isbn: '',
       price: 0,
@@ -207,7 +197,7 @@ export class Books implements OnInit {
     this.bookForm.patchValue({
       id: this.selectedBook.id,
       title: this.selectedBook.title,
-      authorId: this.selectedBook.authorId,
+      author: this.selectedBook.author || this.selectedBook.authorName || '',
       categoryId: this.selectedBook.categoryId,
       isbn: this.selectedBook.isbn,
       price: this.selectedBook.price,
@@ -221,18 +211,54 @@ export class Books implements OnInit {
     this.modalVisible = true;
   }
 
+  isUploadingImage = false;
+
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
       const file = input.files[0];
+
+      // Quick local preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        const base64 = e.target?.result as string;
-        this.imagePreview = base64;
-        this.bookForm.patchValue({ imageUrl: base64 });
+        this.imagePreview = e.target?.result as string;
       };
       reader.readAsDataURL(file);
+
+      // Upload to backend server
+      this.isUploadingImage = true;
+      this.bookService.uploadImage(file).subscribe({
+        next: (res) => {
+          this.isUploadingImage = false;
+          if (res.success && res.data?.url) {
+            this.bookForm.patchValue({ imageUrl: res.data.url });
+            this.imagePreview = res.data.url;
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Image Uploaded',
+              detail: 'Cover image uploaded successfully',
+            });
+          }
+        },
+        error: () => {
+          this.isUploadingImage = false;
+          // Fallback to base64 preview if server endpoint isn't reached
+          if (this.imagePreview) {
+            this.bookForm.patchValue({ imageUrl: this.imagePreview });
+          }
+        },
+      });
     }
+  }
+
+  onImageUrlChange(url: string): void {
+    const trimmed = (url || '').trim();
+    this.imagePreview = trimmed ? trimmed : null;
+  }
+
+  removeImage(): void {
+    this.imagePreview = null;
+    this.bookForm.patchValue({ imageUrl: '' });
   }
 
   save(): void {
