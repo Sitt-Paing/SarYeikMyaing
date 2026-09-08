@@ -24,7 +24,6 @@ import { Logo } from '../../../shared/components/logo/logo';
   ],
   providers: [MessageService],
   templateUrl: './register.html',
-  styleUrl: './register.scss',
 })
 export class Register {
   private readonly authService = inject(AuthService);
