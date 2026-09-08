@@ -25,7 +25,6 @@ import { Logo } from '../../../shared/components/logo/logo';
   ],
   providers: [MessageService],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
 })
 export class Login {
   private readonly authService = inject(AuthService);
@@ -60,13 +59,12 @@ export class Login {
       next: (res) => {
         this.isLoading = false;
         if (res.success && res.data) {
-          const token = res.data.accessToken || res.data.token || '';
-          const user = res.data.user || {};
-          const roles = user.roles || ['User'];
-          const userName = user.userName || model.userNameOrEmail;
-          const email = user.email || model.userNameOrEmail;
+          const user = res.data;
+          const roles = user.roles || user.Roles || ['User'];
+          const userName = user.userName || user.UserName || model.userNameOrEmail;
+          const email = user.email || user.Email || model.userNameOrEmail;
 
-          this.sharedService.storeUserData(token, userName, email, roles);
+          this.sharedService.storeUserData(userName, email, roles);
 
           this.messageService.add({
             severity: 'success',
