@@ -20,6 +20,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/cart/cart').then((m) => m.Cart),
   },
   {
+    path: 'wishlist',
+    loadComponent: () => import('./pages/wishlist/wishlist').then((m) => m.Wishlist),
+  },
+  {
     path: 'checkout',
     loadComponent: () => import('./pages/checkout/checkout').then((m) => m.Checkout),
   },
