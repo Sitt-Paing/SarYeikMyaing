@@ -1,23 +1,94 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
   <!-- Breadcrumb & Header -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+  <div class="flex items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-slate-200">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+      <h1 class="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
         {{ 'SHOP.TITLE' | translate }}
       </h1>
-      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+      <p class="text-[11px] sm:text-sm text-slate-500 mt-0.5">
         {{ 'SHOP.FOUND_COUNT' | translate: { count: totalRecords } }}
       </p>
     </div>
+
+    <!-- Mobile Filter Toggle Button -->
+    <div class="lg:hidden flex items-center">
+      <button
+        (click)="isMobileFilterOpen = true"
+        class="py-2 px-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-bold text-xs shadow-xs flex items-center gap-1.5 hover:bg-slate-50 active:scale-95 cursor-pointer"
+      >
+        <i class="pi pi-sliders-h text-brand-500 text-xs"></i>
+        <span>Filters</span>
+        @if (hasActiveFilters) {
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+        }
+      </button>
+    </div>
   </div>
+
+  <!-- Active Filter Chips / Pills -->
+  @if (hasActiveFilters) {
+    <div class="flex items-center gap-2 flex-wrap bg-brand-50/60 border border-brand-100 p-3 rounded-2xl">
+      <span class="text-xs font-bold text-slate-700 mr-1 flex items-center gap-1">
+        <i class="pi pi-filter text-[10px] text-brand-600"></i> Active:
+      </span>
+
+      @if (selectedCategoryId !== null) {
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-brand-700 border border-brand-200 text-xs font-medium shadow-xs">
+          Category: {{ getSelectedCategoryName() }}
+          <button (click)="selectCategory(null)" class="hover:text-rose-600"><i class="pi pi-times text-[10px]"></i></button>
+        </span>
+      }
+
+      @if (selectedAuthor !== null) {
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-brand-700 border border-brand-200 text-xs font-medium shadow-xs">
+          Author: {{ selectedAuthor }}
+          <button (click)="selectAuthor(null)" class="hover:text-rose-600"><i class="pi pi-times text-[10px]"></i></button>
+        </span>
+      }
+
+      @if (minPrice !== null || maxPrice !== null) {
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-brand-700 border border-brand-200 text-xs font-medium shadow-xs">
+          Price: {{ minPrice ? (minPrice | mmkCurrency) : '0' }} - {{ maxPrice ? (maxPrice | mmkCurrency) : 'Any' }}
+          <button (click)="setPriceRange(null, null)" class="hover:text-rose-600"><i class="pi pi-times text-[10px]"></i></button>
+        </span>
+      }
+
+      @if (inStockOnly) {
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-emerald-700 border border-emerald-200 text-xs font-medium shadow-xs">
+          In-Stock Only
+          <button (click)="toggleInStock()" class="hover:text-rose-600"><i class="pi pi-times text-[10px]"></i></button>
+        </span>
+      }
+
+      @if (searchQuery) {
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-brand-700 border border-brand-200 text-xs font-medium shadow-xs">
+          Keyword: "{{ searchQuery }}"
+          <button (click)="searchQuery = ''; applyFilters()" class="hover:text-rose-600"><i class="pi pi-times text-[10px]"></i></button>
+        </span>
+      }
+
+      <button
+        (click)="resetFilters()"
+        class="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline ml-auto"
+      >
+        Clear All
+      </button>
+    </div>
+  }
 
   <!-- Main Shop Content Grid -->
   <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
-    <!-- Left Filter Sidebar -->
+    <!-- Left Filter Sidebar (Desktop) -->
     <aside class="hidden lg:block lg:col-span-1 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm space-y-6 sticky top-28">
+      <!-- 1. Categories Section -->
       <div>
-        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3">{{ 'NAVBAR.CATEGORIES' | translate }}</h3>
-        <div class="space-y-1.5 max-h-60 overflow-y-auto pr-1">
+        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-3 flex items-center justify-between">
+          <span>{{ 'NAVBAR.CATEGORIES' | translate }}</span>
+          @if (selectedCategoryId !== null) {
+            <button (click)="selectCategory(null)" class="text-[11px] text-brand-600 font-semibold hover:underline">Reset</button>
+          }
+        </h3>
+        <div class="space-y-1 max-h-52 overflow-y-auto pr-1 scrollbar-thin">
           <button
             (click)="selectCategory(null)"
             [class]="selectedCategoryId === null ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
@@ -44,6 +115,100 @@
         </div>
       </div>
 
+      <hr class="border-slate-100" />
+
+      <!-- 2. Authors Section -->
+      <div>
+        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-2 flex items-center justify-between">
+          <span>Authors (စာရေးဆရာများ)</span>
+          @if (selectedAuthor !== null) {
+            <button (click)="selectAuthor(null)" class="text-[11px] text-brand-600 font-semibold hover:underline">Reset</button>
+          }
+        </h3>
+
+        <!-- Search author input -->
+        <div class="relative mb-2">
+          <input
+            type="text"
+            [(ngModel)]="authorSearchInput"
+            placeholder="Search author..."
+            class="w-full pl-7 pr-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px] focus:bg-white focus:border-brand-500 outline-none"
+          />
+          <i class="pi pi-search absolute left-2 top-2 text-slate-400 text-[10px]"></i>
+        </div>
+
+        <div class="space-y-1 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
+          @for (item of filteredAuthors; track item.author) {
+            <button
+              (click)="selectAuthor(item.author)"
+              [class]="selectedAuthor === item.author ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
+              class="w-full text-left px-3 py-1.5 rounded-xl text-xs flex items-center justify-between transition-colors cursor-pointer"
+            >
+              <span class="truncate">{{ item.author }}</span>
+              <span class="text-[10px] text-slate-400 px-1.5 py-0.5 rounded-md bg-slate-100 shrink-0 ml-1">
+                {{ item.count }}
+              </span>
+            </button>
+          }
+          @if (filteredAuthors.length === 0) {
+            <p class="text-[11px] text-slate-400 px-2 py-2">No authors found</p>
+          }
+        </div>
+      </div>
+
+      <hr class="border-slate-100" />
+
+      <!-- 3. Price Range Presets -->
+      <div>
+        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider mb-2.5">Price Range (ဈေးနှုန်း)</h3>
+        <div class="space-y-1.5 text-xs">
+          <button
+            (click)="setPriceRange(null, null)"
+            [class]="minPrice === null && maxPrice === null ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
+            class="w-full text-left px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+          >
+            All Prices
+          </button>
+          <button
+            (click)="setPriceRange(null, 15000)"
+            [class]="maxPrice === 15000 && minPrice === null ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
+            class="w-full text-left px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+          >
+            Under 15,000 MMK
+          </button>
+          <button
+            (click)="setPriceRange(15000, 30000)"
+            [class]="minPrice === 15000 && maxPrice === 30000 ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
+            class="w-full text-left px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+          >
+            15,000 - 30,000 MMK
+          </button>
+          <button
+            (click)="setPriceRange(30000, null)"
+            [class]="minPrice === 30000 && maxPrice === null ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600 hover:bg-slate-50'"
+            class="w-full text-left px-3 py-1.5 rounded-xl transition-colors cursor-pointer"
+          >
+            Above 30,000 MMK
+          </button>
+        </div>
+      </div>
+
+      <hr class="border-slate-100" />
+
+      <!-- 4. In Stock Toggle -->
+      <div>
+        <label class="flex items-center gap-2.5 cursor-pointer text-xs font-semibold text-slate-800">
+          <input
+            type="checkbox"
+            [checked]="inStockOnly"
+            (change)="toggleInStock()"
+            class="w-4 h-4 rounded text-brand-600 border-slate-300 focus:ring-brand-500 cursor-pointer"
+          />
+          <span>In-Stock Only (လက်ကျန်ရှိသော စာအုပ်များ)</span>
+        </label>
+      </div>
+
+      <!-- Reset All Filters -->
       <button
         (click)="resetFilters()"
         class="w-full py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors cursor-pointer"
@@ -55,24 +220,32 @@
     <!-- Right Products Area -->
     <main class="lg:col-span-3 space-y-6">
       <!-- Filter & Sorting Top Bar -->
-      <div class="bg-white p-4 rounded-3xl border border-slate-200/80 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="bg-white p-3 sm:p-4 rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4">
         <div class="relative w-full sm:w-80">
           <input
             type="text"
             [(ngModel)]="searchQuery"
             (keyup.enter)="applyFilters()"
             [placeholder]="'NAVBAR.SEARCH_PLACEHOLDER' | translate"
-            class="w-full pl-9 pr-4 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
+            class="w-full pl-9 pr-8 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs focus:bg-white focus:border-brand-500 outline-none transition-all"
           />
           <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+          @if (searchQuery) {
+            <button
+              (click)="searchQuery = ''; applyFilters()"
+              class="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 text-xs p-1 cursor-pointer"
+            >
+              <i class="pi pi-times text-[10px]"></i>
+            </button>
+          }
         </div>
 
-        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
-          <span class="text-xs text-slate-500 whitespace-nowrap">{{ 'SHOP.SORT_BY' | translate }}</span>
+        <div class="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto">
+          <span class="text-xs text-slate-500 whitespace-nowrap font-medium">{{ 'SHOP.SORT_BY' | translate }}:</span>
           <select
             [(ngModel)]="sortOption"
             (change)="onSortChange()"
-            class="px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:border-brand-500"
+            class="flex-1 sm:flex-initial px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 outline-none focus:border-brand-500 font-medium cursor-pointer"
           >
             <option value="id_desc">{{ 'SHOP.NEWEST' | translate }}</option>
             <option value="price_asc">{{ 'SHOP.PRICE_LOW_HIGH' | translate }}</option>
@@ -82,7 +255,7 @@
         </div>
       </div>
 
-      <!-- Mobile Categories Horizontal Scroll (visible only on mobile/tablet) -->
+      <!-- Mobile Categories Horizontal Scroll (visible only on mobile) -->
       @if (categories.length > 0) {
         <div class="lg:hidden flex items-center gap-2 overflow-x-auto pb-2 pt-1 scrollbar-hide">
           <button
@@ -104,34 +277,41 @@
         </div>
       }
 
-      <!-- Books Grid -->
+      <!-- Products Grid -->
       @if (isLoading) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
-          @for (i of [1, 2, 3, 4, 5, 6]; track i) {
-            <div class="bg-white rounded-3xl border border-slate-200/80 p-4 space-y-3 animate-pulse">
-              <div class="w-full h-48 bg-slate-200 rounded-2xl"></div>
+        <!-- Skeleton Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          @for (item of [1, 2, 3, 4, 5, 6, 7, 8]; track item) {
+            <div class="bg-white rounded-2xl border border-slate-200/80 p-4 space-y-4 animate-pulse">
+              <div class="aspect-[3/4] bg-slate-200 rounded-xl w-full"></div>
               <div class="h-4 bg-slate-200 rounded w-3/4"></div>
-              <div class="h-3 bg-slate-200 rounded w-1/2"></div>
+              <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+              <div class="flex justify-between items-center pt-2">
+                <div class="h-5 bg-slate-200 rounded w-1/3"></div>
+                <div class="h-8 w-8 bg-slate-200 rounded-xl"></div>
+              </div>
             </div>
           }
         </div>
       } @else if (books.length > 0) {
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           @for (book of books; track book.id) {
             <app-book-card [book]="book"></app-book-card>
           }
         </div>
       } @else {
         <!-- Empty State -->
-        <div class="bg-white p-12 rounded-3xl border border-slate-200/80 text-center space-y-4 shadow-sm">
+        <div class="bg-white rounded-3xl border border-slate-200/80 p-12 text-center space-y-4 shadow-sm">
           <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center text-2xl mx-auto">
             <i class="pi pi-search"></i>
           </div>
-          <h2 class="text-base font-bold text-slate-900">{{ 'BOOKS.NO_BOOKS' | translate }}</h2>
-          <p class="text-xs text-slate-500">{{ 'HOME.NO_BOOKS_FILTER' | translate }}</p>
+          <h2 class="text-lg font-bold text-slate-900">{{ 'SHOP.NO_BOOKS_FOUND' | translate }}</h2>
+          <p class="text-xs text-slate-500 max-w-sm mx-auto">
+            {{ 'SHOP.TRY_ADJUSTING' | translate }}
+          </p>
           <button
             (click)="resetFilters()"
-            class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs transition-colors shadow-sm cursor-pointer"
+            class="px-5 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all"
           >
             {{ 'SHOP.RESET_FILTERS' | translate }}
           </button>
@@ -139,4 +319,128 @@
       }
     </main>
   </div>
+
+  <!-- Mobile Filter Modal / Drawer -->
+  @if (isMobileFilterOpen) {
+    <div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-slate-900/50 backdrop-blur-xs p-0 sm:p-4">
+      <div class="bg-white w-full sm:max-w-md max-h-[85vh] rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300">
+        <!-- Drawer Header -->
+        <div class="p-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i class="pi pi-sliders-h text-brand-500"></i> Filters
+          </h3>
+          <button (click)="isMobileFilterOpen = false" class="p-1 text-slate-400 hover:text-slate-600">
+            <i class="pi pi-times"></i>
+          </button>
+        </div>
+
+        <!-- Drawer Content -->
+        <div class="p-4 overflow-y-auto space-y-5 flex-1 text-xs">
+          <!-- Categories -->
+          <div>
+            <h4 class="font-bold text-slate-800 uppercase text-[10px] tracking-wider mb-2">Category</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <button
+                (click)="selectCategory(null)"
+                [class]="selectedCategoryId === null ? 'bg-brand-500 text-white font-bold' : 'bg-slate-100 text-slate-700'"
+                class="px-3 py-1.5 rounded-lg text-xs"
+              >
+                All
+              </button>
+              @for (cat of categories; track cat.id) {
+                <button
+                  (click)="selectCategory(cat.id)"
+                  [class]="selectedCategoryId === cat.id ? 'bg-brand-500 text-white font-bold' : 'bg-slate-100 text-slate-700'"
+                  class="px-3 py-1.5 rounded-lg text-xs"
+                >
+                  {{ cat.name }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Authors -->
+          <div>
+            <h4 class="font-bold text-slate-800 uppercase text-[10px] tracking-wider mb-2">Authors</h4>
+            <div class="space-y-1 max-h-36 overflow-y-auto">
+              @for (item of authors; track item.author) {
+                <button
+                  (click)="selectAuthor(item.author)"
+                  [class]="selectedAuthor === item.author ? 'bg-brand-50 text-brand-600 font-bold' : 'text-slate-600'"
+                  class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs flex justify-between"
+                >
+                  <span>{{ item.author }}</span>
+                  <span class="text-slate-400 text-[10px]">({{ item.count }})</span>
+                </button>
+              }
+            </div>
+          </div>
+
+          <!-- Price -->
+          <div>
+            <h4 class="font-bold text-slate-800 uppercase text-[10px] tracking-wider mb-2">Price</h4>
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                (click)="setPriceRange(null, 15000)"
+                [class]="maxPrice === 15000 && minPrice === null ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-700'"
+                class="py-2 px-3 rounded-lg text-xs text-center"
+              >
+                < 15,000 MMK
+              </button>
+              <button
+                (click)="setPriceRange(15000, 30000)"
+                [class]="minPrice === 15000 && maxPrice === 30000 ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-700'"
+                class="py-2 px-3 rounded-lg text-xs text-center"
+              >
+                15,000 - 30,000 MMK
+              </button>
+              <button
+                (click)="setPriceRange(30000, null)"
+                [class]="minPrice === 30000 && maxPrice === null ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-700'"
+                class="py-2 px-3 rounded-lg text-xs text-center"
+              >
+                > 30,000 MMK
+              </button>
+              <button
+                (click)="setPriceRange(null, null)"
+                [class]="minPrice === null && maxPrice === null ? 'bg-brand-500 text-white' : 'bg-slate-100 text-slate-700'"
+                class="py-2 px-3 rounded-lg text-xs text-center"
+              >
+                Any Price
+              </button>
+            </div>
+          </div>
+
+          <!-- In stock -->
+          <div>
+            <label class="flex items-center gap-2 cursor-pointer font-medium text-slate-800">
+              <input
+                type="checkbox"
+                [checked]="inStockOnly"
+                (change)="toggleInStock()"
+                class="w-4 h-4 rounded text-brand-600"
+              />
+              <span>In-Stock Only</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Drawer Footer -->
+        <div class="p-4 border-t border-slate-100 flex items-center gap-3 bg-slate-50 shrink-0">
+          <button
+            (click)="resetFilters(); isMobileFilterOpen = false"
+            class="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-xs"
+          >
+            Reset
+          </button>
+          <button
+            (click)="isMobileFilterOpen = false"
+            class="flex-1 py-2.5 rounded-xl bg-brand-500 text-white font-bold text-xs"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
