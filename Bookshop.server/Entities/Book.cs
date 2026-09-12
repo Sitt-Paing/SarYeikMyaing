@@ -78,4 +78,8 @@ public partial class Book
     [JsonIgnore]
     [InverseProperty("Book")]
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+
+    [JsonIgnore]
+    [InverseProperty("Book")]
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }
