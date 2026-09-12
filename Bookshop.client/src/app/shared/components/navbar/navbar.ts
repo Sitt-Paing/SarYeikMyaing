@@ -7,6 +7,7 @@ import { CategoryService } from '../../../core/services/category.service';
 import { SharedService } from '../../../core/services/shared.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartState } from '../../../core/state/cart.state';
+import { WishlistState } from '../../../core/state/wishlist.state';
 import { MmkCurrencyPipe } from '../../pipes/mmk-currency.pipe';
 import { Logo } from '../logo/logo';
 import { TranslationService } from '../../../core/services/translation.service';
@@ -25,6 +26,7 @@ export class Navbar implements OnInit {
   readonly sharedService = inject(SharedService);
   private readonly authService = inject(AuthService);
   readonly cartService = inject(CartState);
+  readonly wishlistService = inject(WishlistState);
   readonly categoryService = inject(CategoryService);
   readonly translationService = inject(TranslationService);
   private readonly router = inject(Router);
