@@ -14,6 +14,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { Table, TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { DatePickerModule } from 'primeng/datepicker';
 import { BookModel } from '../../../core/models/book.model';
 import { CategoryModel } from '../../../core/models/category.model';
 import { BookService } from '../../../core/services/book.service';
@@ -43,6 +44,7 @@ import { MmkCurrencyPipe } from '../../../shared/pipes/mmk-currency.pipe';
     TableModule,
     ToastModule,
     InputIconModule,
+    DatePickerModule,
     MmkCurrencyPipe,
     TranslatePipe,
   ],
@@ -65,6 +67,8 @@ export class Books implements OnInit {
   isSubmitting = false;
 
   selectedCategoryId: number | null = null;
+  createdDateRange: Date[] | null = null;
+  totalRecords = 0;
   imagePreview: string | null = null;
 
   private formBuilder = inject(FormBuilder);
@@ -128,28 +132,53 @@ export class Books implements OnInit {
 
   loadData(): void {
     this.isLoading = true;
-    this.bookService.get().subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.books = (res.data.records || res.data || []) as BookModel[];
-          this.onCategoryFilterChange();
-        } else {
-          this.books = [];
-          this.filteredBooks = [];
-        }
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => {
-        this.loggerService.error('Book API error', err);
-        this.isLoading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to connect to API',
-        });
-      },
-    });
+
+    let fromDate: Date | null = null;
+    let toDate: Date | null = null;
+    if (this.createdDateRange && this.createdDateRange.length > 0 && this.createdDateRange[0]) {
+      fromDate = this.createdDateRange[0];
+      toDate = this.createdDateRange[1] || this.createdDateRange[0];
+    }
+
+    this.bookService
+      .get({
+        skipRows: 0,
+        pageSize: 500,
+        categoryId: this.selectedCategoryId && this.selectedCategoryId > 0 ? this.selectedCategoryId : undefined,
+        fromDate,
+        toDate,
+      })
+      .subscribe({
+        next: (res) => {
+          if (res.success && res.data) {
+            this.books = (res.data.records || res.data || []) as BookModel[];
+            this.totalRecords = res.data.recordsTotal ?? this.books.length;
+            this.onCategoryFilterChange();
+          } else {
+            this.books = [];
+            this.filteredBooks = [];
+            this.totalRecords = 0;
+          }
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.loggerService.error('Book API error', err);
+          this.isLoading = false;
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to connect to API',
+          });
+        },
+      });
+  }
+
+  onDateFilterChange(): void {
+    const range = this.createdDateRange;
+    if (!range || range.length === 0 || (range[0] && range[1])) {
+      this.loadData();
+    }
   }
 
   onCategoryFilterChange(): void {
