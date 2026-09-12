@@ -1,359 +1,291 @@
-<div class="space-y-12 sm:space-y-16 pb-16 bg-slate-50/50">
+<div class="space-y-10 sm:space-y-14 pb-16 bg-slate-50/60">
 
   <!-- ========================================================================= -->
-  <!-- 1. HERO SECTION (ONLY ONE BANNER AS REQUESTED)                            -->
+  <!-- 1. HERO SECTION (Medium Blue Palette & Recommend Book Spotlight)          -->
   <!-- ========================================================================= -->
-  <section class="relative mx-3 sm:mx-6 lg:mx-8 mt-4 rounded-3xl overflow-hidden bg-gradient-to-r from-emerald-800 via-teal-900 to-slate-900 text-white shadow-2xl border border-emerald-500/20">
-    <!-- Subtle artistic background glow & rings -->
-    <div class="absolute -top-32 -left-32 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-teal-500/20 rounded-full blur-3xl pointer-events-none"></div>
+  <section class="relative mx-3 sm:mx-6 lg:mx-8 mt-2 sm:mt-4 rounded-3xl overflow-hidden bg-gradient-to-br from-blue-600 via-sky-600 to-blue-700 text-white shadow-xl border border-blue-400/30">
+    <!-- Ambient subtle lights -->
+    <div class="absolute -top-24 -left-24 w-80 sm:w-96 h-80 sm:h-96 bg-white/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-24 -right-24 w-80 sm:w-96 h-80 sm:h-96 bg-sky-300/20 rounded-full blur-3xl pointer-events-none"></div>
 
-    <div class="relative z-10 max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 py-12 sm:py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 py-8 sm:py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
       
-      <!-- Hero Left: Content -->
-      <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-emerald-300 text-[11px] font-bold tracking-wider uppercase">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          SPECIAL OFFER
+      <!-- Hero Left: Headlines, Slogan & Crisp Search -->
+      <div class="lg:col-span-7 space-y-4 sm:space-y-6 text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-xs font-bold tracking-wide shadow-2xs">
+          <span class="w-2 h-2 rounded-full bg-amber-300 animate-pulse"></span>
+          <span>Sar Yeik Myaing Online Bookstore</span>
         </div>
 
-        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white">
-          There is nothing <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-200 via-teal-100 to-white">
-            better than to read
-          </span>
+        <h1 class="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
+          စာအုပ်ကောင်းများဖြင့် <br class="hidden sm:inline" />
+          <span class="text-amber-300">စိတ်ကူးဉာဏ်ကို</span> အလင်းဖွင့်ပါ
         </h1>
 
-        <p class="text-xs sm:text-sm text-emerald-100/90 max-w-lg leading-relaxed mx-auto lg:mx-0 font-normal">
-          Explore authentic Burmese literature, global bestsellers, and timeless classics with nationwide express delivery across 500+ townships.
+        <p class="text-xs sm:text-base text-blue-50/95 max-w-lg leading-relaxed mx-auto lg:mx-0 font-normal">
+          သုတ၊ ရသ၊ ဘာသာပြန်နှင့် စိတ်ခွန်အားဖြည့် စာအုပ်ကောင်းပေါင်းများစွာကို တစ်နေရာတည်းတွင် အလွယ်တကူ ရှာဖွေဝယ်ယူနိုင်ပါသည်။
         </p>
 
-        <!-- Call to Action Buttons -->
-        <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
-          <a
-            routerLink="/books"
-            class="px-8 py-3.5 rounded-full font-bold text-xs sm:text-sm bg-white text-emerald-950 hover:bg-emerald-50 hover:shadow-xl transition-all shadow-lg flex items-center gap-2 cursor-pointer group"
-          >
-            <span>SHOP NOW</span>
-            <i class="pi pi-arrow-right text-xs text-emerald-600 group-hover:translate-x-1 transition-transform"></i>
-          </a>
-          <a
-            routerLink="/cart"
-            class="px-6 py-3.5 rounded-full font-semibold text-xs sm:text-sm bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md transition-all flex items-center gap-2"
-          >
-            <i class="pi pi-shopping-bag text-xs"></i>
-            <span>{{ 'NAVBAR.CART' | translate }}</span>
-          </a>
-        </div>
+        <!-- Inline Quick Search Bar -->
+        <form (submit)="onSearch($event)" class="relative max-w-md mx-auto lg:mx-0 pt-1">
+          <div class="relative flex items-center">
+            <i class="pi pi-search absolute left-3.5 text-slate-400 text-xs sm:text-sm pointer-events-none"></i>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              name="homeSearch"
+              placeholder="စာအုပ်အမည်ဖြင့် အမြန်ရှာဖွေပါ..."
+              class="w-full pl-10 pr-24 py-3 sm:py-3.5 rounded-2xl bg-white text-slate-900 placeholder-slate-400 shadow-md outline-none focus:ring-4 focus:ring-white/30 text-xs sm:text-sm transition-all"
+            />
+            <button
+              type="submit"
+              class="absolute right-1.5 px-4 py-2 sm:py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 active:scale-95 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
+            >
+              ရှာဖွေပါ
+            </button>
+          </div>
+        </form>
       </div>
 
-      <!-- Hero Right: Illustrated Book Visuals -->
+      <!-- Hero Right: Recommend Book Spotlight (Clean Floating White Card) -->
       <div class="lg:col-span-5 flex justify-center">
-        <div class="relative w-full max-w-sm flex items-center justify-center">
-          <!-- Ambient Glow Ring -->
-          <div class="absolute inset-0 bg-emerald-400/20 rounded-full blur-2xl"></div>
+        @if (books().length > 0) {
+          <div class="w-full max-w-xs sm:max-w-sm bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-white/40 text-slate-900 flex flex-col items-center text-center relative group">
+            <!-- Badge Header -->
+            <div class="w-full flex items-center justify-between pb-3 border-b border-slate-100">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-[11px] font-extrabold uppercase tracking-wide border border-amber-200 shadow-2xs">
+                <i class="pi pi-star-fill text-amber-500 text-xs"></i>
+                Book of the Month
+              </span>
+              <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">အကြံပြုစာအုပ်</span>
+            </div>
 
-          <!-- Featured Visual Books Composition -->
-          <div class="relative z-10 flex items-center justify-center -space-x-8 sm:-space-x-12">
-            @if (books().length > 0) {
-              <!-- Book 1 (Left Tilt) -->
-              <div class="w-28 sm:w-36 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl transform -rotate-12 hover:rotate-0 transition-transform duration-300 border-2 border-white/30 shrink-0">
-                @if (books()[0]?.imageUrl) {
-                  <img [src]="books()[0].imageUrl" [alt]="books()[0].title" class="w-full h-full object-cover" />
-                } @else {
-                  <div class="w-full h-full bg-emerald-800 flex items-center justify-center text-white font-bold text-xs">Book</div>
-                }
+            <!-- Large Prominent Book Image Display -->
+            <a
+              [routerLink]="['/books', books()[0]?.id]"
+              class="mt-4 relative w-36 sm:w-44 aspect-[3/4] rounded-2xl overflow-hidden shadow-xl transition-transform duration-300 group-hover:scale-105 block bg-slate-100 border border-slate-200 cursor-pointer ring-1 ring-slate-900/5"
+            >
+              @if (books()[0]?.imageUrl) {
+                <img [src]="books()[0].imageUrl" [alt]="books()[0].title" class="w-full h-full object-cover" />
+              } @else {
+                <div class="w-full h-full flex items-center justify-center text-slate-700 text-xs font-bold p-3 text-center">{{ books()[0].title }}</div>
+              }
+            </a>
+
+            <!-- Book Info & Action -->
+            <div class="mt-4 w-full space-y-2">
+              <a [routerLink]="['/books', books()[0]?.id]" class="text-base sm:text-lg font-black text-slate-900 hover:text-blue-600 transition-colors line-clamp-1 block">
+                {{ books()[0].title }}
+              </a>
+
+              @if (books()[0]?.author) {
+                <p class="text-xs text-slate-500 truncate">
+                  {{ books()[0].author }}
+                </p>
+              }
+
+              <div class="text-base sm:text-lg font-black text-blue-600">
+                {{ books()[0].price | number }} MMK
               </div>
 
-              <!-- Book 2 (Center Hero Standout) -->
-              <div class="w-36 sm:w-44 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl z-20 transform hover:scale-105 transition-transform duration-300 border-2 border-white/50 shrink-0">
-                @if (books()[1]?.imageUrl || books()[0]?.imageUrl) {
-                  <img [src]="books()[1]?.imageUrl || books()[0]?.imageUrl" [alt]="books()[1]?.title || 'Book'" class="w-full h-full object-cover" />
-                } @else {
-                  <div class="w-full h-full bg-teal-800 flex items-center justify-center text-white font-bold text-xs">Book</div>
-                }
-              </div>
-
-              <!-- Book 3 (Right Tilt) -->
-              <div class="w-28 sm:w-36 aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl transform rotate-12 hover:rotate-0 transition-transform duration-300 border-2 border-white/30 shrink-0">
-                @if (books()[2]?.imageUrl || books()[0]?.imageUrl) {
-                  <img [src]="books()[2]?.imageUrl || books()[0]?.imageUrl" [alt]="books()[2]?.title || 'Book'" class="w-full h-full object-cover" />
-                } @else {
-                  <div class="w-full h-full bg-slate-800 flex items-center justify-center text-white font-bold text-xs">Book</div>
-                }
-              </div>
-            }
+              <a
+                [routerLink]="['/books', books()[0]?.id]"
+                class="mt-2 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>စာအုပ်အသေးစိတ်ကြည့်ရန်</span>
+                <i class="pi pi-arrow-right text-xs"></i>
+              </a>
+            </div>
           </div>
-        </div>
+        }
       </div>
 
     </div>
   </section>
 
+
   <!-- ========================================================================= -->
-  <!-- 2. CIRCULAR BOOK SHOWCASE STRIP (From Reference Image)                    -->
+  <!-- 2. VISUAL CATEGORIES STRIP (Touch-Friendly Horizontal Scroll)             -->
   <!-- ========================================================================= -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between gap-4 pb-4">
-      <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">Top Featured Selections</h3>
+    <div class="flex items-center justify-between gap-4 pb-3">
+      <div>
+        <h2 class="text-base sm:text-lg font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+          <i class="pi pi-compass text-brand-500"></i>
+          <span>စာအုပ်အမျိုးအစားများ (Explore Categories)</span>
+        </h2>
+      </div>
       <a routerLink="/books" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
-        <span>View All</span>
+        <span>အားလုံးကြည့်ရန်</span>
         <i class="pi pi-angle-right text-xs"></i>
       </a>
     </div>
 
-    <!-- Rounded circular books row with soft ambient shadows -->
-    <div class="flex items-center justify-between gap-4 overflow-x-auto py-3 scrollbar-hide px-2">
-      @for (book of featuredBooks(); track book.id) {
-        <a
-          [routerLink]="['/books', book.id]"
-          class="flex flex-col items-center gap-2 shrink-0 group cursor-pointer"
-          [title]="book.title"
+    <!-- Category Pills / Cards Row -->
+    <div class="flex items-center gap-3 overflow-x-auto pb-2 pt-1 scrollbar-hide">
+      <!-- All Category Pill -->
+      <button
+        type="button"
+        (click)="selectCategory(null)"
+        [class]="selectedCategoryId() === null ? 'bg-brand-500 text-white shadow-brand-glow font-bold border-brand-500' : 'bg-white text-slate-700 border-slate-200/90 hover:border-brand-300'"
+        class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 shadow-xs"
+      >
+        <div class="w-7 h-7 rounded-xl flex items-center justify-center" [class]="selectedCategoryId() === null ? 'bg-white/20 text-white' : 'bg-brand-50 text-brand-600'">
+          <i class="pi pi-th-large text-xs"></i>
+        </div>
+        <span>{{ 'SHOP.ALL_CATEGORIES' | translate }}</span>
+      </button>
+
+      <!-- Dynamic Categories -->
+      @for (cat of categories(); track cat.id) {
+        <button
+          type="button"
+          (click)="selectCategory(cat.id)"
+          [class]="selectedCategoryId() === cat.id ? 'bg-brand-500 text-white shadow-brand-glow font-bold border-brand-500' : 'bg-white text-slate-700 border-slate-200/90 hover:border-brand-300'"
+          class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs whitespace-nowrap transition-all duration-200 cursor-pointer shrink-0 shadow-xs"
         >
-          <div class="w-20 sm:w-24 aspect-[3/4] rounded-xl overflow-hidden shadow-md group-hover:shadow-xl group-hover:scale-105 transition-all duration-300 border border-slate-200 bg-white">
-            @if (book.imageUrl) {
-              <img [src]="book.imageUrl" [alt]="book.title" class="w-full h-full object-cover" loading="lazy" />
-            } @else {
-              <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400 font-bold text-[10px]">Book</div>
-            }
+          <div class="w-7 h-7 rounded-xl flex items-center justify-center" [class]="selectedCategoryId() === cat.id ? 'bg-white/20 text-white' : 'bg-brand-50 text-brand-600'">
+            <i [class]="'pi ' + (cat.icon || 'pi-bookmark') + ' text-xs'"></i>
           </div>
-          <span class="text-[11px] font-bold text-slate-700 max-w-[5.5rem] truncate text-center group-hover:text-brand-600 transition-colors">
-            {{ book.title }}
-          </span>
-        </a>
+          <span>{{ cat.name }}</span>
+        </button>
       }
     </div>
   </section>
 
   <!-- ========================================================================= -->
-  <!-- 3. OUR FAVOURITE READS (3-Column Layout from Reference Image)             -->
-  <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-    <div class="flex items-center justify-between pb-3 border-b border-slate-200">
-      <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          Our Favourite Reads
-        </h2>
-        <p class="text-xs text-slate-500 mt-0.5">Handpicked recommendations curated for every curious mind</p>
-      </div>
-      <a routerLink="/books" class="text-xs font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1">
-        <span>View All</span>
-        <i class="pi pi-angle-right text-xs"></i>
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
-      <!-- Left Column (4 Compact Books) -->
-      <div class="lg:col-span-4 space-y-3">
-        @for (b of favouriteReads().leftList; track b.id) {
-          <div class="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
-            <a [routerLink]="['/books', b.id]" class="w-14 h-18 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shrink-0">
-              @if (b.imageUrl) {
-                <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-              } @else {
-                <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">Book</div>
-              }
-            </a>
-            <div class="flex-1 min-w-0">
-              <span class="text-[10px] font-bold text-brand-600 uppercase tracking-wider block">Bestseller</span>
-              <a [routerLink]="['/books', b.id]" class="text-xs font-bold text-slate-900 hover:text-brand-600 transition-colors truncate block">
-                {{ b.title }}
-              </a>
-              <span class="text-[11px] text-slate-500 block truncate">{{ b.author || b.publisher || 'Sar Yeik Myaing' }}</span>
-              <span class="text-xs font-extrabold text-slate-900 block mt-1">{{ b.price | mmkCurrency }}</span>
-            </div>
-            <button
-              (click)="cartService.addToCart(b, 1)"
-              class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-500 hover:text-white text-slate-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
-              title="Add to Cart"
-            >
-              <i class="pi pi-shopping-cart text-xs"></i>
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- Center Column (2 Large Featured Spotlight Cards) -->
-      <div class="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
-        @for (feat of favouriteReads().centerFeatured; track feat.id) {
-          <div class="p-5 bg-white rounded-3xl border border-slate-200/80 shadow-md hover:shadow-xl transition-all flex flex-col justify-between group">
-            <a [routerLink]="['/books', feat.id]" class="w-full aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 mb-4 block">
-              @if (feat.imageUrl) {
-                <img [src]="feat.imageUrl" [alt]="feat.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              } @else {
-                <div class="w-full h-full flex items-center justify-center text-slate-400 text-lg">Featured</div>
-              }
-            </a>
-
-            <div class="space-y-2">
-              <div class="flex items-center justify-between">
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">
-                  Spotlight
-                </span>
-                <div class="flex items-center text-amber-400 text-xs">
-                  <i class="pi pi-star-fill"></i>
-                  <i class="pi pi-star-fill"></i>
-                  <i class="pi pi-star-fill"></i>
-                  <i class="pi pi-star-fill"></i>
-                  <i class="pi pi-star-fill"></i>
-                </div>
-              </div>
-
-              <a [routerLink]="['/books', feat.id]" class="text-sm sm:text-base font-extrabold text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-1 block">
-                {{ feat.title }}
-              </a>
-
-              <p class="text-xs text-slate-500 line-clamp-1">{{ feat.author || feat.publisher || 'Sar Yeik Myaing' }}</p>
-
-              <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                <span class="text-base font-black text-brand-600">{{ feat.price | mmkCurrency }}</span>
-                <button
-                  (click)="cartService.addToCart(feat, 1)"
-                  class="px-4 py-2 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center gap-1.5 cursor-pointer"
-                >
-                  <i class="pi pi-shopping-cart text-xs"></i>
-                  <span>Add</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
-
-      <!-- Right Column (4 Compact Books) -->
-      <div class="lg:col-span-4 space-y-3">
-        @for (b of favouriteReads().rightList; track b.id) {
-          <div class="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-md transition-all flex items-center gap-3 group">
-            <a [routerLink]="['/books', b.id]" class="w-14 h-18 rounded-xl overflow-hidden bg-slate-100 border border-slate-100 shrink-0">
-              @if (b.imageUrl) {
-                <img [src]="b.imageUrl" [alt]="b.title" class="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-              } @else {
-                <div class="w-full h-full flex items-center justify-center text-slate-400 text-xs">Book</div>
-              }
-            </a>
-            <div class="flex-1 min-w-0">
-              <span class="text-[10px] font-bold text-teal-600 uppercase tracking-wider block">Recommended</span>
-              <a [routerLink]="['/books', b.id]" class="text-xs font-bold text-slate-900 hover:text-brand-600 transition-colors truncate block">
-                {{ b.title }}
-              </a>
-              <span class="text-[11px] text-slate-500 block truncate">{{ b.author || b.publisher || 'Sar Yeik Myaing' }}</span>
-              <span class="text-xs font-extrabold text-slate-900 block mt-1">{{ b.price | mmkCurrency }}</span>
-            </div>
-            <button
-              (click)="cartService.addToCart(b, 1)"
-              class="w-8 h-8 rounded-xl bg-slate-50 hover:bg-brand-500 hover:text-white text-slate-600 transition-colors flex items-center justify-center shrink-0 cursor-pointer shadow-sm"
-              title="Add to Cart"
-            >
-              <i class="pi pi-shopping-cart text-xs"></i>
-            </button>
-          </div>
-        }
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ========================================================================= -->
-  <!-- 4. CATEGORY FILTER BAR & ALL BOOKS CATALOG                                -->
+  <!-- 3. CURATED TABS (All / Bestsellers / New Arrivals) & PRODUCT GRID         -->
   <!-- ========================================================================= -->
   <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-slate-200">
       <div>
-        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-          Trending Books Catalog
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <i class="pi pi-book text-brand-600"></i>
+          <span>စာအုပ်များ စုစည်းမှု</span>
         </h2>
-        <p class="text-xs text-slate-500 mt-0.5">Discover the newest titles across all genres</p>
+        <p class="text-xs text-slate-500 mt-0.5">ရွေးချယ်ထားသော စာအုပ်ကောင်းများကို လေ့လာဖတ်ရှုပါ</p>
       </div>
 
-      <!-- Category filter pills -->
-      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <!-- Segmented Tab Controls -->
+      <div class="inline-flex rounded-2xl bg-slate-200/70 p-1 text-xs self-start sm:self-auto shadow-inner">
         <button
-          (click)="selectCategory(null)"
-          [class]="selectedCategoryId() === null ? 'bg-brand-500 text-white shadow-sm font-bold' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
-          class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer"
+          type="button"
+          (click)="activeTab.set('all')"
+          [class]="activeTab() === 'all' ? 'bg-white text-brand-600 font-extrabold shadow-sm' : 'text-slate-600 hover:text-slate-900 font-medium'"
+          class="px-3.5 py-1.5 rounded-xl transition-all cursor-pointer"
         >
-          All
+          စာအုပ်အားလုံး
         </button>
-        @for (cat of categories(); track cat.id) {
-          <button
-            (click)="selectCategory(cat.id)"
-            [class]="selectedCategoryId() === cat.id ? 'bg-brand-500 text-white shadow-sm font-bold' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
-            class="px-4 py-2 rounded-xl text-xs whitespace-nowrap transition-all cursor-pointer"
-          >
-            {{ cat.name }}
-          </button>
-        }
+        <button
+          type="button"
+          (click)="activeTab.set('bestsellers')"
+          [class]="activeTab() === 'bestsellers' ? 'bg-white text-brand-600 font-extrabold shadow-sm' : 'text-slate-600 hover:text-slate-900 font-medium'"
+          class="px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+        >
+          <i class="pi pi-star-fill text-amber-500 text-[10px]"></i>
+          <span>လူကြိုက်အများဆုံး</span>
+        </button>
+        <button
+          type="button"
+          (click)="activeTab.set('new')"
+          [class]="activeTab() === 'new' ? 'bg-white text-brand-600 font-extrabold shadow-sm' : 'text-slate-600 hover:text-slate-900 font-medium'"
+          class="px-3.5 py-1.5 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+        >
+          <i class="pi pi-bolt text-brand-500 text-[10px]"></i>
+          <span>အသစ်ထွက်များ</span>
+        </button>
       </div>
     </div>
 
-    <!-- Books Grid -->
+    <!-- Books Grid (Mobile 2-column, Desktop 4-column) -->
     @if (isLoading()) {
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-6">
-        @for (i of [1,2,3,4,5,6,7,8]; track i) {
-          <div class="bg-white rounded-3xl border border-slate-200 p-4 space-y-3 animate-pulse">
-            <div class="w-full h-48 bg-slate-200 rounded-2xl"></div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        @for (i of [1, 2, 3, 4, 5, 6, 7, 8]; track i) {
+          <div class="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 space-y-3 animate-pulse">
+            <div class="w-full aspect-[3/4] bg-slate-200 rounded-xl"></div>
             <div class="h-4 bg-slate-200 rounded w-3/4"></div>
             <div class="h-3 bg-slate-100 rounded w-1/2"></div>
+            <div class="flex justify-between items-center pt-2">
+              <div class="h-5 bg-slate-200 rounded w-1/3"></div>
+              <div class="h-8 w-8 bg-slate-200 rounded-xl"></div>
+            </div>
           </div>
         }
       </div>
-    } @else {
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
-        @for (book of filteredBooks(); track book.id) {
+    } @else if (displayedCatalogBooks().length > 0) {
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        @for (book of displayedCatalogBooks(); track book.id) {
           <app-book-card [book]="book"></app-book-card>
         }
+      </div>
+
+      <!-- View More Link -->
+      <div class="text-center pt-4">
+        <a
+          routerLink="/books"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white border border-slate-200 hover:border-brand-500 text-slate-700 hover:text-brand-600 font-bold text-xs sm:text-sm shadow-xs hover:shadow-md transition-all active:scale-95"
+        >
+          <span>စာအုပ်အားလုံးကြည့်ရန် (View All Books)</span>
+          <i class="pi pi-arrow-right text-xs"></i>
+        </a>
+      </div>
+    } @else {
+      <div class="py-16 text-center bg-white rounded-3xl border border-slate-200/80 p-6 space-y-3">
+        <i class="pi pi-book text-3xl text-slate-300"></i>
+        <h3 class="text-base font-bold text-slate-800">စာအုပ်များ ရှာမတွေ့သေးပါ</h3>
+        <p class="text-xs text-slate-500">အခြား category ကို ရွေးချယ်ကြည့်ပါ</p>
       </div>
     }
   </section>
 
+
   <!-- ========================================================================= -->
-  <!-- 5. TRUST BADGES BAR (Directly from Reference Design Bottom)               -->
+  <!-- 5. TRUST & SHOPPING GUARANTEES (4-Card Service Highlights)                -->
   <!-- ========================================================================= -->
-  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
       
-      <!-- Free Shipping -->
-      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+      <!-- Fast Delivery -->
+      <div class="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs">
+        <div class="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg sm:text-xl shrink-0">
           <i class="pi pi-truck"></i>
         </div>
-        <div>
-          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Free Shipping</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">Free nationwide delivery over 500 towns</p>
+        <div class="min-w-0">
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">Fast Delivery</h4>
+          <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">အိမ်အရောက် ပို့ဆောင်ပေးခြင်း</p>
         </div>
       </div>
 
       <!-- Money Guarantee -->
-      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl shrink-0">
+      <div class="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs">
+        <div class="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-brand-50 text-brand-600 flex items-center justify-center text-lg sm:text-xl shrink-0">
           <i class="pi pi-verified"></i>
         </div>
-        <div>
-          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">100% Authentic</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">Guaranteed genuine publishers & authors</p>
+        <div class="min-w-0">
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">100% Authentic</h4>
+          <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">မူရင်းစာအုပ်စစ်စစ်များသာ</p>
         </div>
       </div>
 
       <!-- Online Support -->
-      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-xl shrink-0">
+      <div class="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs">
+        <div class="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg sm:text-xl shrink-0">
           <i class="pi pi-phone"></i>
         </div>
-        <div>
-          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Online Support</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">24/7 hotline 09-798123456</p>
+        <div class="min-w-0">
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">24/7 Support</h4>
+          <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">09-798123456</p>
         </div>
       </div>
 
       <!-- Flexible Payment -->
-      <div class="flex items-center gap-4 p-5 rounded-3xl bg-white border border-slate-200/80 shadow-sm">
-        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shrink-0">
+      <div class="flex items-center gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-white border border-slate-200/80 shadow-xs">
+        <div class="w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg sm:text-xl shrink-0">
           <i class="pi pi-credit-card"></i>
         </div>
-        <div>
-          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900">Flexible Payment</h4>
-          <p class="text-[11px] text-slate-500 mt-0.5">KBZPay, WavePay, AYA & Cash On Delivery</p>
+        <div class="min-w-0">
+          <h4 class="text-xs sm:text-sm font-extrabold text-slate-900 truncate">Flexible Payment</h4>
+          <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">KPay, Wave, COD ငွေချေ</p>
         </div>
       </div>
 
@@ -361,3 +293,4 @@
   </section>
 
 </div>
+
