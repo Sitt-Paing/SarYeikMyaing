@@ -1,0 +1,142 @@
+<div class="min-h-screen bg-slate-50 py-8 sm:py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Breadcrumb & Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 mb-8 border-b border-slate-200">
+      <div>
+        <nav class="flex items-center gap-2 text-xs font-medium text-slate-500 mb-2">
+          <a routerLink="/" class="hover:text-brand-600 transition-colors">Home</a>
+          <i class="pi pi-chevron-right text-[10px]"></i>
+          <span class="text-slate-900 font-semibold">Wishlist</span>
+        </nav>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            My Wishlist
+          </h1>
+          <span class="px-3 py-1 rounded-full bg-rose-50 text-rose-600 text-xs font-bold border border-rose-100 flex items-center gap-1">
+            <i class="pi pi-heart-fill text-xs"></i>
+            {{ wishlistService.itemCount() }} {{ wishlistService.itemCount() === 1 ? 'Book' : 'Books' }}
+          </span>
+        </div>
+      </div>
+
+      @if (wishlistService.itemCount() > 0) {
+        <div class="flex items-center gap-3">
+          <button
+            (click)="addAllToCart()"
+            class="px-4 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white text-xs sm:text-sm font-bold shadow-sm hover:shadow transition-all flex items-center gap-2"
+          >
+            <i class="pi pi-shopping-bag text-sm"></i>
+            Move All to Cart
+          </button>
+          <button
+            (click)="clearWishlist()"
+            class="px-3 py-2.5 rounded-xl bg-white hover:bg-rose-50 text-slate-600 hover:text-rose-600 border border-slate-200 hover:border-rose-200 text-xs sm:text-sm font-medium transition-all"
+            title="Clear all saved books"
+          >
+            <i class="pi pi-trash"></i>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Wishlist Items Grid -->
+    @if (wishlistService.itemCount() > 0) {
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+        @for (book of wishlistService.items(); track book.id) {
+          <div class="group relative flex flex-col bg-white rounded-2xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:border-brand-300 transition-all duration-300 overflow-hidden">
+            <!-- Cover image -->
+            <div class="relative aspect-[3/4] w-full overflow-hidden bg-slate-100 cursor-pointer" [routerLink]="['/books', book.id]">
+              @if (book.imageUrl) {
+                <img
+                  [src]="book.imageUrl"
+                  [alt]="book.title"
+                  class="h-full w-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+              } @else {
+                <div class="h-full w-full flex items-center justify-center bg-slate-100 text-slate-400">
+                  <i class="pi pi-book text-4xl"></i>
+                </div>
+              }
+
+              <!-- Stock Tag -->
+              @if (book.stockQuantity <= 0) {
+                <div class="absolute top-2.5 left-2.5 px-2.5 py-0.5 rounded-full bg-slate-900/85 backdrop-blur-sm text-white text-[10px] font-bold">
+                  Out of Stock
+                </div>
+              }
+
+              <!-- Remove from wishlist button -->
+              <button
+                (click)="removeFromWishlist(book.id)"
+                class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-white/95 backdrop-blur-sm text-slate-400 hover:text-rose-600 border border-slate-200 flex items-center justify-center transition-all hover:scale-110 shadow-sm"
+                title="Remove"
+              >
+                <i class="pi pi-times text-xs"></i>
+              </button>
+            </div>
+
+            <!-- Content -->
+            <div class="flex flex-1 flex-col p-2.5 sm:p-4 justify-between">
+              <div>
+                @if (book.author || book.authorName) {
+                  <p class="text-[10px] sm:text-xs text-brand-600 font-semibold line-clamp-1 mb-0.5 sm:mb-1">
+                    <i class="pi pi-user text-[9px] sm:text-[10px] mr-1"></i>{{ book.author || book.authorName }}
+                  </p>
+                }
+                <h3
+                  class="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2 hover:text-brand-600 transition-colors leading-snug cursor-pointer mb-1.5 sm:mb-2"
+                  [routerLink]="['/books', book.id]"
+                >
+                  {{ book.title }}
+                </h3>
+              </div>
+
+              <div class="pt-2 sm:pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-auto">
+                <div class="flex flex-col">
+                  <span class="text-xs sm:text-base font-extrabold text-slate-900">
+                    {{ book.price | mmkCurrency }}
+                  </span>
+                  @if (book.originalPrice && book.originalPrice > book.price) {
+                    <span class="text-[10px] sm:text-xs text-slate-400 line-through">
+                      {{ book.originalPrice | mmkCurrency }}
+                    </span>
+                  }
+                </div>
+
+                <button
+                  (click)="moveToCart(book)"
+                  [disabled]="book.stockQuantity <= 0"
+                  [class]="book.stockQuantity <= 0 ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-brand-50 hover:bg-brand-500 text-brand-600 hover:text-white active:scale-95 shadow-sm'"
+                  class="w-full sm:w-auto px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  title="Move to Cart"
+                >
+                  <i class="pi pi-shopping-bag text-xs sm:text-sm"></i>
+                  <span>Move to Cart</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    } @else {
+      <!-- Empty Wishlist -->
+      <div class="flex flex-col items-center justify-center py-20 bg-white rounded-3xl border border-slate-200/80 shadow-sm text-center px-4 max-w-xl mx-auto my-8">
+        <div class="w-20 h-20 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center text-3xl mb-5 shadow-inner">
+          <i class="pi pi-heart"></i>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-bold text-slate-900 mb-2">Your wishlist is empty</h2>
+        <p class="text-sm text-slate-500 max-w-sm mb-6">
+          Explore our collection of novels, translations, and literature, and tap the heart icon to save your favorites!
+        </p>
+        <a
+          routerLink="/books"
+          class="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all"
+        >
+          <i class="pi pi-compass"></i>
+          <span>Explore Books</span>
+        </a>
+      </div>
+    }
+  </div>
+</div>
