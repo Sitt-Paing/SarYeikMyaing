@@ -30,6 +30,7 @@ export class Checkout {
   completedOrder: OrderModel | null = null;
   isSubmitting = false;
   isUploadingSlip = false;
+  isMobileSummaryOpen = false;
   paymentSlipUrl = '';
   slipPreviewUrl = '';
   slipUploadError = '';
@@ -191,12 +192,26 @@ export class Checkout {
       next: (res) => {
         this.isSubmitting = false;
         if (res.success && res.data) {
-          this.completedOrder = res.data as OrderModel;
+          const isCod = this.formData.paymentMethod === 'CashOnDelivery';
+          const itemsSnapshot = this.cartService.items().map((item) => ({
+            bookId: item.book.id,
+            bookTitle: item.book.title,
+            quantity: item.quantity,
+            unitPrice: item.book.price,
+            totalPrice: item.quantity * item.book.price,
+          }));
+
+          this.completedOrder = {
+            ...(res.data as OrderModel),
+            orderItems: itemsSnapshot,
+          };
           this.cartService.clearCart();
           this.messageService.add({
             severity: 'success',
-            summary: 'Order Placed!',
-            detail: 'Your order is pending verification. Admin will verify your payment slip.',
+            summary: isCod ? 'Order Confirmed!' : 'Order Placed!',
+            detail: isCod
+              ? 'Your Cash on Delivery order has been confirmed. We will prepare your parcel shortly.'
+              : 'Your payment slip is submitted. Admin will verify your transfer screenshot.',
           });
         } else {
           this.messageService.add({
