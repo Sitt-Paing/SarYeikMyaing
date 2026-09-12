@@ -29,9 +29,28 @@ public class ApplicationDbContextInitializer
 
     public async Task InitialiseAsync()
     {
-        // The Identity tables (AspNetUsers, AspNetRoles, etc.) already exist in the SQL database.
-        // We skip MigrateAsync to avoid PendingModelChangesWarning in EF Core 9/10.
-        await Task.CompletedTask;
+        try
+        {
+            const string createReviewTableSql = @"
+                IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='Review' AND xtype='U')
+                BEGIN
+                    CREATE TABLE [dbo].[Review] (
+                        [Id] INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+                        [BookId] INT NOT NULL,
+                        [UserId] NVARCHAR(450) NULL,
+                        [UserName] NVARCHAR(150) NOT NULL DEFAULT 'Anonymous',
+                        [Rating] INT NOT NULL DEFAULT 5,
+                        [Comment] NVARCHAR(1000) NULL,
+                        [CreatedOn] DATETIME NOT NULL DEFAULT GETDATE(),
+                        CONSTRAINT [FK_Review_Book] FOREIGN KEY ([BookId]) REFERENCES [dbo].[Book]([Id]) ON DELETE CASCADE
+                    );
+                END";
+            await _bookshopContext.Database.ExecuteSqlRawAsync(createReviewTableSql);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Could not execute Review table initialization. Assuming table exists or DB is offline.");
+        }
     }
 
     public async Task SeedAsync()
