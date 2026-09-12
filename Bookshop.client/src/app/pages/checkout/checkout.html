@@ -2,63 +2,124 @@
 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
   @if (completedOrder) {
-    <!-- Order Submitted & Pending State -->
-    <div class="max-w-2xl mx-auto bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-xl text-center space-y-6">
-      <div class="w-20 h-20 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-4xl mx-auto shadow-inner">
-        <i class="pi pi-clock"></i>
-      </div>
-
-      <div class="space-y-2">
-        <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-200">
-          <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-          {{ 'CHECKOUT.ORDER_PENDING_BADGE' | translate }}
-        </span>
-        <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-          {{ 'CHECKOUT.THANK_YOU' | translate }}, {{ completedOrder.cusName }}!
-        </h1>
-        <p class="text-xs sm:text-sm text-slate-500">
-          {{ 'CHECKOUT.ORDER_NO' | translate }}: <strong class="text-brand-600 font-mono">{{ completedOrder.orderNumber || completedOrder.id }}</strong>
-        </p>
-      </div>
-
-      <!-- Pending Notification Notice -->
-      <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-left text-xs text-amber-900 space-y-1">
-        <div class="flex items-center gap-2 font-bold text-amber-800">
-          <i class="pi pi-info-circle text-sm"></i>
-          <span>{{ 'CHECKOUT.PENDING_NOTICE_TITLE' | translate }}</span>
+    <!-- Order Submitted / Confirmed State -->
+    <div class="max-w-2xl mx-auto bg-white p-6 sm:p-10 rounded-3xl border border-slate-200 shadow-xl text-center space-y-6">
+      @if (completedOrder.paymentMethod === 'CashOnDelivery') {
+        <!-- Cash On Delivery Header -->
+        <div class="w-20 h-20 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-4xl mx-auto shadow-inner">
+          <i class="pi pi-check-circle"></i>
         </div>
-        <p class="leading-relaxed pl-6">
-          {{ 'CHECKOUT.PENDING_NOTICE_DESC' | translate }}
-        </p>
-      </div>
 
-      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-left space-y-2.5">
-        <div class="flex justify-between text-slate-600">
-          <span>{{ 'CHECKOUT.ADDRESS' | translate }}:</span>
-          <span class="font-bold text-slate-800 text-right">{{ completedOrder.shippingAddress }}, {{ completedOrder.shippingCity }}</span>
+        <div class="space-y-2">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+            <i class="pi pi-bolt text-xs"></i>
+            Order Confirmed (Cash on Delivery)
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
+            {{ 'CHECKOUT.THANK_YOU' | translate }}, {{ completedOrder.cusName }}!
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500">
+            {{ 'CHECKOUT.ORDER_NO' | translate }}: <strong class="text-brand-600 font-mono">{{ completedOrder.orderNumber || completedOrder.id }}</strong>
+          </p>
         </div>
-        <div class="flex justify-between text-slate-600">
-          <span>{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}:</span>
-          <span class="font-bold text-brand-600">{{ completedOrder.paymentMethod }}</span>
+
+        <!-- COD Info Banner -->
+        <div class="p-4 rounded-2xl bg-emerald-50/80 border border-emerald-200 text-left text-xs text-emerald-900 space-y-1">
+          <div class="flex items-center gap-2 font-bold text-emerald-800">
+            <i class="pi pi-truck text-sm"></i>
+            <span>Cash on Delivery Notice</span>
+          </div>
+          <p class="leading-relaxed pl-6 text-emerald-700">
+            စာအုပ်များပို့ဆောင်ခါနီးတွင် ပို့ဆောင်ရေးအဖွဲ့မှ ဖုန်းနံပါတ် <strong>{{ completedOrder.cusPhone }}</strong> သို့ ဆက်သွယ်ပေးပါမည်။ စာအုပ်လက်ခံရရှိမှ ငွေသားပေးချေနိုင်ပါသည်။
+          </p>
         </div>
-        <div class="flex justify-between text-slate-600 border-t border-slate-200 pt-2 text-sm font-extrabold text-slate-900">
-          <span>{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}:</span>
-          <span class="text-brand-600">{{ completedOrder.totalAmount | mmkCurrency }}</span>
+      } @else {
+        <!-- Online Transfer / Slip Upload Header -->
+        <div class="w-20 h-20 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-4xl mx-auto shadow-inner">
+          <i class="pi pi-clock"></i>
+        </div>
+
+        <div class="space-y-2">
+          <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-200">
+            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+            Payment Verification Pending
+          </span>
+          <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
+            {{ 'CHECKOUT.THANK_YOU' | translate }}, {{ completedOrder.cusName }}!
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-500">
+            {{ 'CHECKOUT.ORDER_NO' | translate }}: <strong class="text-brand-600 font-mono">{{ completedOrder.orderNumber || completedOrder.id }}</strong>
+          </p>
+        </div>
+
+        <!-- Slip Pending Notification Notice -->
+        <div class="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 text-left text-xs text-amber-900 space-y-1">
+          <div class="flex items-center gap-2 font-bold text-amber-800">
+            <i class="pi pi-info-circle text-sm"></i>
+            <span>{{ 'CHECKOUT.PENDING_NOTICE_TITLE' | translate }}</span>
+          </div>
+          <p class="leading-relaxed pl-6 text-amber-800">
+            {{ 'CHECKOUT.PENDING_NOTICE_DESC' | translate }}
+          </p>
+        </div>
+      }
+
+      <!-- Order Receipt Card -->
+      <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs sm:text-sm text-left space-y-3">
+        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider pb-2 border-b border-slate-200">
+          Order Summary & Receipt
+        </h3>
+
+        <!-- Purchased items list -->
+        @if (completedOrder.orderItems && completedOrder.orderItems.length > 0) {
+          <div class="space-y-2 pb-3 border-b border-slate-200">
+            @for (item of completedOrder.orderItems; track item.bookId) {
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-800 font-medium truncate max-w-xs">{{ item.bookTitle || ('Book #' + item.bookId) }}</span>
+                <span class="text-slate-500">{{ item.quantity }} × {{ item.unitPrice | mmkCurrency }}</span>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="space-y-2 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span>{{ 'CHECKOUT.NAME' | translate }}:</span>
+            <span class="font-bold text-slate-800">{{ completedOrder.cusName }} ({{ completedOrder.cusPhone }})</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>{{ 'CHECKOUT.ADDRESS' | translate }}:</span>
+            <span class="font-bold text-slate-800 text-right">{{ completedOrder.shippingAddress }}, {{ completedOrder.shippingCity }}</span>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}:</span>
+            <span class="font-bold text-brand-600 flex items-center gap-1">
+              @if (completedOrder.paymentMethod === 'CashOnDelivery') {
+                <i class="pi pi-money-bill text-emerald-600"></i> Cash on Delivery
+              } @else {
+                <i class="pi pi-image text-brand-600"></i> {{ completedOrder.paymentMethod }} (Slip Uploaded)
+              }
+            </span>
+          </div>
+          <div class="flex justify-between text-slate-600 border-t border-slate-200 pt-2 text-sm font-extrabold text-slate-900">
+            <span>{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}:</span>
+            <span class="text-brand-600">{{ completedOrder.totalAmount | mmkCurrency }}</span>
+          </div>
         </div>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
         <a
           routerLink="/orders"
-          class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center justify-center gap-2"
+          class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-brand-glow transition-all flex items-center justify-center gap-2"
         >
-          <i class="pi pi-box"></i> {{ 'NAVBAR.ORDERS' | translate }}
+          <i class="pi pi-box"></i> View All Orders
         </a>
         <a
           routerLink="/books"
-          class="px-6 py-3.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all flex items-center justify-center gap-2"
+          class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs transition-all flex items-center justify-center gap-2"
         >
-          <i class="pi pi-arrow-left"></i> {{ 'HOME.BROWSE_ALL' | translate }}
+          <i class="pi pi-arrow-left"></i> Continue Shopping
         </a>
       </div>
     </div>
@@ -85,6 +146,62 @@
     </div>
 
     <form (submit)="onSubmitOrder($event)" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <!-- Mobile Order Summary Accordion (Visible on Mobile only) -->
+      <div class="lg:hidden col-span-1 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <button
+          type="button"
+          (click)="isMobileSummaryOpen = !isMobileSummaryOpen"
+          class="w-full p-4 flex items-center justify-between text-left bg-slate-50/70 hover:bg-slate-100 transition-colors"
+        >
+          <div class="flex items-center gap-2">
+            <i class="pi pi-shopping-bag text-brand-600 text-sm"></i>
+            <span class="text-xs font-bold text-slate-900">
+              {{ isMobileSummaryOpen ? 'Hide Order Summary' : 'Show Order Summary' }}
+              ({{ cartService.itemCount() }} {{ cartService.itemCount() === 1 ? 'item' : 'items' }})
+            </span>
+            <i [class]="isMobileSummaryOpen ? 'pi pi-chevron-up text-[10px] text-slate-500' : 'pi pi-chevron-down text-[10px] text-slate-500'"></i>
+          </div>
+          <span class="text-sm font-extrabold text-brand-600">
+            {{ cartService.grandTotal() | mmkCurrency }}
+          </span>
+        </button>
+
+        @if (isMobileSummaryOpen) {
+          <div class="p-4 space-y-3 border-t border-slate-200 text-xs">
+            <div class="max-h-48 overflow-y-auto space-y-2 divide-y divide-slate-100 pr-1">
+              @for (item of cartService.items(); track item.book.id) {
+                <div class="flex items-center justify-between pt-2">
+                  <div class="truncate max-w-[65%]">
+                    <span class="font-bold text-slate-800 block truncate">{{ item.book.title }}</span>
+                    <span class="text-[11px] text-slate-500">{{ item.quantity }} × {{ item.book.price | mmkCurrency }}</span>
+                  </div>
+                  <span class="font-bold text-slate-900">{{ item.book.price * item.quantity | mmkCurrency }}</span>
+                </div>
+              }
+            </div>
+
+            <div class="space-y-1.5 pt-3 border-t border-slate-200">
+              <div class="flex justify-between text-slate-600">
+                <span>{{ 'CHECKOUT.SUBTOTAL' | translate }}</span>
+                <span class="font-semibold">{{ cartService.subtotal() | mmkCurrency }}</span>
+              </div>
+              <div class="flex justify-between text-slate-600">
+                <span>{{ 'CHECKOUT.SHIPPING_FEE' | translate }}</span>
+                @if (cartService.shippingFee() === 0) {
+                  <span class="text-emerald-600 font-semibold">{{ 'CHECKOUT.FREE_SHIPPING' | translate }}</span>
+                } @else {
+                  <span class="font-semibold">{{ cartService.shippingFee() | mmkCurrency }}</span>
+                }
+              </div>
+              <div class="flex justify-between text-sm font-extrabold text-slate-900 pt-2 border-t border-slate-100">
+                <span>{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}</span>
+                <span class="text-brand-600">{{ cartService.grandTotal() | mmkCurrency }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
       <!-- Form Column -->
       <div class="lg:col-span-7 space-y-6">
         
