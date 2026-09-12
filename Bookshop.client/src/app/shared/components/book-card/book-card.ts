@@ -3,6 +3,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { BookModel } from '../../../core/models/book.model';
 import { CartState } from '../../../core/state/cart.state';
+import { WishlistState } from '../../../core/state/wishlist.state';
 import { MmkCurrencyPipe } from '../../pipes/mmk-currency.pipe';
 
 @Component({
@@ -13,10 +14,17 @@ import { MmkCurrencyPipe } from '../../pipes/mmk-currency.pipe';
 })
 export class BookCard {
   private readonly cartService = inject(CartState);
+  readonly wishlistService = inject(WishlistState);
   book = input.required<BookModel>();
 
   onAddToCart(event: Event): void {
     event.stopPropagation();
     this.cartService.addToCart(this.book(), 1);
+  }
+
+  onToggleWishlist(event: Event): void {
+    event.stopPropagation();
+    event.preventDefault();
+    this.wishlistService.toggleWishlist(this.book());
   }
 }
