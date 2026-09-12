@@ -35,12 +35,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
-        const isAuthEndpoint =
+        const isAuthOrGuestEndpoint =
           req.url.includes('/Account/Login') ||
           req.url.includes('/Account/Register') ||
-          req.url.includes('/Account/refresh');
+          req.url.includes('/Account/refresh') ||
+          req.url.includes('/Order/upload-slip');
 
-        if (!isAuthEndpoint) {
+        if (!isAuthOrGuestEndpoint) {
           return authService.refreshToken().pipe(
             switchMap((res) => {
               if (res.success) {
