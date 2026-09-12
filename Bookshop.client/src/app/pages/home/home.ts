@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { BookModel, CURATED_BOOKS } from '../../core/models/book.model';
+import { BookModel } from '../../core/models/book.model';
 import { CategoryModel } from '../../core/models/category.model';
 import { BookService } from '../../core/services/book.service';
 import { CategoryService } from '../../core/services/category.service';
@@ -63,15 +63,12 @@ export class Home implements OnInit {
     this.bookService.get().subscribe({
       next: (res) => {
         const dbList = (res.success && res.data ? (res.data.records || (Array.isArray(res.data) ? res.data : [])) : []) as BookModel[];
-        // Combine DB books with curated books so catalog is rich and user books are highlighted first
-        const existingIds = new Set(dbList.map((b) => b.id));
-        const combined = [...dbList, ...CURATED_BOOKS.filter((b) => !existingIds.has(b.id))];
-        this.books.set(combined);
+        this.books.set(dbList);
         this.isLoading.set(false);
         this.cdr.detectChanges();
       },
       error: () => {
-        this.books.set(CURATED_BOOKS);
+        this.books.set([]);
         this.isLoading.set(false);
         this.cdr.detectChanges();
       },
