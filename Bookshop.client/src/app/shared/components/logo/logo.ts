@@ -12,6 +12,7 @@ export class Logo {
   size = input<'sm' | 'md' | 'lg'>('md');
   showText = input<boolean>(true);
   linkUrl = input<string>('/');
+  isDark = input<boolean>(false);
 
   get iconSizeClass(): string {
     switch (this.size()) {
