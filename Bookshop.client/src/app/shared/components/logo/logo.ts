@@ -13,23 +13,19 @@ export class Logo {
   showText = input<boolean>(true);
   linkUrl = input<string>('/');
 
-  get iconSizeClass(): () => string {
-    return () => {
-      switch (this.size()) {
-        case 'sm': return 'w-8 h-8';
-        case 'lg': return 'w-14 h-14';
-        default: return 'w-10 h-10';
-      }
-    };
+  get iconSizeClass(): string {
+    switch (this.size()) {
+      case 'sm': return 'w-8 h-8';
+      case 'lg': return 'w-14 h-14';
+      default: return 'w-10 h-10';
+    }
   }
 
-  get titleSizeClass(): () => string {
-    return () => {
-      switch (this.size()) {
-        case 'sm': return 'text-lg';
-        case 'lg': return 'text-2xl';
-        default: return 'text-xl';
-      }
-    };
+  get titleSizeClass(): string {
+    switch (this.size()) {
+      case 'sm': return 'text-lg';
+      case 'lg': return 'text-2xl';
+      default: return 'text-xl';
+    }
   }
 }
