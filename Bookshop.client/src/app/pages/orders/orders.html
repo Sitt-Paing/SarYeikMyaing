@@ -249,19 +249,31 @@
 
                 <!-- Payment Method & Payslip Link -->
                 <td>
-                  <div class="flex items-center gap-1.5 flex-wrap">
-                    <span class="font-semibold text-slate-700">{{ order.paymentMethod || 'KBZPay' }}</span>
-                    @if (order.paymentSlipUrl) {
-                      <button
-                        type="button"
-                        (click)="viewSlip(order)"
-                        class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 text-[10px] font-bold inline-flex items-center gap-1 cursor-pointer"
-                        title="View slip"
-                      >
-                        <i class="pi pi-image text-[10px]"></i> Slip
-                      </button>
-                    }
-                  </div>
+                  @if (order.paymentSlipUrl) {
+                    <button
+                      type="button"
+                      (click)="viewSlip(order)"
+                      class="group flex items-center gap-2 p-1 rounded-xl bg-blue-50/90 hover:bg-blue-100/80 border border-blue-200 transition-all cursor-pointer shadow-xs text-left"
+                      title="Click to view transaction slip"
+                    >
+                      <img
+                        [src]="getSlipUrl(order.paymentSlipUrl)"
+                        alt="Slip thumbnail"
+                        class="w-8 h-8 rounded-lg object-cover border border-blue-300 bg-white group-hover:scale-105 transition-transform shrink-0"
+                      />
+                      <div class="pr-1.5 leading-tight">
+                        <span class="font-bold text-blue-900 text-[11px] block">{{ order.paymentMethod || 'Slip' }}</span>
+                        <span class="text-[9px] text-blue-600 font-semibold flex items-center gap-0.5">
+                          <i class="pi pi-image text-[9px]"></i> View Slip
+                        </span>
+                      </div>
+                    </button>
+                  } @else {
+                    <div>
+                      <span class="font-semibold text-slate-800 text-[11px] block">{{ order.paymentMethod || 'CashOnDelivery' }}</span>
+                      <span class="text-[10px] text-slate-400">Cash on Delivery</span>
+                    </div>
+                  }
                 </td>
 
                 <!-- Amount -->
@@ -288,6 +300,17 @@
                 <!-- Lifecycle Actions -->
                 <td class="text-center">
                   <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                    @if (order.paymentSlipUrl) {
+                      <button
+                        type="button"
+                        (click)="viewSlip(order)"
+                        class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        title="View Slip"
+                      >
+                        <i class="pi pi-image text-[10px]"></i>
+                        <span>Slip</span>
+                      </button>
+                    }
                     @if (order.status === 'Pending' && sharedService.isAdmin()) {
                       <button
                         type="button"
@@ -334,15 +357,6 @@
                       >
                         <i class="pi pi-check-circle text-[10px]"></i>
                         <span>Delivered</span>
-                      </button>
-                    }
-                    @if (order.paymentSlipUrl && !sharedService.isAdmin()) {
-                      <button
-                        type="button"
-                        (click)="viewSlip(order)"
-                        class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] transition-all cursor-pointer"
-                      >
-                        {{ 'ORDERS.VIEW_SLIP' | translate }}
                       </button>
                     }
                   </div>
@@ -410,9 +424,14 @@
                   <button
                     type="button"
                     (click)="viewSlip(order)"
-                    class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
+                    class="group flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 text-xs font-bold transition-all cursor-pointer shadow-xs"
+                    title="View payment slip"
                   >
-                    <i class="pi pi-image text-brand-500"></i>
+                    <img
+                      [src]="getSlipUrl(order.paymentSlipUrl)"
+                      alt="Slip"
+                      class="w-6 h-6 rounded-md object-cover border border-blue-300 bg-white group-hover:scale-105 transition-transform"
+                    />
                     <span>{{ 'ORDERS.VIEW_SLIP' | translate }}</span>
                   </button>
                 }
@@ -570,33 +589,70 @@
   [draggable]="false"
   [resizable]="false"
   [breakpoints]="{ '960px': '85vw', '640px': '95vw' }"
-  [style]="{ width: '90vw', maxWidth: '540px' }"
+  [style]="{ width: '90vw', maxWidth: '560px' }"
 >
   @if (selectedSlipOrder) {
     <div class="space-y-4 py-2 text-xs">
-      <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
+      <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
         <div>
-          <span class="font-bold text-slate-800 block">{{ selectedSlipOrder.cusName || selectedSlipOrder.customerName }}</span>
-          <span class="text-slate-500 text-[11px]">{{ selectedSlipOrder.paymentMethod }} • {{ selectedSlipOrder.totalAmount | mmkCurrency }}</span>
+          <span class="font-bold text-slate-900 block text-sm">{{ selectedSlipOrder.cusName || selectedSlipOrder.customerName }}</span>
+          <span class="text-slate-500 text-[11px] block mt-0.5">
+            {{ selectedSlipOrder.paymentMethod || 'Slip' }} • {{ selectedSlipOrder.totalAmount | mmkCurrency }}
+          </span>
+          <span class="font-mono text-[10px] text-slate-400 block mt-0.5">
+            Order #{{ selectedSlipOrder.orderNumber || selectedSlipOrder.id }}
+          </span>
         </div>
-        <span
-          class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
-          [ngClass]="{
-            'bg-amber-100 text-amber-800': selectedSlipOrder.status === 'Pending',
-            'bg-emerald-100 text-emerald-800': selectedSlipOrder.status === 'Confirmed'
-          }"
-        >
-          {{ selectedSlipOrder.status }}
-        </span>
+        <div class="flex items-center gap-2">
+          <span
+            class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
+            [ngClass]="{
+              'bg-amber-100 text-amber-800 border border-amber-200': selectedSlipOrder.status === 'Pending',
+              'bg-blue-100 text-blue-800 border border-blue-200': selectedSlipOrder.status === 'Confirmed',
+              'bg-purple-100 text-purple-800 border border-purple-200': selectedSlipOrder.status === 'Shipped',
+              'bg-emerald-100 text-emerald-800 border border-emerald-200': selectedSlipOrder.status === 'Delivered',
+              'bg-rose-100 text-rose-800 border border-rose-200': selectedSlipOrder.status === 'Cancelled'
+            }"
+          >
+            {{ selectedSlipOrder.status }}
+          </span>
+
+          <a
+            [href]="getSlipUrl(selectedSlipOrder.paymentSlipUrl)"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="p-1.5 rounded-lg bg-white hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-brand-600 transition-colors shadow-2xs"
+            title="Open in new window"
+          >
+            <i class="pi pi-external-link text-xs"></i>
+          </a>
+        </div>
       </div>
 
-      <!-- Full image preview -->
-      <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-900 flex items-center justify-center max-h-96">
-        <img
-          [src]="selectedSlipOrder.paymentSlipUrl"
-          alt="Transaction Payslip"
-          class="w-full h-auto max-h-96 object-contain"
-        />
+      <!-- Full image preview with error fallback -->
+      <div class="rounded-2xl overflow-hidden border border-slate-200 bg-slate-950 flex flex-col items-center justify-center p-2 relative min-h-[280px]">
+        @if (!slipImageError) {
+          <img
+            [src]="getSlipUrl(selectedSlipOrder.paymentSlipUrl)"
+            alt="Transaction Payslip"
+            (error)="onSlipImageError($event)"
+            class="w-full h-auto max-h-[500px] object-contain rounded-xl shadow-md"
+          />
+        } @else {
+          <div class="p-8 text-center text-slate-300 space-y-2">
+            <i class="pi pi-exclamation-triangle text-amber-400 text-3xl"></i>
+            <p class="font-bold text-sm text-white">Payslip image could not be displayed</p>
+            <p class="text-[11px] text-slate-400 font-mono break-all max-w-sm">{{ selectedSlipOrder.paymentSlipUrl }}</p>
+            <a
+              [href]="getSlipUrl(selectedSlipOrder.paymentSlipUrl)"
+              target="_blank"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs mt-2 transition-all shadow-sm"
+            >
+              <i class="pi pi-external-link"></i>
+              <span>Try Opening URL Directly</span>
+            </a>
+          </div>
+        }
       </div>
 
       @if (selectedSlipOrder.paymentNotes) {
@@ -606,27 +662,46 @@
         </div>
       }
 
-      <!-- Admin Actions inside dialog -->
-      @if (sharedService.isAdmin() && selectedSlipOrder.status === 'Pending') {
-        <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
-          <button
-            pButton
-            type="button"
-            (click)="rejectOrder(selectedSlipOrder)"
-            [label]="'ORDERS.REJECT' | translate"
-            icon="pi pi-times"
-            class="p-button-text p-button-sm p-button-danger"
-          ></button>
-          <button
-            pButton
-            type="button"
-            (click)="approveOrder(selectedSlipOrder)"
-            [label]="'ORDERS.APPROVE' | translate"
-            icon="pi pi-check"
-            class="p-button-success p-button-sm font-bold shadow-sm"
-          ></button>
+      <!-- Actions inside dialog -->
+      <div class="flex items-center justify-between gap-2 pt-3 border-t border-slate-100">
+        <a
+          [href]="getSlipUrl(selectedSlipOrder.paymentSlipUrl)"
+          target="_blank"
+          class="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+        >
+          <i class="pi pi-download text-xs"></i>
+          <span>Full Image</span>
+        </a>
+
+        <div class="flex items-center gap-2">
+          @if (sharedService.isAdmin() && selectedSlipOrder.status === 'Pending') {
+            <button
+              pButton
+              type="button"
+              (click)="rejectOrder(selectedSlipOrder)"
+              [label]="'ORDERS.REJECT' | translate"
+              icon="pi pi-times"
+              class="p-button-text p-button-sm p-button-danger"
+            ></button>
+            <button
+              pButton
+              type="button"
+              (click)="approveOrder(selectedSlipOrder)"
+              [label]="'ORDERS.APPROVE' | translate"
+              icon="pi pi-check"
+              class="p-button-success p-button-sm font-bold shadow-sm"
+            ></button>
+          } @else {
+            <button
+              pButton
+              type="button"
+              (click)="slipModalVisible = false"
+              [label]="'COMMON.CLOSE' | translate"
+              class="p-button-secondary p-button-outlined p-button-sm"
+            ></button>
+          }
         </div>
-      }
+      </div>
     </div>
   }
 </p-dialog>
