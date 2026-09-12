@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { BookModel, CURATED_BOOKS } from '../../core/models/book.model';
+import { BookModel } from '../../core/models/book.model';
 import { CategoryModel } from '../../core/models/category.model';
 import { ReviewModel, ReviewSummary } from '../../core/models/review.model';
 import { BookService } from '../../core/services/book.service';
@@ -77,13 +77,13 @@ export class BookDetail implements OnInit {
             if (res && res.data) {
               this.book = (Array.isArray(res.data) ? res.data[0] : res.data) as BookModel;
             } else {
-              this.book = CURATED_BOOKS.find((b) => b.id === id) || null;
+              this.book = null;
             }
             this.isLoading = false;
             this.cdr.detectChanges();
           },
           error: () => {
-            this.book = CURATED_BOOKS.find((b) => b.id === id) || null;
+            this.book = null;
             this.isLoading = false;
             this.cdr.detectChanges();
           },
