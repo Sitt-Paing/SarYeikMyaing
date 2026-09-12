@@ -48,6 +48,18 @@
             {{ book.title }}
           </h1>
 
+          <!-- Rating badge -->
+          <div class="flex items-center gap-2 mt-2.5">
+            <div class="flex items-center text-amber-400 text-sm">
+              <i class="pi pi-star-fill"></i>
+              <span class="ml-1.5 font-bold text-slate-900 text-sm">{{ reviewSummary.averageRating }}</span>
+            </div>
+            <span class="text-xs text-slate-400">•</span>
+            <a href="#reviews-section" class="text-xs text-brand-600 hover:underline font-semibold">
+              {{ reviewSummary.totalReviews }} {{ reviewSummary.totalReviews === 1 ? 'review' : 'reviews' }}
+            </a>
+          </div>
+
           <div class="flex items-center gap-3 mt-3 text-sm flex-wrap">
             @if (book.author) {
               <p class="text-slate-600 font-medium">
@@ -112,7 +124,7 @@
           <button
             (click)="addToCart()"
             [disabled]="book.stockQuantity <= 0"
-            class="flex-1 py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            class="flex-1 py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-95"
           >
             <i class="pi pi-shopping-cart text-xs"></i>
             <span>{{ 'BOOK_DETAIL.ADD_TO_CART' | translate }}</span>
@@ -121,7 +133,48 @@
           <button
             (click)="buyNow()"
             [disabled]="book.stockQuantity <= 0"
-            class="flex-1 py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            class="flex-1 py-3.5 rounded-xl font-bold text-xs sm:text-sm bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow hover:shadow-brand-hover transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-95"
+          >
+            <i class="pi pi-bolt text-xs"></i>
+            <span>{{ 'BOOK_DETAIL.BUY_NOW' | translate }}</span>
+          </button>
+
+          <button
+            type="button"
+            (click)="toggleWishlist()"
+            [class]="isInWishlist() ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-white text-slate-600 hover:text-rose-600 border-slate-300 hover:bg-rose-50'"
+            class="p-3.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer shrink-0 shadow-sm hover:scale-105 active:scale-95"
+            [title]="isInWishlist() ? 'Remove from Wishlist' : 'Add to Wishlist'"
+          >
+            <i [class]="isInWishlist() ? 'pi pi-heart-fill text-lg text-rose-500' : 'pi pi-heart text-lg'"></i>
+          </button>
+        </div>
+
+        <!-- Mobile Sticky Bottom Purchase Bar (Fixed above bottom navbar) -->
+        <div class="md:hidden fixed bottom-14 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200/90 p-3 z-40 shadow-2xl flex items-center gap-2">
+          <button
+            type="button"
+            (click)="toggleWishlist()"
+            [class]="isInWishlist() ? 'bg-rose-50 text-rose-600 border-rose-200' : 'bg-slate-100 text-slate-600 border-slate-200'"
+            class="w-11 h-11 rounded-xl border flex items-center justify-center transition-all cursor-pointer shrink-0 active:scale-90"
+            [title]="isInWishlist() ? 'Remove from Wishlist' : 'Add to Wishlist'"
+          >
+            <i [class]="isInWishlist() ? 'pi pi-heart-fill text-base text-rose-500' : 'pi pi-heart text-base'"></i>
+          </button>
+
+          <button
+            (click)="addToCart()"
+            [disabled]="book.stockQuantity <= 0"
+            class="flex-1 py-3 rounded-xl font-bold text-xs bg-brand-50 hover:bg-brand-100 text-brand-700 border border-brand-200 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
+          >
+            <i class="pi pi-shopping-cart text-xs"></i>
+            <span>{{ 'BOOK_DETAIL.ADD_TO_CART' | translate }}</span>
+          </button>
+
+          <button
+            (click)="buyNow()"
+            [disabled]="book.stockQuantity <= 0"
+            class="flex-1 py-3 rounded-xl font-bold text-xs bg-brand-500 hover:bg-brand-600 text-white shadow-brand-glow transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer active:scale-95"
           >
             <i class="pi pi-bolt text-xs"></i>
             <span>{{ 'BOOK_DETAIL.BUY_NOW' | translate }}</span>
@@ -161,6 +214,195 @@
             <p class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
               {{ book.description }}
             </p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Customer Reviews & Ratings Section -->
+    <div id="reviews-section" class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-10 space-y-8">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+          <i class="pi pi-comments text-brand-500"></i>
+          Customer Reviews & Ratings
+        </h2>
+        <p class="text-xs text-slate-500 mt-1">စာဖတ်သူများ၏ သုံးသပ်ချက်များနှင့် အဆင့်သတ်မှတ်ချက်များ</p>
+      </div>
+
+      <!-- Rating Overview & Breakdown Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-8 border-b border-slate-200">
+        <!-- Average Score Box -->
+        <div class="md:col-span-4 flex flex-col items-center justify-center p-6 rounded-2xl bg-slate-50 border border-slate-100 text-center">
+          <span class="text-5xl font-black text-slate-900 tracking-tight">{{ reviewSummary.averageRating }}</span>
+          <div class="flex items-center gap-1 text-amber-400 text-base my-2">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <i [class]="star <= reviewSummary.averageRating ? 'pi pi-star-fill' : (star - 0.5 <= reviewSummary.averageRating ? 'pi pi-star-fill opacity-70' : 'pi pi-star text-slate-300')"></i>
+            }
+          </div>
+          <span class="text-xs text-slate-500 font-medium">
+            Based on {{ reviewSummary.totalReviews }} {{ reviewSummary.totalReviews === 1 ? 'review' : 'reviews' }}
+          </span>
+        </div>
+
+        <!-- Rating Progress Bars -->
+        <div class="md:col-span-8 flex flex-col justify-center space-y-2.5">
+          @for (star of [5, 4, 3, 2, 1]; track star) {
+            <div class="flex items-center gap-3 text-xs">
+              <span class="w-12 text-slate-600 font-medium shrink-0 flex items-center gap-1">
+                {{ star }} <i class="pi pi-star-fill text-amber-400 text-[10px]"></i>
+              </span>
+              <div class="flex-1 h-3 rounded-full bg-slate-100 overflow-hidden">
+                <div
+                  class="h-full rounded-full bg-amber-400 transition-all duration-500"
+                  [style.width.%]="getRatingPercentage(star)"
+                ></div>
+              </div>
+              <span class="w-10 text-right text-slate-400 text-[11px] shrink-0 font-medium">
+                {{ getRatingPercentage(star) }}%
+              </span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Write a Review Form -->
+      <div class="bg-slate-50/80 rounded-2xl border border-slate-200/80 p-5 sm:p-7 space-y-4">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="pi pi-pencil text-brand-500"></i>
+          Write a Review
+        </h3>
+
+        <!-- Interactive 5-star Picker -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1.5">Your Rating</label>
+          <div class="flex items-center gap-1.5">
+            @for (star of [1, 2, 3, 4, 5]; track star) {
+              <button
+                type="button"
+                (click)="setRating(star)"
+                class="w-10 h-10 flex items-center justify-center text-2xl transition-transform hover:scale-125 active:scale-90 focus:outline-none cursor-pointer"
+                [class]="star <= newRating ? 'text-amber-400' : 'text-slate-300 hover:text-amber-200'"
+                [title]="star + ' stars'"
+              >
+                <i [class]="star <= newRating ? 'pi pi-star-fill' : 'pi pi-star'"></i>
+              </button>
+            }
+            <span class="text-xs font-bold text-slate-700 ml-2">
+              {{ newRating }} of 5 Stars
+            </span>
+          </div>
+        </div>
+
+        <!-- Reviewer Name (if guest) -->
+        @if (!sharedService.isAuthenticated()) {
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">Your Name</label>
+            <input
+              type="text"
+              [(ngModel)]="newReviewerName"
+              placeholder="e.g. Ko Phyo, Ma Thandar"
+              class="w-full sm:max-w-md px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none"
+            />
+          </div>
+        }
+
+        <!-- Comment Textarea -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">Review Comment</label>
+          <textarea
+            [(ngModel)]="newComment"
+            rows="3"
+            placeholder="Share your thoughts about this book with other readers..."
+            class="w-full px-3.5 py-2.5 rounded-xl bg-white border border-slate-200 text-xs focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none resize-y"
+          ></textarea>
+        </div>
+
+        @if (reviewFormSuccess) {
+          <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs flex items-center gap-2">
+            <i class="pi pi-check-circle"></i>
+            <span>{{ reviewFormSuccess }}</span>
+          </div>
+        }
+
+        @if (reviewFormError) {
+          <div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>{{ reviewFormError }}</span>
+          </div>
+        }
+
+        <!-- Submit Button -->
+        <div>
+          <button
+            type="button"
+            (click)="submitReview()"
+            [disabled]="isSubmittingReview"
+            class="px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center gap-2 disabled:opacity-50"
+          >
+            @if (isSubmittingReview) {
+              <i class="pi pi-spin pi-spinner text-xs"></i>
+              <span>Submitting...</span>
+            } @else {
+              <i class="pi pi-send text-xs"></i>
+              <span>Submit Review</span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Existing Reviews List -->
+      <div class="space-y-4">
+        <h3 class="text-sm font-bold text-slate-900">
+          Reader Reviews ({{ reviews.length }})
+        </h3>
+
+        @if (isLoadingReviews) {
+          <div class="p-8 text-center text-xs text-slate-400 animate-pulse">
+            <i class="pi pi-spin pi-spinner text-lg mb-2"></i>
+            <p>Loading reviews...</p>
+          </div>
+        } @else if (reviews.length > 0) {
+          <div class="space-y-4 divide-y divide-slate-100">
+            @for (rev of reviews; track rev.id) {
+              <div class="pt-4 first:pt-0">
+                <div class="flex items-start justify-between gap-4 mb-2">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-xs">
+                      {{ rev.userName.charAt(0).toUpperCase() || 'R' }}
+                    </div>
+                    <div>
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-900">{{ rev.userName }}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 text-[10px] font-semibold border border-emerald-100">
+                          Verified Reader
+                        </span>
+                      </div>
+                      <span class="text-[10px] text-slate-400">
+                        {{ rev.createdOn | date:'mediumDate' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Stars -->
+                  <div class="flex items-center gap-0.5 text-amber-400 text-xs">
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                      <i [class]="star <= rev.rating ? 'pi pi-star-fill' : 'pi pi-star text-slate-200'"></i>
+                    }
+                  </div>
+                </div>
+
+                @if (rev.comment) {
+                  <p class="text-xs text-slate-600 leading-relaxed pl-11">
+                    {{ rev.comment }}
+                  </p>
+                }
+              </div>
+            }
+          </div>
+        } @else {
+          <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 text-center text-xs text-slate-500">
+            <i class="pi pi-info-circle text-slate-400 text-lg mb-2 block"></i>
+            No reviews yet. Be the first reader to review this book!
           </div>
         }
       </div>
