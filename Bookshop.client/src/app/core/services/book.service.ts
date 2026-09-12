@@ -24,11 +24,28 @@ export class BookService {
     if (params?.categoryId) queryParts.push(`categoryId=${params.categoryId}`);
     if (params?.sortField) queryParts.push(`sortField=${params.sortField}`);
     if (params?.order !== undefined) queryParts.push(`order=${params.order}`);
+    if (params?.minPrice !== undefined) queryParts.push(`minPrice=${params.minPrice}`);
+    if (params?.maxPrice !== undefined) queryParts.push(`maxPrice=${params.maxPrice}`);
+    if (params?.author) queryParts.push(`author=${encodeURIComponent(params.author)}`);
+    if (params?.inStockOnly) queryParts.push(`inStockOnly=true`);
+    if (params?.fromDate) {
+      const fromStr = params.fromDate instanceof Date ? params.fromDate.toISOString() : params.fromDate;
+      queryParts.push(`fromDate=${encodeURIComponent(fromStr)}`);
+    }
+    if (params?.toDate) {
+      const toStr = params.toDate instanceof Date ? params.toDate.toISOString() : params.toDate;
+      queryParts.push(`toDate=${encodeURIComponent(toStr)}`);
+    }
 
     if (queryParts.length > 0) {
       url += `?${queryParts.join('&')}`;
     }
 
+    return this.http.get<RootModel>(url);
+  }
+
+  getFilterMetadata(): Observable<RootModel> {
+    const url = `${environment.main_url}/Book/filter-metadata`;
     return this.http.get<RootModel>(url);
   }
 
