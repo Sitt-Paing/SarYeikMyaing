@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.Entities;
@@ -14,6 +15,7 @@ public partial class OrderItem
     public int Id { get; set; }
 
     [StringLength(50)]
+    [ValidateNever]
     public string OrderId { get; set; } = null!;
 
     public int BookId { get; set; }
@@ -48,12 +50,14 @@ public partial class OrderItem
     public string? DeletedBy { get; set; }
 
     [JsonIgnore]
+    [ValidateNever]
     [ForeignKey("BookId")]
     [InverseProperty("OrderItems")]
-    public virtual Book Book { get; set; } = null!;
+    public virtual Book? Book { get; set; }
 
     [JsonIgnore]
+    [ValidateNever]
     [ForeignKey("OrderId")]
     [InverseProperty("OrderItems")]
-    public virtual Order Order { get; set; } = null!;
+    public virtual Order? Order { get; set; }
 }
