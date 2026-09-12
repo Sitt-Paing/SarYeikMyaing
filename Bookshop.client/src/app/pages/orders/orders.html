@@ -5,7 +5,7 @@
   <!-- Header Row -->
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
         {{ (sharedService.isAdmin() ? 'ADMIN.ORDERS' : 'NAVBAR.ORDERS') | translate }}
       </h1>
       <p class="text-xs sm:text-sm text-slate-500 mt-1">
@@ -13,50 +13,172 @@
       </p>
     </div>
 
-    <!-- Search input -->
-    <div class="relative w-full sm:w-72">
-      <input
-        type="text"
-        [(ngModel)]="searchOrderNo"
-        [placeholder]="'ORDERS.SEARCH_PLACEHOLDER' | translate"
-        class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-300 text-xs focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none shadow-sm transition-all"
-      />
-      <i class="pi pi-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+    <!-- Header Actions -->
+    <div class="flex items-center gap-3 self-end sm:self-auto flex-wrap">
+      <!-- Excel Export Button -->
+      <button
+        pButton
+        type="button"
+        (click)="exportExcel()"
+        [label]="'ORDERS.EXPORT_EXCEL' | translate"
+        icon="pi pi-file-excel"
+        class="p-button-success p-button-sm shadow-sm font-semibold rounded-xl text-xs"
+      ></button>
+
+      <!-- View Switcher (Table vs Card) -->
+      @if (sharedService.isAdmin()) {
+        <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200 text-xs">
+          <button
+            type="button"
+            (click)="viewMode.set('table')"
+            [class]="viewMode() === 'table' ? 'bg-white text-brand-600 font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+            class="px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+            [title]="'ORDERS.TABLE_VIEW' | translate"
+          >
+            <i class="pi pi-table"></i>
+            <span class="hidden sm:inline">{{ 'ORDERS.TABLE_VIEW' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            (click)="viewMode.set('cards')"
+            [class]="viewMode() === 'cards' ? 'bg-white text-brand-600 font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+            class="px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer"
+            [title]="'ORDERS.CARD_VIEW' | translate"
+          >
+            <i class="pi pi-th-large"></i>
+            <span class="hidden sm:inline">{{ 'ORDERS.CARD_VIEW' | translate }}</span>
+          </button>
+        </div>
+      }
     </div>
   </div>
 
-  <!-- Status Filter Chips -->
-  <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-    <button
-      (click)="selectedFilterStatus.set('ALL')"
-      [class]="selectedFilterStatus() === 'ALL' ? 'bg-brand-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
-      class="px-4 py-1.5 rounded-xl text-xs transition-all"
-    >
-      {{ 'ORDERS.ALL' | translate }}
-    </button>
-    <button
-      (click)="selectedFilterStatus.set('PENDING')"
-      [class]="selectedFilterStatus() === 'PENDING' ? 'bg-amber-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500'"
-      class="px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
-    >
-      <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-      <span>{{ 'ORDERS.PENDING' | translate }}</span>
-    </button>
-    <button
-      (click)="selectedFilterStatus.set('CONFIRMED')"
-      [class]="selectedFilterStatus() === 'CONFIRMED' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-600'"
-      class="px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
-    >
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-      <span>{{ 'ORDERS.CONFIRMED' | translate }}</span>
-    </button>
-    <button
-      (click)="selectedFilterStatus.set('CANCELLED')"
-      [class]="selectedFilterStatus() === 'CANCELLED' ? 'bg-rose-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-rose-500'"
-      class="px-4 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5"
-    >
-      <span>{{ 'ORDERS.CANCELLED' | translate }}</span>
-    </button>
+  <!-- Filter Controls Card -->
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-4 sm:p-6 space-y-4">
+    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      <!-- Search Input -->
+      <div class="relative flex-1 min-w-[240px]">
+        <input
+          type="text"
+          [(ngModel)]="searchOrderNo"
+          (input)="onSearchInput()"
+          [placeholder]="'ORDERS.SEARCH_PLACEHOLDER' | translate"
+          class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-xs focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 outline-none shadow-sm transition-all"
+        />
+        <i class="pi pi-search absolute left-3 top-3 text-slate-400 text-xs"></i>
+      </div>
+
+      <!-- DatePicker & Quick Date Presets -->
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <!-- PrimeNG DatePicker with Range Selection -->
+        <p-datepicker
+          [(ngModel)]="dateRange"
+          selectionMode="range"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          [placeholder]="'ORDERS.FILTER_BY_DATE' | translate"
+          dateFormat="yy-mm-dd"
+          (onSelect)="onDateChange()"
+          (onClearClick)="onDateChange()"
+          styleClass="w-full sm:w-64 text-xs"
+        ></p-datepicker>
+
+        <!-- Quick Date Preset Pills -->
+        <div class="inline-flex rounded-xl bg-slate-100 p-1 border border-slate-200/80 text-xs shrink-0">
+          <button
+            type="button"
+            (click)="setQuickDate('today')"
+            [class]="activeDatePreset() === 'today' ? 'bg-white text-brand-600 font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+          >
+            {{ 'ORDERS.TODAY' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="setQuickDate('week')"
+            [class]="activeDatePreset() === 'week' ? 'bg-white text-brand-600 font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+          >
+            {{ 'ORDERS.LAST_7_DAYS' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="setQuickDate('month')"
+            [class]="activeDatePreset() === 'month' ? 'bg-white text-brand-600 font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+          >
+            {{ 'ORDERS.THIS_MONTH' | translate }}
+          </button>
+          <button
+            type="button"
+            (click)="setQuickDate('all')"
+            [class]="activeDatePreset() === 'all' ? 'bg-white text-brand-600 font-bold shadow-sm' : 'text-slate-500 hover:text-slate-900'"
+            class="px-2.5 py-1 rounded-lg transition-all cursor-pointer"
+          >
+            {{ 'ORDERS.ALL_TIME' | translate }}
+          </button>
+        </div>
+
+        <!-- Reload Button -->
+        <button
+          pButton
+          icon="pi pi-refresh"
+          (click)="loadOrders(true)"
+          class="p-button-text p-button-rounded p-button-sm text-slate-600 hover:text-slate-900"
+          [title]="'COMMON.RELOAD' | translate"
+        ></button>
+      </div>
+    </div>
+
+    <!-- Status Filter Chips -->
+    <div class="flex items-center gap-2 overflow-x-auto pt-1 pb-1 scrollbar-hide border-t border-slate-100">
+      <button
+        (click)="onStatusChange('ALL')"
+        [class]="selectedFilterStatus() === 'ALL' ? 'bg-brand-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-brand-500'"
+        class="px-3.5 py-1.5 rounded-xl text-xs transition-all shrink-0 cursor-pointer"
+      >
+        {{ 'ORDERS.ALL' | translate }}
+      </button>
+      <button
+        (click)="onStatusChange('Pending')"
+        [class]="selectedFilterStatus() === 'Pending' ? 'bg-amber-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-amber-500'"
+        class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+        <span>{{ 'ORDERS.PENDING' | translate }}</span>
+      </button>
+      <button
+        (click)="onStatusChange('Confirmed')"
+        [class]="selectedFilterStatus() === 'Confirmed' ? 'bg-blue-600 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-blue-600'"
+        class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+        <span>{{ 'ORDERS.CONFIRMED' | translate }}</span>
+      </button>
+      <button
+        (click)="onStatusChange('Shipped')"
+        [class]="selectedFilterStatus() === 'Shipped' ? 'bg-purple-600 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-purple-600'"
+        class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+        <span>{{ 'ORDERS.SHIPPED' | translate }}</span>
+      </button>
+      <button
+        (click)="onStatusChange('Delivered')"
+        [class]="selectedFilterStatus() === 'Delivered' ? 'bg-emerald-600 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-600'"
+        class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+      >
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        <span>{{ 'ORDERS.DELIVERED' | translate }}</span>
+      </button>
+      <button
+        (click)="onStatusChange('Cancelled')"
+        [class]="selectedFilterStatus() === 'Cancelled' ? 'bg-rose-500 text-white font-bold shadow-sm' : 'bg-white text-slate-700 border border-slate-200 hover:border-rose-500'"
+        class="px-3.5 py-1.5 rounded-xl text-xs transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+      >
+        <span>{{ 'ORDERS.CANCELLED' | translate }}</span>
+      </button>
+    </div>
   </div>
 
   <!-- Loading State -->
@@ -70,133 +192,375 @@
         </div>
       }
     </div>
-  } @else if (filteredOrders().length === 0) {
+  } @else if (orders().length === 0) {
     <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3">
       <i class="pi pi-inbox text-4xl text-slate-300"></i>
       <h3 class="text-sm font-bold text-slate-800">{{ 'COMMON.NO_RECORDS' | translate }}</h3>
       <p class="text-xs text-slate-400">{{ 'ORDERS.NO_ORDERS_FOUND' | translate }}</p>
     </div>
   } @else {
-    <!-- Orders List -->
-    <div class="space-y-4">
-      @for (order of filteredOrders(); track order.id) {
-        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-          <!-- Card Header -->
-          <div class="p-4 sm:p-6 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-brand-glow">
-                <i class="pi pi-box"></i>
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="text-sm sm:text-base font-extrabold text-slate-900 font-mono">
-                    {{ order.orderNumber || order.id }}
-                  </h3>
-                  <!-- Status Badge -->
+    <!-- Table View (PrimeNG Data Grid inspired by InventoryManagementSystem) -->
+    @if (viewMode() === 'table') {
+      <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <p-table
+            #tblOrders
+            [value]="orders()"
+            dataKey="id"
+            responsiveLayout="stack"
+            styleClass="p-datatable-sm"
+          >
+            <ng-template pTemplate="header">
+              <tr class="text-xs text-slate-500 uppercase tracking-wider bg-slate-50/70 border-b border-slate-200">
+                <th style="width: 9rem">{{ 'ORDERS.ORDER_NUMBER' | translate }}</th>
+                <th style="width: 9rem">{{ 'ORDERS.ORDER_DATE' | translate }}</th>
+                <th>{{ 'ORDERS.CUSTOMER' | translate }}</th>
+                <th>{{ 'CHECKOUT.ADDRESS' | translate }}</th>
+                <th>{{ 'ORDERS.PAYMENT' | translate }}</th>
+                <th class="text-right" style="width: 8rem">{{ 'ORDERS.AMOUNT' | translate }}</th>
+                <th class="text-center" style="width: 8rem">{{ 'COMMON.STATUS' | translate }}</th>
+                <th class="text-center" style="width: 12rem">{{ 'ORDERS.ACTIONS' | translate }}</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-order>
+              <tr class="hover:bg-slate-50/80 text-xs transition-colors duration-150 border-b border-slate-100">
+                <!-- Order Number -->
+                <td class="font-mono font-extrabold text-slate-900">
+                  {{ order.orderNumber || order.id }}
+                </td>
+
+                <!-- Date -->
+                <td class="text-slate-500">
+                  {{ order.createdOn | date:'yyyy-MM-dd HH:mm' }}
+                </td>
+
+                <!-- Customer Details -->
+                <td>
+                  <div class="font-bold text-slate-800">{{ order.cusName || order.customerName }}</div>
+                  <div class="text-slate-500 text-[11px]">{{ order.cusPhone || order.customerPhone }}</div>
+                </td>
+
+                <!-- Shipping Address -->
+                <td class="text-slate-600 max-w-xs truncate" [title]="order.shippingAddress + ', ' + (order.shippingCity || order.city)">
+                  <span>{{ order.shippingCity || order.city }}</span>
+                  <span class="text-slate-400 text-[11px] block truncate">{{ order.shippingAddress }}</span>
+                </td>
+
+                <!-- Payment Method & Payslip Link -->
+                <td>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="font-semibold text-slate-700">{{ order.paymentMethod || 'KBZPay' }}</span>
+                    @if (order.paymentSlipUrl) {
+                      <button
+                        type="button"
+                        (click)="viewSlip(order)"
+                        class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-600 hover:bg-blue-100 text-[10px] font-bold inline-flex items-center gap-1 cursor-pointer"
+                        title="View slip"
+                      >
+                        <i class="pi pi-image text-[10px]"></i> Slip
+                      </button>
+                    }
+                  </div>
+                </td>
+
+                <!-- Amount -->
+                <td class="text-right font-extrabold text-brand-600">
+                  {{ order.totalAmount | mmkCurrency }}
+                </td>
+
+                <!-- Status Badge -->
+                <td class="text-center">
                   <span
-                    class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase"
                     [ngClass]="{
                       'bg-amber-100 text-amber-800 border border-amber-200': order.status === 'Pending',
-                      'bg-emerald-100 text-emerald-800 border border-emerald-200': order.status === 'Confirmed',
+                      'bg-blue-100 text-blue-800 border border-blue-200': order.status === 'Confirmed',
+                      'bg-purple-100 text-purple-800 border border-purple-200': order.status === 'Shipped',
+                      'bg-emerald-100 text-emerald-800 border border-emerald-200': order.status === 'Delivered',
                       'bg-rose-100 text-rose-800 border border-rose-200': order.status === 'Cancelled'
                     }"
                   >
                     {{ order.status }}
                   </span>
+                </td>
+
+                <!-- Lifecycle Actions -->
+                <td class="text-center">
+                  <div class="flex items-center justify-center gap-1.5 flex-wrap">
+                    @if (order.status === 'Pending' && sharedService.isAdmin()) {
+                      <button
+                        type="button"
+                        (click)="approveOrder(order)"
+                        class="px-2 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-bold transition-all cursor-pointer"
+                        title="Approve"
+                      >
+                        <i class="pi pi-check text-[10px]"></i>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="rejectOrder(order)"
+                        class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[11px] font-semibold transition-all cursor-pointer"
+                        title="Reject"
+                      >
+                        <i class="pi pi-times text-[10px]"></i>
+                      </button>
+                    }
+                    @if (order.status === 'Confirmed' && sharedService.isAdmin()) {
+                      <button
+                        type="button"
+                        (click)="updateOrderStatus(order, 'Shipped')"
+                        class="px-2 py-1 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        title="Ship Package"
+                      >
+                        <i class="pi pi-truck text-[10px]"></i>
+                        <span>Ship</span>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="updateOrderStatus(order, 'Cancelled')"
+                        class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[11px] transition-all cursor-pointer"
+                        title="Cancel"
+                      >
+                        <i class="pi pi-ban text-[10px]"></i>
+                      </button>
+                    }
+                    @if (order.status === 'Shipped' && sharedService.isAdmin()) {
+                      <button
+                        type="button"
+                        (click)="updateOrderStatus(order, 'Delivered')"
+                        class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition-all flex items-center gap-1 cursor-pointer"
+                        title="Mark Delivered"
+                      >
+                        <i class="pi pi-check-circle text-[10px]"></i>
+                        <span>Delivered</span>
+                      </button>
+                    }
+                    @if (order.paymentSlipUrl && !sharedService.isAdmin()) {
+                      <button
+                        type="button"
+                        (click)="viewSlip(order)"
+                        class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] transition-all cursor-pointer"
+                      >
+                        {{ 'ORDERS.VIEW_SLIP' | translate }}
+                      </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    }
+
+    <!-- Cards View (Visual Layout) -->
+    @if (viewMode() === 'cards') {
+      <div class="space-y-4">
+        @for (order of orders(); track order.id) {
+          <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <!-- Card Header -->
+            <div class="p-4 sm:p-6 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-brand-500 text-white flex items-center justify-center font-bold text-sm shadow-brand-glow shrink-0">
+                  <i class="pi pi-box"></i>
                 </div>
-                <span class="text-[11px] text-slate-400">
-                  {{ order.createdOn | date:'medium' }}
-                </span>
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-sm sm:text-base font-extrabold text-slate-900 font-mono">
+                      {{ order.orderNumber || order.id }}
+                    </h3>
+                    <span
+                      class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wide uppercase"
+                      [ngClass]="{
+                        'bg-amber-100 text-amber-800 border border-amber-200': order.status === 'Pending',
+                        'bg-blue-100 text-blue-800 border border-blue-200': order.status === 'Confirmed',
+                        'bg-purple-100 text-purple-800 border border-purple-200': order.status === 'Shipped',
+                        'bg-emerald-100 text-emerald-800 border border-emerald-200': order.status === 'Delivered',
+                        'bg-rose-100 text-rose-800 border border-rose-200': order.status === 'Cancelled'
+                      }"
+                    >
+                      {{ order.status }}
+                    </span>
+
+                    @if (order.paymentMethod === 'CashOnDelivery') {
+                      <span class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[10px] font-bold border border-emerald-200 flex items-center gap-1">
+                        <i class="pi pi-money-bill text-[10px]"></i> Cash on Delivery
+                      </span>
+                    } @else {
+                      <span class="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200 flex items-center gap-1">
+                        <i class="pi pi-image text-[10px]"></i> {{ order.paymentMethod || 'Slip Transfer' }}
+                      </span>
+                    }
+                  </div>
+                  <span class="text-[11px] text-slate-400">
+                    {{ order.createdOn | date:'medium' }}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <!-- Header Right: Info & Actions -->
-            <div class="flex flex-wrap items-center gap-4 text-xs">
-              <div class="text-right">
-                <span class="text-slate-400 block text-[11px]">{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}</span>
-                <span class="font-extrabold text-brand-600 text-sm sm:text-base">{{ order.totalAmount | mmkCurrency }}</span>
-              </div>
+              <!-- Header Right: Info & Actions -->
+              <div class="flex flex-wrap items-center gap-4 text-xs">
+                <div class="text-right">
+                  <span class="text-slate-400 block text-[11px]">{{ 'CHECKOUT.TOTAL_AMOUNT' | translate }}</span>
+                  <span class="font-extrabold text-brand-600 text-sm sm:text-base">{{ order.totalAmount | mmkCurrency }}</span>
+                </div>
 
-              <!-- Payslip View Button -->
-              @if (order.paymentSlipUrl) {
-                <button
-                  type="button"
-                  (click)="viewSlip(order)"
-                  class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors"
-                >
-                  <i class="pi pi-image text-brand-500"></i>
-                  <span>{{ 'ORDERS.VIEW_SLIP' | translate }}</span>
-                </button>
-              }
-
-              <!-- Admin Approval Actions -->
-              @if (sharedService.isAdmin() && order.status === 'Pending') {
-                <div class="flex items-center gap-2">
+                @if (order.paymentSlipUrl) {
                   <button
                     type="button"
-                    (click)="approveOrder(order)"
-                    class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1"
+                    (click)="viewSlip(order)"
+                    class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
-                    <i class="pi pi-check"></i>
-                    <span>{{ 'ORDERS.APPROVE' | translate }}</span>
+                    <i class="pi pi-image text-brand-500"></i>
+                    <span>{{ 'ORDERS.VIEW_SLIP' | translate }}</span>
                   </button>
-                  <button
-                    type="button"
-                    (click)="rejectOrder(order)"
-                    class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold border border-rose-200 transition-all"
-                  >
-                    <i class="pi pi-times"></i>
-                    <span>{{ 'ORDERS.REJECT' | translate }}</span>
-                  </button>
-                </div>
-              }
-            </div>
-          </div>
+                }
 
-          <!-- Card Body: Customer & Shipping Details -->
-          <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs border-b border-slate-100">
-            <div>
-              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.NAME' | translate }}</span>
-              <p class="font-bold text-slate-800 mt-0.5">{{ order.cusName || order.customerName }}</p>
-              <p class="text-slate-500 text-[11px]">{{ order.cusPhone || order.customerPhone }}</p>
-            </div>
-
-            <div>
-              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.ADDRESS' | translate }}</span>
-              <p class="font-medium text-slate-700 mt-0.5">{{ order.shippingAddress }}</p>
-              <p class="text-slate-500 text-[11px]">{{ order.shippingCity || order.city }}</p>
-            </div>
-
-            <div>
-              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}</span>
-              <p class="font-bold text-slate-800 mt-0.5">{{ order.paymentMethod || 'KBZPay' }}</p>
-              @if (order.paymentNotes) {
-                <p class="text-slate-500 text-[11px] truncate" [title]="order.paymentNotes">
-                  Ref: {{ order.paymentNotes }}
-                </p>
-              }
-            </div>
-          </div>
-
-          <!-- Card Items List (if available) -->
-          @if (order.orderItems && order.orderItems.length > 0) {
-            <div class="p-4 sm:p-6 bg-slate-50/40 text-xs space-y-2">
-              <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'ORDERS.ITEMS' | translate }}</span>
-              <div class="divide-y divide-slate-100">
-                @for (item of order.orderItems; track item.bookId) {
-                  <div class="py-1.5 flex items-center justify-between">
-                    <span class="text-slate-700 font-medium">{{ item.bookTitle || ('Book #' + item.bookId) }}</span>
-                    <span class="text-slate-500">{{ item.quantity }} × {{ item.unitPrice | mmkCurrency }}</span>
+                @if (sharedService.isAdmin()) {
+                  <div class="flex items-center gap-2 flex-wrap">
+                    @if (order.status === 'Pending') {
+                      <button
+                        type="button"
+                        (click)="approveOrder(order)"
+                        class="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <i class="pi pi-check"></i>
+                        <span>Approve</span>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="rejectOrder(order)"
+                        class="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold border border-rose-200 transition-all cursor-pointer"
+                      >
+                        <i class="pi pi-times"></i>
+                        <span>Reject</span>
+                      </button>
+                    }
+                    @if (order.status === 'Confirmed') {
+                      <button
+                        type="button"
+                        (click)="updateOrderStatus(order, 'Shipped')"
+                        class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <i class="pi pi-truck"></i>
+                        <span>Ship Package</span>
+                      </button>
+                      <button
+                        type="button"
+                        (click)="updateOrderStatus(order, 'Cancelled')"
+                        class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold border border-rose-200 transition-all cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                    }
+                    @if (order.status === 'Shipped') {
+                      <button
+                        type="button"
+                        (click)="updateOrderStatus(order, 'Delivered')"
+                        class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm transition-all flex items-center gap-1 cursor-pointer"
+                      >
+                        <i class="pi pi-check-circle"></i>
+                        <span>Mark Delivered</span>
+                      </button>
+                    }
                   </div>
                 }
               </div>
             </div>
-          }
-        </div>
-      }
+
+            <!-- Card Body: Customer & Shipping Details -->
+            <div class="p-4 sm:p-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs border-b border-slate-100">
+              <div>
+                <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.NAME' | translate }}</span>
+                <p class="font-bold text-slate-800 mt-0.5">{{ order.cusName || order.customerName }}</p>
+                <p class="text-slate-500 text-[11px]">{{ order.cusPhone || order.customerPhone }}</p>
+              </div>
+
+              <div>
+                <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.ADDRESS' | translate }}</span>
+                <p class="font-medium text-slate-700 mt-0.5">{{ order.shippingAddress }}</p>
+                <p class="text-slate-500 text-[11px]">{{ order.shippingCity || order.city }}</p>
+              </div>
+
+              <div>
+                <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'CHECKOUT.PAYMENT_METHOD' | translate }}</span>
+                <p class="font-bold text-slate-800 mt-0.5">{{ order.paymentMethod || 'KBZPay' }}</p>
+                @if (order.paymentNotes) {
+                  <p class="text-slate-500 text-[11px] truncate" [title]="order.paymentNotes">
+                    Ref: {{ order.paymentNotes }}
+                  </p>
+                }
+              </div>
+            </div>
+
+            <!-- Card Items List -->
+            @if (order.orderItems && order.orderItems.length > 0) {
+              <div class="p-4 sm:p-6 bg-slate-50/40 text-xs space-y-2">
+                <span class="text-slate-400 block text-[11px] uppercase tracking-wider font-semibold">{{ 'ORDERS.ITEMS' | translate }}</span>
+                <div class="divide-y divide-slate-100">
+                  @for (item of order.orderItems; track item.bookId) {
+                    <div class="py-1.5 flex items-center justify-between">
+                      <span class="text-slate-700 font-medium">{{ item.bookTitle || ('Book #' + item.bookId) }}</span>
+                      <span class="text-slate-500">{{ item.quantity }} × {{ item.unitPrice | mmkCurrency }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Server-Side Pagination Controls -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-3">
+      <p-paginator
+        [first]="first()"
+        [rows]="rows()"
+        [totalRecords]="totalRecords()"
+        [rowsPerPageOptions]="[5, 10, 20, 50]"
+        (onPageChange)="onPageChange($event)"
+        [showCurrentPageReport]="true"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} orders"
+      ></p-paginator>
     </div>
   }
 </div>
+
+<!-- Hidden HTML Table for Direct Excel Export -->
+<table #tblExport class="hidden">
+  <thead>
+    <tr>
+      <th>Order Number</th>
+      <th>Order Date</th>
+      <th>Customer Name</th>
+      <th>Customer Phone</th>
+      <th>Shipping Address</th>
+      <th>City</th>
+      <th>Payment Method</th>
+      <th>Payment Notes</th>
+      <th>Status</th>
+      <th>Total Amount (MMK)</th>
+    </tr>
+  </thead>
+  <tbody>
+    @for (order of orders(); track order.id) {
+      <tr>
+        <td>{{ order.orderNumber || order.id }}</td>
+        <td>{{ order.createdOn | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+        <td>{{ order.cusName || order.customerName }}</td>
+        <td>{{ order.cusPhone || order.customerPhone }}</td>
+        <td>{{ order.shippingAddress }}</td>
+        <td>{{ order.shippingCity || order.city }}</td>
+        <td>{{ order.paymentMethod }}</td>
+        <td>{{ order.paymentNotes }}</td>
+        <td>{{ order.status }}</td>
+        <td>{{ order.totalAmount }}</td>
+      </tr>
+    }
+  </tbody>
+</table>
 
 <!-- Payslip Inspection Dialog -->
 <p-dialog
