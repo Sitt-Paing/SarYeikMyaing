@@ -1,11 +1,5 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
-  <nav class="flex items-center gap-2 text-xs text-slate-500">
-    <a routerLink="/" class="hover:text-brand-600 transition-colors">{{ 'NAVBAR.HOME' | translate }}</a>
-    <i class="pi pi-angle-right text-[10px]"></i>
-    <a routerLink="/books" class="hover:text-brand-600 transition-colors">{{ 'NAVBAR.SHOP' | translate }}</a>
-    <i class="pi pi-angle-right text-[10px]"></i>
-    <span class="text-slate-800 font-semibold truncate max-w-xs">{{ book?.title }}</span>
-  </nav>
+
 
   @if (isLoading) {
     <!-- Skeleton loader while book details are fetching -->
@@ -91,7 +85,7 @@
           <div class="text-right">
             @if (book.stockQuantity > 0) {
               <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {{ 'BOOK_DETAIL.IN_STOCK' | translate }} ({{ book.stockQuantity }})
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> {{ 'BOOK_DETAIL.IN_STOCK' | translate }}
               </span>
             } @else {
               <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
