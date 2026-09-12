@@ -31,6 +31,24 @@ export interface BookFilterParams {
   categoryId?: number;
   sortField?: string;
   order?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  author?: string;
+  inStockOnly?: boolean;
+  fromDate?: string | Date | null;
+  toDate?: string | Date | null;
+}
+
+export interface AuthorFilterCount {
+  author: string;
+  count: number;
+}
+
+export interface FilterMetadataModel {
+  authors: AuthorFilterCount[];
+  minPrice: number;
+  maxPrice: number;
+  totalBooks: number;
 }
 
 export const CURATED_BOOKS: BookModel[] = [
