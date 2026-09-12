@@ -1,28 +1,91 @@
 using System.Security.Claims;
+using Bookshop.Data;
 using Bookshop.Entities;
 using Bookshop.Interfaces.Repositories;
 using Bookshop.Models;
+using System.Linq.Dynamic.Core;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bookshop.Controller;
 
 [Route("api/[controller]")]
 [ApiController]
-public class OrderController(IRepositoryWrapper repo) : ControllerBase
+public class OrderController(IRepositoryWrapper repo, BookshopDbContext context) : ControllerBase
 {
     private readonly IRepositoryWrapper _repo = repo ?? throw new Exception("Repo is null");
+    private readonly BookshopDbContext _context = context ?? throw new Exception("Context is null");
 
     [HttpGet]
-    [EndpointSummary("Get Order List")]
-    public async Task<IActionResult> GetAsync()
+    [EndpointSummary("Get Order List with OrderItems, Server-Side Pagination, Date Range, and Filters")]
+    public async Task<IActionResult> GetAsync(
+        int skipRows = 0,
+        int pageSize = 50,
+        string? q = null,
+        string? status = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null,
+        string? sortField = null,
+        int order = -1)
     {
-        var data = await _repo.Orders.GetAsync(x => !x.DeletedOn.HasValue);
+        if (pageSize <= 0) pageSize = 50;
+        if (skipRows < 0) skipRows = 0;
+
+        IQueryable<Order> query = _context.Orders
+            .AsNoTracking()
+            .Where(x => !x.DeletedOn.HasValue);
+
+        if (!string.IsNullOrWhiteSpace(status) && !status.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(x => x.Status == status);
+        }
+
+        if (fromDate.HasValue)
+        {
+            var start = fromDate.Value.Date;
+            query = query.Where(x => x.CreatedOn >= start);
+        }
+
+        if (toDate.HasValue)
+        {
+            var end = toDate.Value.Date.AddDays(1);
+            query = query.Where(x => x.CreatedOn < end);
+        }
+
+        if (!string.IsNullOrWhiteSpace(q))
+        {
+            string search = q.Trim().ToLower();
+            query = query.Where(x => (x.OrderNumber != null && x.OrderNumber.ToLower().Contains(search))
+                                  || (x.Id != null && x.Id.ToLower().Contains(search))
+                                  || (x.CusName != null && x.CusName.ToLower().Contains(search))
+                                  || (x.CusPhone != null && x.CusPhone.ToLower().Contains(search))
+                                  || (x.ShippingCity != null && x.ShippingCity.ToLower().Contains(search))
+                                  || (x.PaymentMethod != null && x.PaymentMethod.ToLower().Contains(search)));
+        }
+
+        int recordsTotal = await query.CountAsync();
+
+        if (!string.IsNullOrWhiteSpace(sortField))
+        {
+            query = query.OrderBy($"{sortField} {(order > 0 ? "ascending" : "descending")}");
+        }
+        else
+        {
+            query = query.OrderByDescending(x => x.CreatedOn);
+        }
+
+        var records = await query
+            .Include(x => x.OrderItems)
+            .Skip(skipRows)
+            .Take(pageSize)
+            .ToListAsync();
+
         return Ok(new DefaultResponseModel
         {
             Success = true,
-            Statuscode = 200,
-            Message = "Success",
-            Data = data
+            Statuscode = StatusCodes.Status200OK,
+            Message = "Success pagination",
+            Data = new { records, recordsTotal }
         });
     }
 
@@ -30,8 +93,12 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
     [EndpointSummary("Get Order by Id")]
     public async Task<IActionResult> GetAsync(string id)
     {
-        var data = await _repo.Orders.GetByIdAsync(id);
-        if (data == null || data.DeletedOn.HasValue)
+        var data = await _context.Orders
+            .AsNoTracking()
+            .Include(x => x.OrderItems)
+            .FirstOrDefaultAsync(x => x.Id == id && !x.DeletedOn.HasValue);
+
+        if (data == null)
         {
             return NotFound(new DefaultResponseModel
             {
@@ -42,8 +109,6 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
             });
         }
 
-        var orderItems = await _repo.OrderItems.GetAsync(x => x.OrderId == id && !x.DeletedOn.HasValue);
-
         return Ok(new DefaultResponseModel
         {
             Success = true,
@@ -52,22 +117,60 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
             Data = new
             {
                 Order = data,
-                OrderItems = orderItems
+                OrderItems = data.OrderItems
             }
         });
     }
 
     [HttpGet("user/{userId}")]
-    [EndpointSummary("Get Orders by User Id")]
-    public async Task<IActionResult> GetByUserIdAsync(string userId)
+    [EndpointSummary("Get Orders by User Id with OrderItems, Pagination, and Filters")]
+    public async Task<IActionResult> GetByUserIdAsync(
+        string userId,
+        int skipRows = 0,
+        int pageSize = 50,
+        string? status = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
     {
-        var data = await _repo.Orders.GetAsync(x => x.UserId == userId && !x.DeletedOn.HasValue);
+        if (pageSize <= 0) pageSize = 50;
+        if (skipRows < 0) skipRows = 0;
+
+        IQueryable<Order> query = _context.Orders
+            .AsNoTracking()
+            .Where(x => x.UserId == userId && !x.DeletedOn.HasValue);
+
+        if (!string.IsNullOrWhiteSpace(status) && !status.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(x => x.Status == status);
+        }
+
+        if (fromDate.HasValue)
+        {
+            var start = fromDate.Value.Date;
+            query = query.Where(x => x.CreatedOn >= start);
+        }
+
+        if (toDate.HasValue)
+        {
+            var end = toDate.Value.Date.AddDays(1);
+            query = query.Where(x => x.CreatedOn < end);
+        }
+
+        int recordsTotal = await query.CountAsync();
+
+        var records = await query
+            .OrderByDescending(x => x.CreatedOn)
+            .Include(x => x.OrderItems)
+            .Skip(skipRows)
+            .Take(pageSize)
+            .ToListAsync();
+
         return Ok(new DefaultResponseModel
         {
             Success = true,
-            Statuscode = 200,
+            Statuscode = StatusCodes.Status200OK,
             Message = "Success",
-            Data = data
+            Data = new { records, recordsTotal }
         });
     }
 
@@ -131,7 +234,6 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
     {
         try
         {
-            // Optional authentication: resolve user id from claims if logged in
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             string orderId = string.IsNullOrWhiteSpace(model.Id) ? Guid.NewGuid().ToString() : model.Id;
@@ -139,11 +241,34 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
                 ? $"ORD-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(1000, 9999)}"
                 : model.OrderNumber;
 
+            // 1. Validate stock availability for all items before creating order
+            if (model.OrderItems != null && model.OrderItems.Count > 0)
+            {
+                foreach (var item in model.OrderItems)
+                {
+                    var book = await _context.Books.FindAsync(item.BookId);
+                    if (book != null && book.StockQuantity < item.Quantity)
+                    {
+                        return BadRequest(new DefaultResponseModel
+                        {
+                            Success = false,
+                            Statuscode = 400,
+                            Message = $"Insufficient stock for '{book.Title}' (Available: {book.StockQuantity}, Requested: {item.Quantity})",
+                            Data = null
+                        });
+                    }
+                }
+            }
+
+            // 2. Determine initial status: Cash on Delivery is auto-confirmed; Slip transfers are pending verification
+            bool isCod = string.Equals(model.PaymentMethod, "CashOnDelivery", StringComparison.OrdinalIgnoreCase);
+            string initialStatus = isCod ? "Confirmed" : "Pending";
+
             Order order = new Order
             {
                 Id = orderId,
                 OrderNumber = orderNumber,
-                UserId = currentUserId ?? model.UserId, // null for guest mode
+                UserId = currentUserId ?? model.UserId,
                 CusName = model.CusName,
                 CusEmail = model.CusEmail,
                 CusPhone = model.CusPhone,
@@ -157,18 +282,24 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
                 PaymentMethod = model.PaymentMethod,
                 PaymentSlipUrl = model.PaymentSlipUrl,
                 PaymentNotes = model.PaymentNotes,
-                Status = "Pending", // Order confirmation pending until admin approval
+                Status = initialStatus,
                 CreatedOn = DateTime.Now,
                 CreatedBy = currentUserId ?? "Guest"
             };
 
-            _repo.Orders.Create(order);
+            _context.Orders.Add(order);
 
-            // If order items were passed in
+            // 3. Create items and decrement book stock
             if (model.OrderItems != null && model.OrderItems.Count > 0)
             {
                 foreach (var item in model.OrderItems)
                 {
+                    var book = await _context.Books.FindAsync(item.BookId);
+                    if (book != null)
+                    {
+                        book.StockQuantity = Math.Max(0, book.StockQuantity - item.Quantity);
+                    }
+
                     OrderItem orderItem = new OrderItem
                     {
                         OrderId = orderId,
@@ -180,25 +311,19 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
                         CreatedOn = DateTime.Now,
                         CreatedBy = currentUserId?.ToString() ?? "Guest"
                     };
-                    _repo.OrderItems.Create(orderItem);
+                    _context.OrderItems.Add(orderItem);
                 }
             }
 
-            return await _repo.SaveAsync()
-                ? Ok(new DefaultResponseModel
-                {
-                    Success = true,
-                    Statuscode = 200,
-                    Message = "Order created successfully",
-                    Data = order
-                })
-                : BadRequest(new DefaultResponseModel
-                {
-                    Success = false,
-                    Statuscode = 400,
-                    Message = "Failed to create order",
-                    Data = null
-                });
+            await _context.SaveChangesAsync();
+
+            return Ok(new DefaultResponseModel
+            {
+                Success = true,
+                Statuscode = 200,
+                Message = isCod ? "Cash on Delivery order confirmed successfully" : "Order placed and pending slip verification",
+                Data = order
+            });
         }
         catch (Exception ex)
         {
@@ -297,8 +422,8 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
     [EndpointSummary("Admin: Approve Pending Order")]
     public async Task<IActionResult> ApproveOrderAsync(string id)
     {
-        var existingOrder = await _repo.Orders.GetByIdAsync(id);
-        if (existingOrder == null || existingOrder.DeletedOn.HasValue)
+        var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+        if (existingOrder == null)
         {
             return NotFound(new DefaultResponseModel
             {
@@ -309,35 +434,27 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
             });
         }
 
-        var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         existingOrder.Status = "Confirmed";
         existingOrder.UpdatedOn = DateTime.Now;
         existingOrder.UpdatedBy = currentUserId ?? "admin";
 
-        _repo.Orders.Update(existingOrder);
-        return await _repo.SaveAsync()
-            ? Ok(new DefaultResponseModel
-            {
-                Success = true,
-                Statuscode = 200,
-                Message = "Order confirmed successfully",
-                Data = existingOrder
-            })
-            : BadRequest(new DefaultResponseModel
-            {
-                Success = false,
-                Statuscode = 400,
-                Message = "Failed to confirm order",
-                Data = null
-            });
+        await _context.SaveChangesAsync();
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = 200,
+            Message = "Order confirmed successfully",
+            Data = existingOrder
+        });
     }
 
     [HttpPut("{id}/reject")]
     [EndpointSummary("Admin: Reject Pending Order")]
     public async Task<IActionResult> RejectOrderAsync(string id)
     {
-        var existingOrder = await _repo.Orders.GetByIdAsync(id);
-        if (existingOrder == null || existingOrder.DeletedOn.HasValue)
+        var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+        if (existingOrder == null)
         {
             return NotFound(new DefaultResponseModel
             {
@@ -348,27 +465,90 @@ public class OrderController(IRepositoryWrapper repo) : ControllerBase
             });
         }
 
-        var currentUserId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string previousStatus = existingOrder.Status;
         existingOrder.Status = "Cancelled";
         existingOrder.UpdatedOn = DateTime.Now;
         existingOrder.UpdatedBy = currentUserId ?? "admin";
 
-        _repo.Orders.Update(existingOrder);
-        return await _repo.SaveAsync()
-            ? Ok(new DefaultResponseModel
+        // Restore stock for cancelled order items
+        if (previousStatus != "Cancelled" && existingOrder.OrderItems != null)
+        {
+            foreach (var item in existingOrder.OrderItems)
             {
-                Success = true,
-                Statuscode = 200,
-                Message = "Order rejected",
-                Data = existingOrder
-            })
-            : BadRequest(new DefaultResponseModel
+                var book = await _context.Books.FindAsync(item.BookId);
+                if (book != null)
+                {
+                    book.StockQuantity += item.Quantity;
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = 200,
+            Message = "Order rejected and stock restored",
+            Data = existingOrder
+        });
+    }
+
+    [HttpPut("{id}/status")]
+    [EndpointSummary("Admin: Update Order Status (Confirmed, Shipped, Delivered, Cancelled)")]
+    public async Task<IActionResult> UpdateStatusAsync(string id, [FromQuery] string status)
+    {
+        var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+        if (existingOrder == null)
+        {
+            return NotFound(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 404,
+                Message = "Order not found",
+                Data = null
+            });
+        }
+
+        var validStatuses = new[] { "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled" };
+        var matchedStatus = validStatuses.FirstOrDefault(s => string.Equals(s, status, StringComparison.OrdinalIgnoreCase));
+        if (matchedStatus == null)
+        {
+            return BadRequest(new DefaultResponseModel
             {
                 Success = false,
                 Statuscode = 400,
-                Message = "Failed to reject order",
+                Message = $"Invalid status '{status}'. Allowed: {string.Join(", ", validStatuses)}",
                 Data = null
             });
+        }
+
+        string previousStatus = existingOrder.Status;
+        existingOrder.Status = matchedStatus;
+        existingOrder.UpdatedOn = DateTime.Now;
+        existingOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "admin";
+
+        // If newly marked as Cancelled, restore book stock
+        if (matchedStatus == "Cancelled" && previousStatus != "Cancelled" && existingOrder.OrderItems != null)
+        {
+            foreach (var item in existingOrder.OrderItems)
+            {
+                var book = await _context.Books.FindAsync(item.BookId);
+                if (book != null)
+                {
+                    book.StockQuantity += item.Quantity;
+                }
+            }
+        }
+
+        await _context.SaveChangesAsync();
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = 200,
+            Message = $"Order status updated to {matchedStatus}",
+            Data = existingOrder
+        });
     }
 
     [HttpGet("pending")]
