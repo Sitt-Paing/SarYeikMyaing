@@ -83,6 +83,7 @@ export class Books implements OnInit {
     stockQuantity: [1, [Validators.required, Validators.min(0)]],
     imageUrl: [''],
     publisher: [''],
+    pageCount: [null as number | null],
     language: ['Burmese'],
     description: [''],
   });
@@ -154,6 +155,7 @@ export class Books implements OnInit {
             this.books = (res.data.records || res.data || []) as BookModel[];
             this.totalRecords = res.data.recordsTotal ?? this.books.length;
             this.onCategoryFilterChange();
+            this.cdr.detectChanges();
           } else {
             this.books = [];
             this.filteredBooks = [];
@@ -206,6 +208,7 @@ export class Books implements OnInit {
       stockQuantity: 1,
       imageUrl: '',
       publisher: '',
+      pageCount: null,
       language: 'Burmese',
       description: '',
     });
@@ -234,6 +237,7 @@ export class Books implements OnInit {
       stockQuantity: this.selectedBook.stockQuantity,
       imageUrl: this.selectedBook.imageUrl || '',
       publisher: this.selectedBook.publisher || '',
+      pageCount: this.selectedBook.pageCount ?? null,
       language: this.selectedBook.language || 'Burmese',
       description: this.selectedBook.description || '',
     });
@@ -297,7 +301,11 @@ export class Books implements OnInit {
     }
 
     this.isSubmitting = true;
-    const model = this.bookForm.value as Partial<BookModel>;
+    const formVal = this.bookForm.value;
+    const model = {
+      ...formVal,
+      pageCount: formVal.pageCount != null && formVal.pageCount !== ('' as any) ? Number(formVal.pageCount) : null,
+    } as Partial<BookModel>;
 
     const req$ = this.isEdit && model.id
       ? this.bookService.update(model.id, model)
