@@ -61,3 +61,15 @@ export interface CreateOrderModel {
     unitPrice: number;
   }[];
 }
+
+export interface OrderFilterParams {
+  skipRows?: number;
+  pageSize?: number;
+  q?: string;
+  status?: string;
+  fromDate?: string | Date | null;
+  toDate?: string | Date | null;
+  sortField?: string;
+  order?: number;
+}
+
