@@ -23,17 +23,19 @@
   </div>
 
   @if (showText()) {
-    <div class="flex flex-col">
-      <div class="flex items-center gap-1 sm:gap-1.5">
-        <span class="font-extrabold tracking-tight text-slate-900 leading-none text-base sm:text-lg" [class]="titleSizeClass">
-          စာရိပ်မြိုင်
-        </span>
-        <span class="text-[10px] sm:text-xs uppercase font-bold px-1.5 py-0.5 rounded bg-brand-500 text-white tracking-wider">
-          Book Store
-        </span>
-      </div>
-      <span class="text-[10px] sm:text-[11px] font-medium tracking-wide text-brand-600 font-sans mt-0.5 hidden xs:inline sm:inline">
-        Sar Yeik Myaing 
+    <div class="flex flex-col whitespace-nowrap">
+      <span
+        class="font-extrabold tracking-tight leading-none whitespace-nowrap"
+        [class]="titleSizeClass"
+        [ngClass]="isDark() ? 'text-white drop-shadow-sm' : 'text-slate-900'"
+      >
+        စာရိပ်မြိုင်
+      </span>
+      <span
+        class="text-[10px] sm:text-[11px] font-semibold tracking-wide font-sans mt-1 whitespace-nowrap hidden xs:inline sm:inline"
+        [ngClass]="isDark() ? 'text-sky-300' : 'text-brand-600'"
+      >
+        Sar Yeik Myaing
       </span>
     </div>
   }
