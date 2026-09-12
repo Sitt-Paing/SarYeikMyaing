@@ -122,7 +122,7 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
         }
 
         var request = HttpContext.Request;
-        var imageUrl = $"{request.Scheme}://{request.Host}/uploads/books/{uniqueFileName}";
+        var imageUrl = $"{request.PathBase}/uploads/books/{uniqueFileName}";
 
         return Ok(new DefaultResponseModel
         {
