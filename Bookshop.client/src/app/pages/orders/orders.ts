@@ -191,9 +191,24 @@ export class Orders implements OnInit {
     }
   }
 
+  slipImageError = false;
+
   viewSlip(order: OrderModel): void {
     this.selectedSlipOrder = order;
+    this.slipImageError = false;
     this.slipModalVisible = true;
+  }
+
+  getSlipUrl(url?: string): string {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+      return url;
+    }
+    return url.startsWith('/') ? url : `/${url}`;
+  }
+
+  onSlipImageError(event: Event): void {
+    this.slipImageError = true;
   }
 
   approveOrder(order: OrderModel): void {
