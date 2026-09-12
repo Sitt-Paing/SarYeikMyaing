@@ -51,6 +51,18 @@
           [showClear]="true"
           styleClass="w-full sm:w-52 text-xs"
         ></p-select>
+
+        <p-datepicker
+          [(ngModel)]="createdDateRange"
+          selectionMode="range"
+          [showIcon]="true"
+          [showButtonBar]="true"
+          [placeholder]="'ORDERS.FILTER_BY_DATE' | translate"
+          dateFormat="yy-mm-dd"
+          (onSelect)="onDateFilterChange()"
+          (onClearClick)="onDateFilterChange()"
+          styleClass="w-full sm:w-60 text-xs"
+        ></p-datepicker>
       </div>
 
       <div class="flex items-center gap-2 self-end sm:self-auto">
