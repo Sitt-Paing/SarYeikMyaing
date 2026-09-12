@@ -88,7 +88,7 @@
       [(selection)]="selectedBook"
       selectionMode="single"
       dataKey="id"
-      [globalFilterFields]="['title', 'author', 'isbn', 'publisher', 'language']"
+      [globalFilterFields]="['title', 'author', 'isbn', 'publisher', 'language', 'pageCount']"
       responsiveLayout="stack"
       styleClass="p-datatable-sm"
       [showCurrentPageReport]="true"
@@ -103,6 +103,7 @@
           <th pSortableColumn="stockQuantity">{{ 'BOOKS.STOCK' | translate }} <p-sortIcon field="stockQuantity"></p-sortIcon></th>
           <th>{{ 'BOOKS.ISBN' | translate }}</th>
           <th>{{ 'BOOKS.PUBLISHER' | translate }}</th>
+          <th pSortableColumn="pageCount">{{ 'BOOKS.PAGES' | translate }} <p-sortIcon field="pageCount"></p-sortIcon></th>
         </tr>
       </ng-template>
 
@@ -147,12 +148,15 @@
           <td>
             <span class="text-slate-600 text-xs">{{ book.publisher || '-' }}</span>
           </td>
+          <td>
+            <span class="text-slate-600 text-xs">{{ book.pageCount ? book.pageCount : '-' }}</span>
+          </td>
         </tr>
       </ng-template>
 
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="7" class="text-center py-12 text-slate-400 text-xs">
+          <td colspan="8" class="text-center py-12 text-slate-400 text-xs">
             <div class="flex flex-col items-center justify-center space-y-2">
               <i class="pi pi-inbox text-3xl text-slate-300"></i>
               <span>{{ 'BOOKS.NO_BOOKS' | translate }}</span>
@@ -320,8 +324,8 @@
           </div>
         </div>
 
-        <!-- ISBN & Publisher -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- ISBN, Publisher & Pages -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div class="space-y-1">
             <label class="font-bold text-slate-700">{{ 'BOOKS.ISBN' | translate }} <span class="text-rose-500">*</span></label>
             <input
@@ -340,6 +344,18 @@
               type="text"
               formControlName="publisher"
               placeholder="e.g. Pearson"
+              class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            />
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-slate-700">{{ 'BOOKS.PAGES' | translate }}</label>
+            <input
+              pInputText
+              type="number"
+              min="1"
+              formControlName="pageCount"
+              placeholder="e.g. 280"
               class="w-full text-xs rounded-xl border border-slate-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
             />
           </div>
