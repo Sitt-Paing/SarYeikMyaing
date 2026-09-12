@@ -4,6 +4,7 @@ using Bookshop.Entities;
 using Bookshop.Interfaces.Repositories;
 using Bookshop.Models;
 using System.Linq.Dynamic.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -174,6 +175,7 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
         });
     }
 
+    [AllowAnonymous]
     [HttpPost("upload-slip")]
     [EndpointSummary("Upload Payment Slip Screenshot")]
     public async Task<IActionResult> UploadSlipAsync([FromForm] IFormFile file)
@@ -217,7 +219,7 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
         }
 
         var request = HttpContext.Request;
-        var slipUrl = $"{request.Scheme}://{request.Host}/uploads/slips/{uniqueFileName}";
+        var slipUrl = $"{request.PathBase}/uploads/slips/{uniqueFileName}";
 
         return Ok(new DefaultResponseModel
         {
@@ -229,9 +231,48 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
     }
 
     [HttpPost]
-    [EndpointSummary("Create Order (Supports Authenticated & Guest Mode)")]
+    [EndpointSummary("Create Order (Supports Authenticated & Guest Mode) with Concurrency/Race Condition Guard")]
     public async Task<IActionResult> CreateAsync([FromBody] Order model)
     {
+        if (model == null)
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Order payload cannot be null.",
+                Data = null
+            });
+        }
+
+        if (model.OrderItems == null || model.OrderItems.Count == 0)
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Order must contain at least one item.",
+                Data = null
+            });
+        }
+
+        foreach (var item in model.OrderItems)
+        {
+            if (item.Quantity <= 0)
+            {
+                var bookName = !string.IsNullOrWhiteSpace(item.BookTitle) ? item.BookTitle : $"#{item.BookId}";
+                return BadRequest(new DefaultResponseModel
+                {
+                    Success = false,
+                    Statuscode = 400,
+                    Message = $"Invalid quantity for book '{bookName}'. Quantity must be greater than 0.",
+                    Data = null
+                });
+            }
+        }
+
+        // Database transaction ensures atomicity: either all stock deductions and order creation succeed, or everything rolls back cleanly.
+        await using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -241,26 +282,48 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
                 ? $"ORD-{DateTime.UtcNow:yyyyMMddHHmmss}-{Random.Shared.Next(1000, 9999)}"
                 : model.OrderNumber;
 
-            // 1. Validate stock availability for all items before creating order
-            if (model.OrderItems != null && model.OrderItems.Count > 0)
-            {
-                foreach (var item in model.OrderItems)
+            // Consolidate duplicate items by BookId to accurately decrement stock
+            var consolidatedItems = model.OrderItems
+                .GroupBy(x => x.BookId)
+                .Select(g => new
                 {
-                    var book = await _context.Books.FindAsync(item.BookId);
-                    if (book != null && book.StockQuantity < item.Quantity)
+                    BookId = g.Key,
+                    TotalQuantity = g.Sum(x => x.Quantity),
+                    BookTitle = g.First().BookTitle
+                })
+                .ToList();
+
+            // 1. ATOMIC CONDITIONAL UPDATE:
+            // Direct SQL execution at the database level with a row lock:
+            // "UPDATE Books SET StockQuantity = StockQuantity - @qty WHERE Id = @id AND StockQuantity >= @qty"
+            // This prevents race conditions: if multiple customers attempt to order the same book simultaneously,
+            // SQL Server serializes the row update. Only the request with sufficient stock affects 1 row.
+            // Any request that exceeds remaining stock affects 0 rows and fails immediately without overselling.
+            foreach (var item in consolidatedItems)
+            {
+                int affectedRows = await _context.Books
+                    .Where(b => b.Id == item.BookId && b.StockQuantity >= item.TotalQuantity)
+                    .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity - item.TotalQuantity));
+
+                if (affectedRows == 0)
+                {
+                    await transaction.RollbackAsync();
+
+                    var currentBook = await _context.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Id == item.BookId);
+                    var title = currentBook?.Title ?? item.BookTitle ?? "One of the selected books";
+                    var available = currentBook?.StockQuantity ?? 0;
+
+                    return BadRequest(new DefaultResponseModel
                     {
-                        return BadRequest(new DefaultResponseModel
-                        {
-                            Success = false,
-                            Statuscode = 400,
-                            Message = $"Insufficient stock for '{book.Title}' (Available: {book.StockQuantity}, Requested: {item.Quantity})",
-                            Data = null
-                        });
-                    }
+                        Success = false,
+                        Statuscode = 400,
+                        Message = $"Insufficient stock for '{title}' (Available: {available}, Requested: {item.TotalQuantity}). Please adjust your cart quantity.",
+                        Data = null
+                    });
                 }
             }
 
-            // 2. Determine initial status: Cash on Delivery is auto-confirmed; Slip transfers are pending verification
+            // 2. Determine initial status: Cash on Delivery is Confirmed; Slip transfers are Pending verification
             bool isCod = string.Equals(model.PaymentMethod, "CashOnDelivery", StringComparison.OrdinalIgnoreCase);
             string initialStatus = isCod ? "Confirmed" : "Pending";
 
@@ -289,33 +352,25 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
 
             _context.Orders.Add(order);
 
-            // 3. Create items and decrement book stock
-            if (model.OrderItems != null && model.OrderItems.Count > 0)
+            // 3. Add order items
+            foreach (var item in model.OrderItems)
             {
-                foreach (var item in model.OrderItems)
+                OrderItem orderItem = new OrderItem
                 {
-                    var book = await _context.Books.FindAsync(item.BookId);
-                    if (book != null)
-                    {
-                        book.StockQuantity = Math.Max(0, book.StockQuantity - item.Quantity);
-                    }
-
-                    OrderItem orderItem = new OrderItem
-                    {
-                        OrderId = orderId,
-                        BookId = item.BookId,
-                        BookTitle = item.BookTitle,
-                        Quantity = item.Quantity,
-                        UnitPrice = item.UnitPrice,
-                        TotalPrice = item.Quantity * item.UnitPrice,
-                        CreatedOn = DateTime.Now,
-                        CreatedBy = currentUserId?.ToString() ?? "Guest"
-                    };
-                    _context.OrderItems.Add(orderItem);
-                }
+                    OrderId = orderId,
+                    BookId = item.BookId,
+                    BookTitle = item.BookTitle,
+                    Quantity = item.Quantity,
+                    UnitPrice = item.UnitPrice,
+                    TotalPrice = item.Quantity * item.UnitPrice,
+                    CreatedOn = DateTime.Now,
+                    CreatedBy = currentUserId ?? "Guest"
+                };
+                _context.OrderItems.Add(orderItem);
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return Ok(new DefaultResponseModel
             {
@@ -327,6 +382,7 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             return StatusCode(500, new DefaultResponseModel
             {
                 Success = false,
@@ -341,83 +397,171 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
     [EndpointSummary("Update Order")]
     public async Task<IActionResult> UpdateOrderAsync(string id, [FromBody] Order model)
     {
-        var existingOrder = await _repo.Orders.GetByIdAsync(id);
-        if (existingOrder == null || existingOrder.DeletedOn.HasValue)
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            return NotFound(new DefaultResponseModel
+            var existingOrder = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+
+            if (existingOrder == null)
             {
-                Success = false,
-                Statuscode = 404,
-                Message = "Order not found",
-                Data = null
-            });
-        }
+                return NotFound(new DefaultResponseModel
+                {
+                    Success = false,
+                    Statuscode = 404,
+                    Message = "Order not found",
+                    Data = null
+                });
+            }
 
-        existingOrder.CusName = model.CusName;
-        existingOrder.CusEmail = model.CusEmail;
-        existingOrder.CusPhone = model.CusPhone;
-        existingOrder.ShippingAddress = model.ShippingAddress;
-        existingOrder.ShippingCity = model.ShippingCity;
-        existingOrder.ShippingTownship = model.ShippingTownship;
-        existingOrder.SubTotal = model.SubTotal;
-        existingOrder.ShippingFee = model.ShippingFee;
-        existingOrder.Discount = model.Discount;
-        existingOrder.TotalAmount = model.TotalAmount;
-        existingOrder.Status = model.Status;
-        existingOrder.UpdatedOn = DateTime.Now;
+            string previousStatus = existingOrder.Status;
+            string newStatus = model.Status ?? existingOrder.Status;
 
-        _repo.Orders.Update(existingOrder);
-        return await _repo.SaveAsync()
-            ? Ok(new DefaultResponseModel
+            // Handle stock transition if status changed in general update
+            if (!string.Equals(previousStatus, newStatus, StringComparison.OrdinalIgnoreCase))
+            {
+                if (string.Equals(newStatus, "Cancelled", StringComparison.OrdinalIgnoreCase) && !string.Equals(previousStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Transitioning to Cancelled: restore stock
+                    if (existingOrder.OrderItems != null)
+                    {
+                        foreach (var item in existingOrder.OrderItems)
+                        {
+                            await _context.Books
+                                .Where(b => b.Id == item.BookId)
+                                .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity + item.Quantity));
+                        }
+                    }
+                }
+                else if (string.Equals(previousStatus, "Cancelled", StringComparison.OrdinalIgnoreCase) && !string.Equals(newStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+                {
+                    // Transitioning from Cancelled to Active: deduct stock atomically
+                    if (existingOrder.OrderItems != null)
+                    {
+                        var consolidated = existingOrder.OrderItems
+                            .GroupBy(x => x.BookId)
+                            .Select(g => new { BookId = g.Key, Quantity = g.Sum(x => x.Quantity), Title = g.First().BookTitle })
+                            .ToList();
+
+                        foreach (var item in consolidated)
+                        {
+                            int affected = await _context.Books
+                                .Where(b => b.Id == item.BookId && b.StockQuantity >= item.Quantity)
+                                .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity - item.Quantity));
+
+                            if (affected == 0)
+                            {
+                                await transaction.RollbackAsync();
+                                var book = await _context.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Id == item.BookId);
+                                return BadRequest(new DefaultResponseModel
+                                {
+                                    Success = false,
+                                    Statuscode = 400,
+                                    Message = $"Cannot re-activate order. Insufficient stock for '{book?.Title ?? item.Title ?? "item"}'.",
+                                    Data = null
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            existingOrder.CusName = model.CusName;
+            existingOrder.CusEmail = model.CusEmail;
+            existingOrder.CusPhone = model.CusPhone;
+            existingOrder.ShippingAddress = model.ShippingAddress;
+            existingOrder.ShippingCity = model.ShippingCity;
+            existingOrder.ShippingTownship = model.ShippingTownship;
+            existingOrder.SubTotal = model.SubTotal;
+            existingOrder.ShippingFee = model.ShippingFee;
+            existingOrder.Discount = model.Discount;
+            existingOrder.TotalAmount = model.TotalAmount;
+            existingOrder.Status = newStatus;
+            existingOrder.UpdatedOn = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return Ok(new DefaultResponseModel
             {
                 Success = true,
                 Statuscode = 200,
                 Message = "Order updated successfully",
                 Data = existingOrder
-            })
-            : BadRequest(new DefaultResponseModel
-            {
-                Success = false,
-                Statuscode = 400,
-                Message = "Failed to update order",
-                Data = null
             });
-    }
-
-    [HttpDelete("{id}")]
-    [EndpointSummary("Delete Order (Soft Delete)")]
-    public async Task<IActionResult> DeleteOrderAsync(string id)
-    {
-        var existingOrder = await _repo.Orders.GetByIdAsync(id);
-        if (existingOrder == null || existingOrder.DeletedOn.HasValue)
+        }
+        catch (Exception ex)
         {
-            return NotFound(new DefaultResponseModel
+            await transaction.RollbackAsync();
+            return StatusCode(500, new DefaultResponseModel
             {
                 Success = false,
-                Statuscode = 404,
-                Message = "Order not found",
+                Statuscode = 500,
+                Message = ex.Message,
                 Data = null
             });
         }
+    }
 
-        existingOrder.DeletedOn = DateTime.Now;
-        _repo.Orders.Update(existingOrder);
-        return await _repo.SaveAsync()
-            ? Ok(new DefaultResponseModel
+    [HttpDelete("{id}")]
+    [EndpointSummary("Delete Order (Soft Delete) with Stock Restoration")]
+    public async Task<IActionResult> DeleteOrderAsync(string id)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            var existingOrder = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+
+            if (existingOrder == null)
+            {
+                return NotFound(new DefaultResponseModel
+                {
+                    Success = false,
+                    Statuscode = 404,
+                    Message = "Order not found",
+                    Data = null
+                });
+            }
+
+            // If order was active (not Cancelled), restore book stock before soft deleting
+            if (!string.Equals(existingOrder.Status, "Cancelled", StringComparison.OrdinalIgnoreCase) && existingOrder.OrderItems != null)
+            {
+                foreach (var item in existingOrder.OrderItems)
+                {
+                    await _context.Books
+                        .Where(b => b.Id == item.BookId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity + item.Quantity));
+                }
+            }
+
+            existingOrder.DeletedOn = DateTime.Now;
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return Ok(new DefaultResponseModel
             {
                 Success = true,
                 Statuscode = 200,
-                Message = "Order deleted successfully",
-                Data = null
-            })
-            : BadRequest(new DefaultResponseModel
-            {
-                Success = false,
-                Statuscode = 400,
-                Message = "Failed to delete order",
+                Message = "Order deleted successfully and stock restored if applicable",
                 Data = null
             });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 500,
+                Message = ex.Message,
+                Data = null
+            });
+        }
     }
+
     [HttpPut("{id}/approve")]
     [EndpointSummary("Admin: Approve Pending Order")]
     public async Task<IActionResult> ApproveOrderAsync(string id)
@@ -430,6 +574,17 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
                 Success = false,
                 Statuscode = 404,
                 Message = "Order not found",
+                Data = null
+            });
+        }
+
+        if (string.Equals(existingOrder.Status, "Cancelled", StringComparison.OrdinalIgnoreCase))
+        {
+            return BadRequest(new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 400,
+                Message = "Cannot approve a cancelled order.",
                 Data = null
             });
         }
@@ -450,66 +605,80 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
     }
 
     [HttpPut("{id}/reject")]
-    [EndpointSummary("Admin: Reject Pending Order")]
+    [EndpointSummary("Admin: Reject Pending Order with Stock Restoration")]
     public async Task<IActionResult> RejectOrderAsync(string id)
     {
-        var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
-        if (existingOrder == null)
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            return NotFound(new DefaultResponseModel
+            var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+            if (existingOrder == null)
+            {
+                return NotFound(new DefaultResponseModel
+                {
+                    Success = false,
+                    Statuscode = 404,
+                    Message = "Order not found",
+                    Data = null
+                });
+            }
+
+            string previousStatus = existingOrder.Status;
+            if (string.Equals(previousStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                return BadRequest(new DefaultResponseModel
+                {
+                    Success = false,
+                    Statuscode = 400,
+                    Message = "Order is already cancelled",
+                    Data = null
+                });
+            }
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            existingOrder.Status = "Cancelled";
+            existingOrder.UpdatedOn = DateTime.Now;
+            existingOrder.UpdatedBy = currentUserId ?? "admin";
+
+            // Restore stock for cancelled order items atomically
+            if (existingOrder.OrderItems != null && existingOrder.OrderItems.Count > 0)
+            {
+                foreach (var item in existingOrder.OrderItems)
+                {
+                    await _context.Books
+                        .Where(b => b.Id == item.BookId)
+                        .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity + item.Quantity));
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return Ok(new DefaultResponseModel
+            {
+                Success = true,
+                Statuscode = 200,
+                Message = "Order rejected and stock restored successfully",
+                Data = existingOrder
+            });
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return StatusCode(500, new DefaultResponseModel
             {
                 Success = false,
-                Statuscode = 404,
-                Message = "Order not found",
+                Statuscode = 500,
+                Message = ex.Message,
                 Data = null
             });
         }
-
-        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        string previousStatus = existingOrder.Status;
-        existingOrder.Status = "Cancelled";
-        existingOrder.UpdatedOn = DateTime.Now;
-        existingOrder.UpdatedBy = currentUserId ?? "admin";
-
-        // Restore stock for cancelled order items
-        if (previousStatus != "Cancelled" && existingOrder.OrderItems != null)
-        {
-            foreach (var item in existingOrder.OrderItems)
-            {
-                var book = await _context.Books.FindAsync(item.BookId);
-                if (book != null)
-                {
-                    book.StockQuantity += item.Quantity;
-                }
-            }
-        }
-
-        await _context.SaveChangesAsync();
-        return Ok(new DefaultResponseModel
-        {
-            Success = true,
-            Statuscode = 200,
-            Message = "Order rejected and stock restored",
-            Data = existingOrder
-        });
     }
 
     [HttpPut("{id}/status")]
-    [EndpointSummary("Admin: Update Order Status (Confirmed, Shipped, Delivered, Cancelled)")]
+    [EndpointSummary("Admin: Update Order Status (Confirmed, Shipped, Delivered, Cancelled) with Atomic Stock Sync")]
     public async Task<IActionResult> UpdateStatusAsync(string id, [FromQuery] string status)
     {
-        var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
-        if (existingOrder == null)
-        {
-            return NotFound(new DefaultResponseModel
-            {
-                Success = false,
-                Statuscode = 404,
-                Message = "Order not found",
-                Data = null
-            });
-        }
-
         var validStatuses = new[] { "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled" };
         var matchedStatus = validStatuses.FirstOrDefault(s => string.Equals(s, status, StringComparison.OrdinalIgnoreCase));
         if (matchedStatus == null)
@@ -523,32 +692,104 @@ public class OrderController(IRepositoryWrapper repo, BookshopDbContext context)
             });
         }
 
-        string previousStatus = existingOrder.Status;
-        existingOrder.Status = matchedStatus;
-        existingOrder.UpdatedOn = DateTime.Now;
-        existingOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "admin";
-
-        // If newly marked as Cancelled, restore book stock
-        if (matchedStatus == "Cancelled" && previousStatus != "Cancelled" && existingOrder.OrderItems != null)
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            foreach (var item in existingOrder.OrderItems)
+            var existingOrder = await _context.Orders.Include(o => o.OrderItems).FirstOrDefaultAsync(o => o.Id == id && !o.DeletedOn.HasValue);
+            if (existingOrder == null)
             {
-                var book = await _context.Books.FindAsync(item.BookId);
-                if (book != null)
+                return NotFound(new DefaultResponseModel
                 {
-                    book.StockQuantity += item.Quantity;
+                    Success = false,
+                    Statuscode = 404,
+                    Message = "Order not found",
+                    Data = null
+                });
+            }
+
+            string previousStatus = existingOrder.Status;
+            if (string.Equals(previousStatus, matchedStatus, StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(new DefaultResponseModel
+                {
+                    Success = true,
+                    Statuscode = 200,
+                    Message = $"Order is already {matchedStatus}",
+                    Data = existingOrder
+                });
+            }
+
+            existingOrder.Status = matchedStatus;
+            existingOrder.UpdatedOn = DateTime.Now;
+            existingOrder.UpdatedBy = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "admin";
+
+            // If newly marked as Cancelled, restore book stock atomically
+            if (string.Equals(matchedStatus, "Cancelled", StringComparison.OrdinalIgnoreCase) && !string.Equals(previousStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                if (existingOrder.OrderItems != null)
+                {
+                    foreach (var item in existingOrder.OrderItems)
+                    {
+                        await _context.Books
+                            .Where(b => b.Id == item.BookId)
+                            .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity + item.Quantity));
+                    }
                 }
             }
-        }
+            // If reactivating a Cancelled order, re-deduct book stock atomically with race-condition check
+            else if (string.Equals(previousStatus, "Cancelled", StringComparison.OrdinalIgnoreCase) && !string.Equals(matchedStatus, "Cancelled", StringComparison.OrdinalIgnoreCase))
+            {
+                if (existingOrder.OrderItems != null)
+                {
+                    var consolidated = existingOrder.OrderItems
+                        .GroupBy(x => x.BookId)
+                        .Select(g => new { BookId = g.Key, Quantity = g.Sum(x => x.Quantity), Title = g.First().BookTitle })
+                        .ToList();
 
-        await _context.SaveChangesAsync();
-        return Ok(new DefaultResponseModel
+                    foreach (var item in consolidated)
+                    {
+                        int affected = await _context.Books
+                            .Where(b => b.Id == item.BookId && b.StockQuantity >= item.Quantity)
+                            .ExecuteUpdateAsync(s => s.SetProperty(b => b.StockQuantity, b => b.StockQuantity - item.Quantity));
+
+                        if (affected == 0)
+                        {
+                            await transaction.RollbackAsync();
+                            var book = await _context.Books.AsNoTracking().FirstOrDefaultAsync(b => b.Id == item.BookId);
+                            return BadRequest(new DefaultResponseModel
+                            {
+                                Success = false,
+                                Statuscode = 400,
+                                Message = $"Cannot re-activate order. Insufficient stock for '{book?.Title ?? item.Title ?? "item"}' (Available: {book?.StockQuantity ?? 0}, Required: {item.Quantity}).",
+                                Data = null
+                            });
+                        }
+                    }
+                }
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return Ok(new DefaultResponseModel
+            {
+                Success = true,
+                Statuscode = 200,
+                Message = $"Order status updated to {matchedStatus}",
+                Data = existingOrder
+            });
+        }
+        catch (Exception ex)
         {
-            Success = true,
-            Statuscode = 200,
-            Message = $"Order status updated to {matchedStatus}",
-            Data = existingOrder
-        });
+            await transaction.RollbackAsync();
+            return StatusCode(500, new DefaultResponseModel
+            {
+                Success = false,
+                Statuscode = 500,
+                Message = ex.Message,
+                Data = null
+            });
+        }
     }
 
     [HttpGet("pending")]
