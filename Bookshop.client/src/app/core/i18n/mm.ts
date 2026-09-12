@@ -41,6 +41,7 @@ export const MM_DICTIONARY: Record<string, any> = {
     STOCK: 'လက်ကျန်အရေအတွက်',
     ISBN: 'ISBN နံပါတ်',
     PUBLISHER: 'ထုတ်ဝေသူ',
+    PAGES: 'စာမျက်နှာ',
     LANGUAGE: 'ဘာသာစကား',
     COVER: 'မျက်နှာဖုံး',
     COVER_IMAGE: 'စာအုပ်မျက်နှာဖုံးပုံ',
