@@ -83,7 +83,6 @@ public partial class Order
     [StringLength(50)]
     public string? DeletedBy { get; set; }
 
-    [JsonIgnore]
     [InverseProperty("Order")]
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 
