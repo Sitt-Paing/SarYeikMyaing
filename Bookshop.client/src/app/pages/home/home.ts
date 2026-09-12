@@ -9,12 +9,11 @@ import { CategoryService } from '../../core/services/category.service';
 import { CartState } from '../../core/state/cart.state';
 import { BookCard } from '../../shared/components/book-card/book-card';
 import { TranslatePipe } from '../../core/pipes/translate.pipe';
-import { MmkCurrencyPipe } from '../../shared/pipes/mmk-currency.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule, BookCard, TranslatePipe, MmkCurrencyPipe],
+  imports: [CommonModule, RouterLink, FormsModule, BookCard, TranslatePipe],
   templateUrl: './home.html',
 })
 export class Home implements OnInit {
@@ -27,6 +26,7 @@ export class Home implements OnInit {
   books = signal<BookModel[]>([]);
   categories = signal<CategoryModel[]>([]);
   selectedCategoryId = signal<number | null>(null);
+  activeTab = signal<'all' | 'bestsellers' | 'new'>('all');
   isLoading = signal<boolean>(true);
   searchQuery = '';
 
@@ -37,25 +37,19 @@ export class Home implements OnInit {
     return all.filter((b) => b.categoryId === catId);
   });
 
-  featuredBooks = computed(() => {
+  bestsellingBooks = computed(() => {
     return this.filteredBooks().slice(0, 8);
   });
 
-  favouriteReads = computed(() => {
-    const all = this.filteredBooks();
-    return {
-      leftList: all.slice(0, 4),
-      centerFeatured: all.slice(4, 6).length === 2 ? all.slice(4, 6) : (all.length > 0 ? [all[0], all[1] || all[0]] : []),
-      rightList: all.slice(6, 10),
-    };
+  newArrivals = computed(() => {
+    return [...this.filteredBooks()].reverse().slice(0, 8);
   });
 
-  trendingBooks = computed(() => {
-    return this.filteredBooks().slice(2, 6);
-  });
-
-  bestsellingBooks = computed(() => {
-    return this.filteredBooks().slice(6, 10);
+  displayedCatalogBooks = computed(() => {
+    const tab = this.activeTab();
+    if (tab === 'bestsellers') return this.bestsellingBooks();
+    if (tab === 'new') return this.newArrivals();
+    return this.filteredBooks();
   });
 
   ngOnInit(): void {
