@@ -41,6 +41,7 @@ export const EN_DICTIONARY: Record<string, any> = {
     STOCK: 'Stock',
     ISBN: 'ISBN',
     PUBLISHER: 'Publisher',
+    PAGES: 'Pages',
     LANGUAGE: 'Language',
     COVER: 'Cover',
     COVER_IMAGE: 'Book Cover Image',
