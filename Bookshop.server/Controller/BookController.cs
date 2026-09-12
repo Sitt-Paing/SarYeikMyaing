@@ -16,13 +16,25 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
     private readonly BookshopDbContext _context = context ?? throw new Exception("Context is null");
 
     [HttpGet]
-    [EndpointSummary("Get Book List with Pagination")]
-    public async Task<IActionResult> GetAsync(int skipRows = 0, int pageSize = 50, int? categoryId = null, string? q = null, string? sortField = null, int order = 1)
+    [EndpointSummary("Get Book List with Pagination and Filters")]
+    public async Task<IActionResult> GetAsync(
+        int skipRows = 0,
+        int pageSize = 50,
+        int? categoryId = null,
+        string? q = null,
+        string? sortField = null,
+        int order = 1,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string? author = null,
+        bool? inStockOnly = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
     {
         if (pageSize <= 0) pageSize = 50;
         if (skipRows < 0) skipRows = 0;
 
-        IQueryable<Book> booksQuery = BookQuery(q, categoryId, sortField, order);
+        IQueryable<Book> booksQuery = BookQuery(q, categoryId, sortField, order, minPrice, maxPrice, author, inStockOnly, fromDate, toDate);
 
         int recordsTotal = await booksQuery.CountAsync();
         List<Book> records = await booksQuery
@@ -37,6 +49,33 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
             Statuscode = StatusCodes.Status200OK,
             Message = "success pagination",
             Data = new { records, recordsTotal }
+        });
+    }
+
+    [HttpGet("filter-metadata")]
+    [EndpointSummary("Get authors and price range metadata for catalog filtering")]
+    public async Task<IActionResult> GetFilterMetadataAsync()
+    {
+        var activeBooks = _context.Books.Where(b => !b.DeletedOn.HasValue);
+
+        var authors = await activeBooks
+            .Where(b => !string.IsNullOrEmpty(b.Author))
+            .GroupBy(b => b.Author!)
+            .Select(g => new { author = g.Key, count = g.Count() })
+            .OrderByDescending(x => x.count)
+            .Take(30)
+            .ToListAsync();
+
+        var minPrice = await activeBooks.AnyAsync() ? await activeBooks.MinAsync(b => b.Price) : 0;
+        var maxPrice = await activeBooks.AnyAsync() ? await activeBooks.MaxAsync(b => b.Price) : 0;
+        var totalBooks = await activeBooks.CountAsync();
+
+        return Ok(new DefaultResponseModel
+        {
+            Success = true,
+            Statuscode = StatusCodes.Status200OK,
+            Message = "Filter metadata retrieved successfully",
+            Data = new { authors, minPrice, maxPrice, totalBooks }
         });
     }
 
@@ -258,13 +297,56 @@ public class BookController(IRepositoryWrapper repo, BookshopDbContext context) 
     }
 
     [NonAction]
-    private IQueryable<Book> BookQuery(string? q, int? categoryId, string? sortField, int order)
+    private IQueryable<Book> BookQuery(
+        string? q,
+        int? categoryId,
+        string? sortField,
+        int order,
+        decimal? minPrice = null,
+        decimal? maxPrice = null,
+        string? author = null,
+        bool? inStockOnly = null,
+        DateTime? fromDate = null,
+        DateTime? toDate = null)
     {
         IQueryable<Book> query = _context.Books.Where(x => !x.DeletedOn.HasValue);
 
         if (categoryId.HasValue && categoryId.Value > 0)
         {
             query = query.Where(x => x.CategoryId == categoryId.Value);
+        }
+
+        if (fromDate.HasValue)
+        {
+            var start = fromDate.Value.Date;
+            query = query.Where(x => x.CreatedOn >= start);
+        }
+
+        if (toDate.HasValue)
+        {
+            var end = toDate.Value.Date.AddDays(1);
+            query = query.Where(x => x.CreatedOn < end);
+        }
+
+        if (!string.IsNullOrWhiteSpace(author))
+        {
+            string authorSearch = author.Trim().ToLower();
+            query = query.Where(x => x.Author != null && x.Author.ToLower().Contains(authorSearch));
+        }
+
+        if (minPrice.HasValue && minPrice.Value > 0)
+        {
+            query = query.Where(x => x.Price >= minPrice.Value);
+        }
+
+        if (maxPrice.HasValue && maxPrice.Value > 0)
+        {
+            query = query.Where(x => x.Price <= maxPrice.Value);
+        }
+
+        if (inStockOnly.HasValue && inStockOnly.Value)
+        {
+            query = query.Where(x => x.StockQuantity > 0);
         }
 
         if (!string.IsNullOrWhiteSpace(q))
